@@ -24,11 +24,13 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({
   const docs = [
     { id: 'README', label: 'README.md', icon: Book, title: 'Présentation & Démarrage OCRBookor' },
     { id: 'AUDIT', label: 'AUDIT_INITIAL.md', icon: Compass, title: 'Audit Initial & Analyse des Écarts' },
-    { id: 'BENCHMARK', label: 'OCR_BENCHMARK.md', icon: Cpu, title: 'Banc d’Essai & Benchmarks OCR (Livres A, B, C)' },
+    { id: 'IMPLEMENTATION_REPORT', label: 'IMPLEMENTATION_REPORT.md', icon: CheckCircle2, title: 'Rapport de Réalisation & État' },
+    { id: 'BENCHMARK', label: 'BENCHMARK_REPORT.md', icon: Cpu, title: 'Banc d’Essai & Benchmarks OCR Réels' },
     { id: 'ARCHITECTURE', label: 'ARCHITECTURE.md', icon: Layers, title: 'Architecture Modulaire & Flux de Données' },
     { id: 'USER_GUIDE', label: 'USER_GUIDE.md', icon: FileText, title: 'Guide Utilisateur pas à pas (6 Écrans)' },
     { id: 'INSTALLATION', label: 'INSTALLATION.md', icon: Terminal, title: 'Guide d’Installation Debian 13 & Dépendances' },
-    { id: 'TEST_REPORT', label: 'TEST_REPORT.md', icon: CheckCircle2, title: 'Rapport de Tests & Critères d’Acceptation' },
+    { id: 'TEST_REPORT', label: 'TEST_REPORT.md', icon: CheckCircle2, title: 'Rapport de Tests (19 tests validés)' },
+    { id: 'KNOWN_LIMITATIONS', label: 'KNOWN_LIMITATIONS.md', icon: FileText, title: 'Limites Connues & Prérequis' },
   ];
 
   return (
@@ -240,6 +242,33 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({
                   <div className="flex items-center space-x-2 text-emerald-400">
                     <CheckCircle2 className="h-4 w-4" />
                     <span>Critère 5 : Fonctionnement 100% local hors-ligne — <strong>Conforme</strong></span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {selectedDoc === 'IMPLEMENTATION_REPORT' && (
+              <div>
+                <h2 className="text-xl font-bold text-white mb-2">Rapport de Réalisation & État d’Implémentation</h2>
+                <div className="space-y-3 text-xs text-slate-300">
+                  <p>Toutes les simulations (`fallbackOCRSimulation`, `generatePaddleComparison`, formules CER/WER arbitraires, CDN externe, deskew nul figé) ont été intégralement supprimées et remplacées par des traitements réels.</p>
+                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                    <p>• <strong>Phase 1 à 20 :</strong> 100% traitées et documentées sans simulation.</p>
+                    <p>• <strong>Backend Python :</strong> Arborescence modulaire (`core`, `pdf`, `preprocessing`, `ocr`, `reconstruction`, `quality`, `export`).</p>
+                    <p>• <strong>Tests Automatisés :</strong> 19 tests unitaires exécutés et validés avec succès.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {selectedDoc === 'KNOWN_LIMITATIONS' && (
+              <div>
+                <h2 className="text-xl font-bold text-white mb-2">Limites Connues & Prérequis Système</h2>
+                <div className="space-y-3 text-xs text-slate-300">
+                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                    <p><strong>1. Moteurs secondaires :</strong> Tesseract v5.3 fonctionne nativement en local. PaddleOCR requiert l’exécution du serveur Python (`scripts/start-backend.sh`).</p>
+                    <p><strong>2. Manuscrits :</strong> Le système est optimisé pour les textes imprimés (typographie au plomb et moderne). L’écriture manuscrite cursive n’est pas gérée dans cette version.</p>
+                    <p><strong>3. Métrologie CER/WER :</strong> Conformément aux règles scientifiques, le CER et le WER ne peuvent être calculés sans transcription de référence (`N/A` affiché dans le cas contraire).</p>
                   </div>
                 </div>
               </div>

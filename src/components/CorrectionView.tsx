@@ -382,9 +382,30 @@ export const CorrectionView: React.FC<CorrectionViewProps> = ({
 
           {/* Block Editor Body */}
           <div className="flex-1 overflow-y-auto p-5 space-y-4 font-serif text-slate-200">
-            {currentPage?.blocks.length === 0 ? (
+            {comparisonEngine === 'paddle' ? (
+              <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-6 text-xs text-amber-300 font-sans space-y-3">
+                <div className="flex items-center space-x-2 text-sm font-bold text-white">
+                  <AlertTriangle className="h-5 w-5 text-amber-400 shrink-0" />
+                  <span>Moteur PaddleOCR (Backend Python requis)</span>
+                </div>
+                <p>
+                  PaddleOCR est un moteur Python basé sur PaddlePaddle qui s’exécute côté serveur pour l’analyse de mise en page complexe (PP-Structure).
+                </p>
+                <div className="p-3 bg-slate-950 rounded-lg border border-slate-800 font-mono text-[11px] text-slate-300">
+                  <p># Pour exécuter PaddleOCR sous Debian 13 / Linux :</p>
+                  <p className="text-emerald-400">bash scripts/start-backend.sh</p>
+                </div>
+                <p className="text-[11px] text-slate-400">
+                  Dans le navigateur Web, Tesseract 5.3 WASM traite les pages de manière autonome.
+                </p>
+              </div>
+            ) : currentPage?.blocks.length === 0 ? (
               <div className="text-center py-16 text-slate-500 text-xs">
-                Aucun texte reconnu sur cette page. Lancez l’OCR dans l’onglet Reconnaissance.
+                {currentPage?.ocrError ? (
+                  <span className="text-rose-400 font-sans">Erreur OCR : {currentPage.ocrError}</span>
+                ) : (
+                  'Aucun texte reconnu sur cette page. Lancez l’OCR dans l’onglet Reconnaissance.'
+                )}
               </div>
             ) : (
               currentPage?.blocks.map((block) => {

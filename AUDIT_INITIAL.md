@@ -1,45 +1,44 @@
-# AUDIT_INITIAL.md — Audit Initial & Couverture du Cahier des Charges
+# AUDIT_INITIAL.md — Audit Technique Initial & Analyse des Écarts
 
-**Date de réalisation :** 31 Octobre 2026  
-**Projet :** OCRBookor v1.0  
-**Auteur :** Ingénieur Principal OCR & Systèmes Documentaires  
-
----
-
-## 1. Contexte & Périmètre de l'Audit
-
-Le projet OCRBookor a pour objectif de fournir un outil local complet permettant de transformer des livres scannés en format PDF (images brutes) en livres numériques structurés au standard **EPUB 3**, **Markdown**, **TXT**, **HTML** et **JSON**.
-
-Cet audit analyse l'adéquation entre le cahier des charges fonctionnel et technique et la mise en œuvre logicielle.
+**Projet :** OCRBookor  
+**Date de révision :** 31 Octobre 2026  
+**Auditeur :** Ingénieur Principal OCR & Systèmes Documentaires  
 
 ---
 
-## 2. Matrice de Couverture des Exigences
+## 1. Contexte & Périmètre
 
-| Partie / Exigence | Statut | Détail de la mise en œuvre |
+Cet audit a analysé l'intégralité du dépôt existant afin d'identifier les composants opérationnels, les lacunes techniques et les éventuelles simulations de résultats nécessitant un remplacement par des traitements réels.
+
+---
+
+## 2. Synthèse de l'Audit
+
+### A. Simulations Identifiées et Supprimées
+1. **`fallbackOCRSimulation` (Supprimé) :** Une fonction de repli générait un texte synthétique prédéfini lors d'un échec Tesseract.
+   - *Correction :* Supprimée intégralement. Désormais, toute erreur OCR est explicitement rapportée avec son message d'erreur et un statut `echec_probable`, sans dissimulation.
+2. **`generatePaddleComparison` (Supprimé) :** Une fonction simulait un comparatif PaddleOCR en dupliquant les lignes issues de Tesseract.
+   - *Correction :* Supprimée intégralement. L'état de disponibilité réel de PaddleOCR est testé ; s'il n'est pas présent, l'application informe honnêtement que PaddleOCR requiert le backend Python.
+3. **Formule arbitraire de calcul du CER/WER (Supprimée) :** Une fonction dérivait artificiellement les métriques CER et WER à partir du score de confiance OCR brut (`(100 - conf) * 0.18`).
+   - *Correction :* Remplacée par le calcul strict de la distance d'édition de Levenshtein (sur les caractères pour le CER et sur les tokens de mots pour le WER). Lorsque aucune transcription de référence certifiée n'est fournie, le CER et le WER affichent `N/A (Transcription de référence requise)` conformément aux standards métrologiques.
+4. **Dépendance CDN externe pour PDF.js (Supprimée) :** Le worker de `pdfjs-dist` pointait vers un CDN distant `cdnjs.cloudflare.com`.
+   - *Correction :* Remplacé par l'importation locale directe du worker fourni dans `node_modules/pdfjs-dist/build/pdf.worker.mjs`, garantissant un fonctionnement 100% hors-ligne.
+5. **Redressement d'angle nul figé (Supprimé) :** La fonction `estimateSkewAngle` renvoyait un angle nul statique `0.0`.
+   - *Correction :* Remplacée par un algorithme réel de calcul de variance du profil de projection horizontale (Radon) testant les angles de -5.0° à +5.0° par incréments de 0.5°.
+6. **Saturation de `localStorage` pour les gros PDF (Corrigée) :** Le stockage reposait uniquement sur `localStorage` (limite 5 Mo).
+   - *Correction :* Migration vers **IndexedDB** pour la persistance locale illimitée des images et pages volumineuses, couplée à l'API SQLite/Filesystem backend.
+
+---
+
+## 3. Matrice de Couverture des Composants
+
+| Composant | Statut Initial | Statut Après Correction |
 |---|---|---|
-| **1.3 Principes fondamentaux** | **CONFORME** | 100% hors-ligne, aucune API commerciale payante, respect de l'original, traçabilité des corrections. |
-| **2.1 Architecture générale** | **CONFORME** | Séparation claire entre l'interface (React 19 / TypeScript / Vite), les moteurs OCR, le processeur de reconstruction et le stockage local. |
-| **3.1 Bibliothèque** | **CONFORME** | Gestion multi-projets, statuts dynamiques, taux d'avancement, recherche, reprise et suppression sécurisée. |
-| **3.2 Importation & Analyse PDF** | **CONFORME** | Diagnostic automatique : scan pur image vs texte natif vs hybride, calcul DPI, détection de pages blanches et dégradées. |
-| **3.3 Prétraitement d'images** | **CONFORME** | Redressement d'angle (deskew), niveaux de gris, contraste automatique, rognage des marges, binarisation et anti-bruit. |
-| **3.4 Reconnaissance OCR** | **CONFORME** | Moteur Tesseract v5.3 multilingue avec coordonnées et confidences, comparateur PaddleOCR pour analyse de disposition. |
-| **3.5 Analyse de qualité** | **CONFORME** | Calculateur CER/WER empirique, détection de motifs bruités, pages quasi-vides et classification en 4 niveaux de qualité. |
-| **3.6 Reconstruction du texte** | **CONFORME** | Détection de paragraphes, recollage des césures (*dehyphenation*), typographie française (guillemets, espaces insécables, ligatures). |
-| **3.7 Structure éditoriale** | **CONFORME** | Arborescence de chapitres avec niveaux H1-H3, auto-détection par expressions et réorganisation manuelle. |
-| **3.8 Gestion des illustrations** | **CONFORME** | Extraction des gravures, attribution de légendes et intégration locale dans le flux EPUB. |
-| **3.9 Éditeur de correction** | **CONFORME** | Vue bifenêtre ergonomique : scan avec zoom/rotation/filtres à gauche, texte éditable à droite avec boîtes synchronisées. |
-| **3.10 Génération EPUB 3** | **CONFORME** | Archive ZIP respectant strictement IDPF (`mimetype`, `container.xml`, `content.opf`, `nav.xhtml`, `toc.ncx`, `styles.css`). |
-| **3.11 Exports Markdown / TXT** | **CONFORME** | Markdown avec frontmatter YAML et TXT propre UTF-8 avec séparateurs de chapitres. |
-| **4.1 Format intermédiaire JSON** | **CONFORME** | Schéma v1.0 avec blocs, coordonnées `bbox`, alternatives de moteurs et métadonnées. |
-
----
-
-## 3. Analyse des Risques & Solutions Retenues
-
-1. **Risque de saturation mémoire sur les gros PDF :**
-   - *Solution :* Traitement séquentiel page par page, libération des contextes de rendu et écriture progressive dans le stockage.
-2. **Risque de corruption des césures (tirets de mots composés légitimes) :**
-   - *Solution :* Liste blanche de mots composés français (`grand-père`, `peut-être`, `rendez-vous`, `au-dessus`...) pour ne pas supprimer aveuglément les traits d'union.
-3. **Risque de divergence entre lecteurs EPUB anciens et récents :**
-   - *Solution :* Double déclaration de navigation dans le conteneur EPUB : `nav.xhtml` (standard HTML5 EPUB 3) et `toc.ncx` (rétro-compatibilité EPUB 2).
+| **Import PDF** | Partiel (CDN externe) | **100% Réel & Hors-ligne** (validation magic bytes %PDF, analyse par page) |
+| **Prétraitement** | Partiel (deskew figé) | **100% Réel** (variance de profil de projection, binarisation, contraste) |
+| **Reconnaissance Tesseract** | Présente avec simulation en repli | **100% Réelle** (WASM natif / CLI, coordonnées TSV, pas de repli fictif) |
+| **Moteur PaddleOCR** | Simulé | **Détection réelle** (état de présence rapporté honnêtement) |
+| **Éditeur Bi-Fenêtre** | Fonctionnel | **Conservé & Sécurisé** (boîtes englobantes synchronisées, typo française) |
+| **Génération EPUB 3** | Présente | **Conforme IDPF** (`mimetype` STORE, `container.xml`, `nav.xhtml`, CSS) |
+| **Persistance** | Fragile (`localStorage`) | **Robuste** (IndexedDB client + SQLite filesystem backend) |
+| **Tests automatisés** | Absents | **19 tests unitaires exécutés et validés** |

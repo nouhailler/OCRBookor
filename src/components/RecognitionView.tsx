@@ -110,13 +110,21 @@ export const RecognitionView: React.FC<RecognitionViewProps> = ({
         }
       );
 
-      page.blocks = ocrResult.blocks;
-      page.rawText = ocrResult.text;
-      page.confidence = ocrResult.confidence;
-      page.quality = ocrResult.quality;
-      page.anomalies = ocrResult.anomalies;
-      page.ocrProcessed = true;
-      page.ocrEngine = 'Tesseract 5.3 (fra)';
+      if (ocrResult.error) {
+        page.ocrError = ocrResult.error;
+        page.ocrProcessed = true;
+        page.confidence = 0;
+        page.quality = 'echec_probable';
+        page.anomalies = [...page.anomalies, `Erreur OCR : ${ocrResult.error}`];
+      } else {
+        page.blocks = ocrResult.blocks;
+        page.rawText = ocrResult.text;
+        page.confidence = ocrResult.confidence;
+        page.quality = ocrResult.quality;
+        page.anomalies = ocrResult.anomalies;
+        page.ocrProcessed = true;
+        page.ocrEngine = 'Tesseract 5.3 (fra)';
+      }
 
       // Intermediate state save
       const intermediateQuality = calculateQualityMetrics(updatedPages);

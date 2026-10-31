@@ -99,9 +99,9 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({
 
         {/* Dimensions & Resolution */}
         <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-4">
-          <div className="text-xs text-slate-400 font-medium">Résolution & Dimensions</div>
+          <div className="text-xs text-slate-400 font-medium">Résolution & Dimensions (Page {currentPage?.pageNumber || 1})</div>
           <div className="mt-2 text-sm font-bold text-white">
-            ~{project.preprocessSettings.dpi} DPI ({currentPage?.width || 800} × {currentPage?.height || 1130} px)
+            {currentPage?.dpi ? `${currentPage.dpi} DPI ${currentPage.dpiEstimated ? '(calculé sur dimensions A4)' : ''}` : 'Résolution non mesurable'} ({currentPage?.width || 0} × {currentPage?.height || 0} px)
           </div>
           <p className="mt-1 text-xs text-slate-400">
             Fichier source : {formatFileSize(project.metadata.fileSizeBytes)} ({project.pages.length} pages)

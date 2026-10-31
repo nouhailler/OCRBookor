@@ -4,7 +4,7 @@
  */
 
 import { createWorker, Worker } from 'tesseract.js';
-import { OCRBlock, WordConfidence } from '../types/book';
+import { OCRBlock, WordConfidence, OCRResultAlternative } from '../types/book';
 import { buildBlocksFromRawText, evaluatePageQuality } from './reconstructionService';
 
 let activeWorker: Worker | null = null;
@@ -17,7 +17,8 @@ export interface OCRPageResult {
   words: WordConfidence[];
   anomalies: string[];
   quality: 'bonne' | 'moyenne' | 'insuffisante' | 'echec_probable';
-  paddleAlternativeText?: string;
+  error?: string;
+  alternatives?: OCRResultAlternative[];
 }
 
 export async function getTesseractWorker(lang: string = 'fra'): Promise<Worker> {
@@ -52,7 +53,8 @@ export async function terminateTesseractWorker(): Promise<void> {
 }
 
 /**
- * Recognize an image with Tesseract OCR (and optional secondary PaddleOCR layout analysis)
+ * Recognize an image with actual Tesseract OCR
+ * No fake simulation or fabricated results are permitted.
  */
 export async function performPageOCR(
   imageSrc: string,
@@ -61,18 +63,22 @@ export async function performPageOCR(
   onProgress?: (progress: number, status: string) => void
 ): Promise<OCRPageResult> {
   try {
-    if (onProgress) onProgress(0.1, 'Initialisation du moteur Tesseract...');
+    if (!imageSrc) {
+      throw new Error('Image source introuvable pour cette page');
+    }
+
+    if (onProgress) onProgress(0.1, 'Initialisation du moteur Tesseract local...');
     const worker = await getTesseractWorker(language);
 
     if (onProgress) onProgress(0.3, 'Reconnaissance des caractères en cours...');
     const result = await worker.recognize(imageSrc);
 
-    if (onProgress) onProgress(0.8, 'Extraction des blocs et scores de confiance...');
+    if (onProgress) onProgress(0.8, 'Extraction des blocs et scores de confiance réels...');
 
     const rawText = result.data.text || '';
     const confidence = Math.round(result.data.confidence || 0);
 
-    // Extract word-level bounding boxes and confidences
+    // Extract word-level bounding boxes and confidences directly from Tesseract
     const pageData = result.data as any;
     const words: WordConfidence[] = (pageData.words || []).map((w: any) => ({
       word: w.text,
@@ -115,8 +121,24 @@ export async function performPageOCR(
 
     const { quality, anomalies } = evaluatePageQuality(rawText, confidence);
 
-    // Generate secondary layout comparison (PaddleOCR simulator)
-    const paddleAlternativeText = generatePaddleComparison(rawText);
+    // Honest secondary engine representation:
+    // PaddleOCR is not installed in the browser WASM runtime.
+    const alternatives: OCRResultAlternative[] = [
+      {
+        engine: 'paddleocr',
+        text: '',
+        confidence: 0,
+        status: 'indisponible',
+        message: 'PaddleOCR requiert le backend Python (consultez backend/ocr/paddle_engine.py)',
+      },
+      {
+        engine: 'rapidocr',
+        text: '',
+        confidence: 0,
+        status: 'indisponible',
+        message: 'RapidOCR optionnel non initialisé',
+      },
+    ];
 
     if (onProgress) onProgress(1.0, 'Page terminée');
 
@@ -127,12 +149,20 @@ export async function performPageOCR(
       words,
       anomalies,
       quality,
-      paddleAlternativeText,
+      alternatives,
     };
-  } catch (err) {
-    console.warn('Tesseract recognition fallback triggered:', err);
-    // Provide graceful OCR fallback to ensure workflow never hangs even in offline worker limitations
-    return fallbackOCRSimulation(imageSrc, pageNumber);
+  } catch (err: any) {
+    console.error(`Erreur OCR réelle sur la page ${pageNumber}:`, err);
+    // Return explicit error state without simulation
+    return {
+      text: '',
+      confidence: 0,
+      blocks: [],
+      words: [],
+      anomalies: [`Échec du traitement OCR : ${err.message || 'Erreur interne'}`],
+      quality: 'echec_probable',
+      error: err.message || 'Erreur inconnue',
+    };
   }
 }
 
@@ -141,31 +171,4 @@ function isProbableHeading(text: string): boolean {
   if (/^(?:CHAPITRE|Chapitre|LIVRE|Livre|PARTIE|Partie|PROLOGUE|ÉPILOGUE|INTRODUCTION)/i.test(text)) return true;
   if (text.length < 40 && text === text.toUpperCase() && /[A-Z]/.test(text) && !text.includes('.')) return true;
   return false;
-}
-
-function generatePaddleComparison(tesseractText: string): string {
-  // Simulates PaddleOCR layout pass which reorders columns and handles table / poetry layout
-  return tesseractText
-    .split('\n')
-    .filter((l) => l.trim().length > 0)
-    .map((l) => l.trim())
-    .join('\n\n');
-}
-
-function fallbackOCRSimulation(imageSrc: string, pageNumber: number): OCRPageResult {
-  const simulatedText = `[Page ${pageNumber} numérisée]\nTexte extrait localement par le processeur documentaire OCRBookor.\nLe traitement des caractères est prêt pour la révision et la structuration éditoriale.`;
-  const blocks = buildBlocksFromRawText(simulatedText, pageNumber, 92);
-  return {
-    text: simulatedText,
-    confidence: 92,
-    blocks,
-    words: [
-      { word: 'Texte', confidence: 96 },
-      { word: 'extrait', confidence: 94 },
-      { word: 'localement', confidence: 91 },
-    ],
-    anomalies: [],
-    quality: 'bonne',
-    paddleAlternativeText: simulatedText,
-  };
 }

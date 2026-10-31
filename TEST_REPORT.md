@@ -1,39 +1,79 @@
-# TEST_REPORT.md — Rapport de Validation & Tests d'Acceptation
+# TEST_REPORT.md — Rapport Réel d’Exécution des Tests
 
-## 1. Bilan Général des Tests
-
-- **Nombre total de vérifications :** 15 tests automatisés et fonctionnels.
-- **Succès :** 15 / 15 (100 %).
-- **Échecs :** 0.
-- **Résultat global :** **VALIDÉ — CONFORME AUX CRITÈRES D'ACCEPTATION DE LA PARTIE 7.4**.
+**Date d’exécution :** 31 Octobre 2026  
+**Outil de test :** Python `unittest` standard & TypeScript Compiler (`tsc --noEmit`)  
+**Environnement :** Linux Debian x86_64 / Python 3.10 / Node.js 22  
 
 ---
 
-## 2. Détail des Critères d'Acceptation (Partie 7.4)
+## 1. Exécution des Tests Unitaires Backend
 
-| N° | Critère Spécifié | Résultat | Commentaire |
-|---|---|---|---|
-| **1** | Un PDF image peut être importé | **SUCCÈS** | Importation via glisser-déposer ou sélection de fichier avec analyse immédiate. |
-| **2** | Toutes les pages peuvent être traitées sans blocage global | **SUCCÈS** | Traitement séquentiel asynchrone ; une page dégradée n'interrompt pas le livre. |
-| **3** | Les résultats OCR sont enregistrés | **SUCCÈS** | Sauvegarde locale permanente dans `localStorage` / fichier JSON intermédiaire. |
-| **4** | Les pages problématiques sont signalées | **SUCCÈS** | Alertes visuelles pour bruit élevé, confiance < 65% et pages blanches. |
-| **5** | Les textes peuvent être corrigés | **SUCCÈS** | Édition directe par bloc avec score de confiance et surbrillance des mots incertains. |
-| **6** | Les corrections sont conservées | **SUCCÈS** | Les corrections manuelles n'écrasent pas le résultat brut initial. |
-| **7** | Les chapitres sont modifiables | **SUCCÈS** | Ajout, suppression, renommage, réorganisation et niveaux H1-H3 opérationnels. |
-| **8** | Les illustrations peuvent être conservées | **SUCCÈS** | Catalogage des gravures, attribution de légendes et intégration dans l'EPUB. |
-| **9** | Un EPUB 3 valide peut être généré | **SUCCÈS** | Archive ZIP avec `mimetype` non-compressé, `nav.xhtml`, `content.opf`, `styles.css`. |
-| **10** | Les exports TXT et Markdown sont disponibles | **SUCCÈS** | Téléchargement instantané en 1 clic au format .md et .txt UTF-8. |
-| **11** | Le projet peut être fermé et repris | **SUCCÈS** | Réouverture à la dernière page active avec historique conservé. |
-| **12** | L'application fonctionne sans connexion Internet | **SUCCÈS** | Aucun appel vers une API commerciale ou service distant externe. |
-| **13** | Les tests automatisés sont documentés | **SUCCÈS** | Scripts et corpus de tests intégrés à la suite logicielle. |
+### Commande exécutée :
+```bash
+python3 -m unittest discover -s backend/tests -p "test_*.py"
+```
+
+### Résultat de l'exécution :
+```text
+...................
+----------------------------------------------------------------------
+Ran 19 tests in 0.008s
+
+OK
+```
+
+### Détail des 19 Tests Validés :
+
+1. **`test_export.py` :**
+   - `test_epub3_structure` : Vérification du conteneur ZIP, présence de `mimetype` non-compressé en tête (`ZIP_STORED`), présence de `META-INF/container.xml`, `OEBPS/content.opf`, `OEBPS/nav.xhtml`, `OEBPS/styles.css` et chapitres XHTML — **SUCCÈS**.
+   - `test_markdown_export` : Vérification de la génération du document Markdown avec en-têtes YAML, titres H1/H2 et contenu des paragraphes — **SUCCÈS**.
+
+2. **`test_pdf.py` :**
+   - `test_nonexistent_file` : Détection de fichier inexistant et levée de `InvalidPDFError` — **SUCCÈS**.
+   - `test_empty_file` : Rejet des fichiers de taille 0 octets — **SUCCÈS**.
+   - `test_invalid_header` : Détection de l'absence de l'en-tête `%PDF` — **SUCCÈS**.
+   - `test_valid_pdf_header` : Validation d'un document conforme — **SUCCÈS**.
+
+3. **`test_reconstruction.py` :**
+   - `test_dehyphenation_standard_word` : Recollage des césures de bout de ligne (`mou-\nvements` -> `mouvements`) — **SUCCÈS**.
+   - `test_dehyphenation_legitimate_compound_word` : Préservation du trait d'union pour les mots composés français (`grand-père`) — **SUCCÈS**.
+   - `test_french_typography_quotes_and_spaces` : Remplacement des guillemets droits par des guillemets français avec espaces insécables (`«\u00A0...\u00A0»`) — **SUCCÈS**.
+   - `test_french_typography_ligatures` : Restauration des ligatures `cœur`, `sœur`, `œuvre` — **SUCCÈS**.
+   - `test_french_typography_dialogue_dash` : Conversion des tirets de dialogue en tirets cadratins `—\u00A0` — **SUCCÈS**.
+   - `test_heading_detector` : Détection des titres H1 par expressions clés (« CHAPITRE PREMIER », « LIVRE DEUXIÈME ») — **SUCCÈS**.
+
+4. **`test_quality.py` :**
+   - `test_levenshtein_identical` : Distance 0 pour deux chaînes identiques — **SUCCÈS**.
+   - `test_levenshtein_differences` : Calcul exact des suppressions, insertions et substitutions — **SUCCÈS**.
+   - `test_cer_calculation` : Taux d'erreur caractère (CER) calculé sur base de Levenshtein — **SUCCÈS**.
+   - `test_wer_calculation` : Taux d'erreur mot (WER) calculé sur base de Levenshtein de tokens — **SUCCÈS**.
+   - `test_empty_reference_returns_none` : Aucune fabrication de CER/WER si la transcription de référence est absente — **SUCCÈS**.
+   - `test_diagnostics_repetitive_noise` : Détection des bruits de trame répétitifs — **SUCCÈS**.
+   - `test_diagnostics_empty_page` : Détection des pages blanches ou vides — **SUCCÈS**.
 
 ---
 
-## 3. Validation Typographique & Césures
+## 2. Validation Frontend & Typage TypeScript
 
-1. **Test de Césure :**
-   - Entrée : `mou-\nvements` -> Sortie : `mouvements` (Succès).
-   - Entrée : `grand-\npère` -> Sortie : `grand-père` (Préservation du trait d'union légitime vérifiée).
-2. **Test Typographique Français :**
-   - Entrée : `"Qu'est-ce que c'est?"` -> Sortie : `« Qu’est-ce que c’est ? »` (Guillemets français, apostrophe courbée et espace insécable avant point d'interrogation vérifiés).
-   - Entrée : `coeur, soeur, oeuvre` -> Sortie : `cœur, sœur, œuvre` (Restauration automatique des ligatures vérifiée).
+### Commande exécutée :
+```bash
+npm run lint
+# tsc --noEmit
+```
+
+### Résultat :
+```text
+$ tsc --noEmit
+(Sortie vide : 0 erreur de typage détectée)
+```
+
+### Commande de compilation :
+```bash
+npm run build
+```
+
+### Résultat :
+```text
+✓ built in 1.48s
+(Compilation réussie sans avertissement ni erreur)
+```

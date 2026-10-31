@@ -86,6 +86,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           width: p.width,
           height: p.height,
           dpi: analysis.estimatedDpi,
+          dpiEstimated: analysis.dpiEstimated,
           hasNativeText: p.hasNativeText,
           isBlank: p.isBlank,
           isDegraded: false,

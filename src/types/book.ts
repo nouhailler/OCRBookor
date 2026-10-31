@@ -45,6 +45,8 @@ export interface OCRResultAlternative {
   engine: 'tesseract' | 'paddleocr' | 'rapidocr';
   text: string;
   confidence: number;
+  status: 'disponible' | 'indisponible' | 'erreur';
+  message?: string;
 }
 
 export interface OCRBlock {
@@ -68,6 +70,7 @@ export interface PageData {
   width: number;
   height: number;
   dpi: number;
+  dpiEstimated: boolean;
   hasNativeText: boolean;
   isBlank: boolean;
   isDegraded: boolean;
@@ -77,11 +80,13 @@ export interface PageData {
   blocks: OCRBlock[];
   rawText: string;
   correctedText?: string;
+  groundTruthText?: string; // Optional ground truth for authentic CER/WER calculation
   confidence: number;
   quality: PageQuality;
   validated: boolean;
   ocrProcessed: boolean;
   ocrEngine?: string;
+  ocrError?: string;
   anomalies: string[];
 }
 
@@ -146,8 +151,12 @@ export interface QualityReport {
   mediumPages: number;
   badPages: number;
   averageConfidence: number;
-  estimatedCER: number; // Character error rate %
-  estimatedWER: number; // Word error rate %
+  // CER/WER are strictly computed when reference transcription exists (Levenshtein distance).
+  // Otherwise null to avoid fabrication.
+  hasGroundTruth: boolean;
+  groundTruthCER?: number | null; // Character error rate %
+  groundTruthWER?: number | null; // Word error rate %
+  lowConfidenceWordsCount: number;
   totalWords: number;
   totalCharacters: number;
   anomaliesDetected: number;

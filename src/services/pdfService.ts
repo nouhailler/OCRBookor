@@ -4,11 +4,12 @@
  */
 
 import * as pdfjsLib from 'pdfjs-dist';
-import { PageData } from '../types/book';
+// Local bundler worker to operate 100% offline without any external CDN
+// @ts-ignore
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.mjs?url';
 
-// Set worker to CDN or local fallback
 if (typeof window !== 'undefined' && pdfjsLib.GlobalWorkerOptions) {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version || '4.10.38'}/pdf.worker.min.mjs`;
+  pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 }
 
 export interface PDFAnalysisResult {
@@ -17,6 +18,7 @@ export interface PDFAnalysisResult {
   totalPages: number;
   documentType: 'image_only' | 'native_text' | 'hybrid';
   estimatedDpi: number;
+  dpiEstimated: boolean;
   pages: {
     pageNumber: number;
     width: number;
@@ -31,7 +33,7 @@ export interface PDFAnalysisResult {
 }
 
 /**
- * Load and analyze a PDF file buffer
+ * Load and analyze an authentic PDF file buffer locally without external network
  */
 export async function analyzePDF(file: File): Promise<PDFAnalysisResult> {
   const arrayBuffer = await file.arrayBuffer();
@@ -44,7 +46,7 @@ export async function analyzePDF(file: File): Promise<PDFAnalysisResult> {
 
   for (let i = 1; i <= totalPages; i++) {
     const page = await pdfDoc.getPage(i);
-    const viewport = page.getViewport({ scale: 1.5 }); // Good resolution for preview & analysis
+    const viewport = page.getViewport({ scale: 1.5 });
     const textContent = await page.getTextContent();
     const nativeText = textContent.items
       .map((item: any) => ('str' in item ? item.str : ''))
@@ -54,10 +56,10 @@ export async function analyzePDF(file: File): Promise<PDFAnalysisResult> {
     const hasNativeText = nativeText.length > 50;
     if (hasNativeText) pagesWithNativeText++;
 
-    // Render to thumbnail canvas
+    // Render to preview canvas
     const canvas = document.createElement('canvas');
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
+    canvas.width = Math.round(viewport.width);
+    canvas.height = Math.round(viewport.height);
     const ctx = canvas.getContext('2d');
 
     let previewImageUrl = '';
@@ -67,7 +69,7 @@ export async function analyzePDF(file: File): Promise<PDFAnalysisResult> {
       await (page.render as any)({ canvasContext: ctx, viewport, canvas }).promise;
       previewImageUrl = canvas.toDataURL('image/jpeg', 0.85);
 
-      // Simple blank detection
+      // Pixel density check for blank detection
       const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imgData.data;
       let nonWhitePixels = 0;
@@ -99,16 +101,18 @@ export async function analyzePDF(file: File): Promise<PDFAnalysisResult> {
     documentType = 'hybrid';
   }
 
-  // Calculate estimated DPI based on standard A4 page dimensions (8.27 x 11.69 inches)
+  // Calculate estimated DPI from standard A4 page dimensions (8.27 x 11.69 inches)
   const firstPage = analyzedPages[0];
-  const estimatedDpi = firstPage ? Math.round((firstPage.width / 8.27) * 1.5) : 300;
+  const calculatedDpi = firstPage ? Math.round((firstPage.width / 8.27) * 1.5) : 300;
+  const estimatedDpi = Math.max(150, Math.min(600, calculatedDpi));
 
   return {
     fileName: file.name,
     fileSizeBytes: file.size,
     totalPages,
     documentType,
-    estimatedDpi: Math.max(150, Math.min(600, estimatedDpi)),
+    estimatedDpi,
+    dpiEstimated: true,
     pages: analyzedPages,
   };
 }

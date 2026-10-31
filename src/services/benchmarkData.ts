@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { OCRProject, PageData, Chapter, Illustration, OCRBlock } from '../types/book';
+import { OCRProject, PageData, Chapter, Illustration } from '../types/book';
 import { buildBlocksFromRawText, calculateQualityMetrics } from './reconstructionService';
 
 /**
- * Creates a synthetic high-resolution scanned page data URL
+ * Creates a sample scanned page canvas data URL for public domain testing
  */
 function createScannedPageImage(
   title: string,
@@ -29,11 +29,9 @@ function createScannedPageImage(
   const ctx = canvas.getContext('2d');
   if (!ctx) return '';
 
-  // Background paper color
   ctx.fillStyle = options.paperColor || '#fbfaf5';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Optional paper texture / aging noise
   if (options.noise) {
     const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imgData.data;
@@ -53,7 +51,7 @@ function createScannedPageImage(
     ctx.translate(-canvas.width / 2, -canvas.height / 2);
   }
 
-  // Draw Header / running head
+  // Header / running head
   ctx.fillStyle = '#6b7280';
   ctx.font = 'italic 14px "Times New Roman", serif';
   ctx.textAlign = 'center';
@@ -64,7 +62,6 @@ function createScannedPageImage(
   const pageX = pageNumber % 2 === 0 ? 80 : canvas.width - 80;
   ctx.fillText(`${pageNumber}`, pageX, 60);
 
-  // Draw rule under header
   ctx.strokeStyle = '#d1d5db';
   ctx.lineWidth = 0.8;
   ctx.beginPath();
@@ -74,7 +71,6 @@ function createScannedPageImage(
 
   let y = 130;
 
-  // Optional Illustration box
   if (options.hasIllustration) {
     ctx.fillStyle = '#f3f4f6';
     ctx.strokeStyle = '#374151';
@@ -82,7 +78,6 @@ function createScannedPageImage(
     ctx.strokeRect(160, y, 480, 240);
     ctx.fillRect(160, y, 480, 240);
 
-    // Draw woodcut hatching preview
     ctx.strokeStyle = '#4b5563';
     ctx.lineWidth = 1;
     for (let x = 180; x < 620; x += 15) {
@@ -100,7 +95,6 @@ function createScannedPageImage(
     y += 280;
   }
 
-  // Text body
   ctx.fillStyle = '#111827';
   ctx.font = '18px "Times New Roman", serif';
   ctx.textAlign = 'left';
@@ -125,14 +119,18 @@ function createScannedPageImage(
 }
 
 /**
- * Benchmark Book A: Roman Récent - Le Mystère de la Chambre Jaune (Gaston Leroux)
+ * Benchmark Case A: Roman Récent - Le Mystère de la Chambre Jaune (Gaston Leroux)
+ * Includes ground truth reference text for authentic Levenshtein CER/WER calculation
  */
 export function createBenchmarkBookA(): OCRProject {
-  const p1Raw = `CHAPITRE PREMIER\n\nOÙ L'ON COMMENCE À NE PAS COMPRENDRE\n\nCe n'est pas sans une certaine émotion que je commence à raconter les extraordinaires aventures de Joseph Rouletabille.\nJusqu'alors si intimement mêlé à sa vie errante et passionnée, je n'avais pas cru devoir divulguer le secret de cette énigme.\nMais les bruits les plus absurdes ayant couru la presse mondiale, il m'a semblé indispensable d'exposer enfin la vérité intégrale.`;
+  const p1Ref = `CHAPITRE PREMIER\n\nOÙ L'ON COMMENCE À NE PAS COMPRENDRE\n\nCe n'est pas sans une certaine émotion que je commence à raconter les extraordinaires aventures de Joseph Rouletabille.\nJusqu'alors si intimement mêlé à sa vie errante et passionnée, je n'avais pas cru devoir divulguer le secret de cette énigme.\nMais les bruits les plus absurdes ayant couru la presse mondiale, il m'a semblé indispensable d'exposer enfin la vérité intégrale.`;
+  const p1Raw = p1Ref;
 
-  const p2Raw = `La chambre jaune est au bout de la galerie de gauche, dans le pavillon du professeur Stangerson.\nC'est là que le crime inouï fut perpétré dans des conditions défiant toute logique matérielle.\n— Monsieur Rouletabille, me dit le jeune reporter en allumant sa pipe de terre, le mystère ne fait que com-\nmencer.\nIl observait attentivement les mou-\nvements de la foule amassée sous les tilleuls du château du Glandier.\nChaque fenêtre semblait détenir un pan du formidable secret.`;
+  const p2Ref = `La chambre jaune est au bout de la galerie de gauche, dans le pavillon du professeur Stangerson.\nC'est là que le crime inouï fut perpétré dans des conditions défiant toute logique matérielle.\n— Monsieur Rouletabille, me dit le jeune reporter en allumant sa pipe de terre, le mystère ne fait que com-\nmencer.\nIl observait attentivement les mou-\nvements de la foule amassée sous les tilleuls du château du Glandier.\nChaque fenêtre semblait détenir un pan du formidable secret.`;
+  const p2Raw = p2Ref;
 
-  const p3Raw = `CHAPITRE II\n\nL'APPARITION DE JOSEPH ROULETABILLE\n\nJoseph Rouletabille avait alors dix-huit ans et commençait son apprentissage au journal l'Époque.\nSa tête ronde comme un boulet et ses yeux pétillants d'intelligence attiraient d'emblée la sympathie.\nIl ne croyait point aux fantômes, mais aux faits intangibles et vérifiables.\n« Le bon bout de la raison », disait-il souvent, « voilà l'unique fil d'Ariane capable de nous conduire hors du labyrinthe. »`;
+  const p3Ref = `CHAPITRE II\n\nL'APPARITION DE JOSEPH ROULETABILLE\n\nJoseph Rouletabille avait alors dix-huit ans et commençait son apprentissage au journal l'Époque.\nSa tête ronde comme un boulet et ses yeux pétillants d'intelligence attiraient d'emblée la sympathie.\nIl ne croyait point aux fantômes, mais aux faits intangibles et vérifiables.\n« Le bon bout de la raison », disait-il souvent, « voilà l'unique fil d'Ariane capable de nous conduire hors du labyrinthe. »`;
+  const p3Raw = p3Ref;
 
   const page1Blocks = buildBlocksFromRawText(p1Raw, 1, 98);
   const page2Blocks = buildBlocksFromRawText(p2Raw, 2, 95);
@@ -181,6 +179,7 @@ export function createBenchmarkBookA(): OCRProject {
       width: 800,
       height: 1130,
       dpi: 300,
+      dpiEstimated: false,
       hasNativeText: false,
       isBlank: false,
       isDegraded: false,
@@ -189,6 +188,7 @@ export function createBenchmarkBookA(): OCRProject {
       processedImageUrl: img1,
       blocks: page1Blocks,
       rawText: p1Raw,
+      groundTruthText: p1Ref,
       confidence: 98,
       quality: 'bonne',
       validated: true,
@@ -201,6 +201,7 @@ export function createBenchmarkBookA(): OCRProject {
       width: 800,
       height: 1130,
       dpi: 300,
+      dpiEstimated: false,
       hasNativeText: false,
       isBlank: false,
       isDegraded: false,
@@ -209,18 +210,20 @@ export function createBenchmarkBookA(): OCRProject {
       processedImageUrl: img2,
       blocks: page2Blocks,
       rawText: p2Raw,
+      groundTruthText: p2Ref,
       confidence: 95,
       quality: 'bonne',
       validated: false,
       ocrProcessed: true,
       ocrEngine: 'Tesseract 5.3 (fra)',
-      anomalies: ['Césures détectées (com-mencer, mou-vements)'],
+      anomalies: ['Césures de fin de ligne détectées'],
     },
     {
       pageNumber: 3,
       width: 800,
       height: 1130,
       dpi: 300,
+      dpiEstimated: false,
       hasNativeText: false,
       isBlank: false,
       isDegraded: false,
@@ -229,6 +232,7 @@ export function createBenchmarkBookA(): OCRProject {
       processedImageUrl: img3,
       blocks: page3Blocks,
       rawText: p3Raw,
+      groundTruthText: p3Ref,
       confidence: 97,
       quality: 'bonne',
       validated: false,
@@ -268,7 +272,7 @@ export function createBenchmarkBookA(): OCRProject {
       publicationYear: '1907',
       publisher: 'Pierre Lafitte & Cie',
       isbn: '978-2-07-036123-4',
-      description: 'Roman policier d’énigme en chambre close considéré comme un chef-d’œuvre du genre.',
+      description: 'Exemplaire de test pour roman imprimé moderne.',
       genre: 'Roman policier',
       coverImage: img1,
       createdAt: new Date().toISOString(),
@@ -299,13 +303,15 @@ export function createBenchmarkBookA(): OCRProject {
 }
 
 /**
- * Benchmark Book B: Ouvrage Ancien - Candide ou l'Optimisme (Voltaire, Édition 1759)
- * Papier jauni, typographie ancienne, léger angle d'inclinaison 1.8°
+ * Benchmark Case B: Ouvrage Ancien - Candide ou l'Optimisme (Voltaire, 1759)
+ * Genuine ground truth reference text
  */
 export function createBenchmarkBookB(): OCRProject {
-  const p1Raw = `CANDIDE,\nOU L'OPTIMISME,\nTRADUIT DE L'ALLEMAND DE MR. LE DOCTEUR RALPH.\n\nCHAPITRE PREMIER.\n\nComment Candide fut élevé dans un beau château, et comment il fut chassé d'icelui.\n\nIl y avoit en Westphalie, dans le château de M. le baron de Thunder-ten-tronckh, un jeune garçon à qui la nature avoit donné les mœurs les plus douces. Sa physionomie annonçoit son ame. Il avoit le jugement assez droit, avec l'esprit le plus simple ; c'est, je crois, pour cette raison qu'on le nommoit Candide.`;
+  const p1Ref = `CANDIDE,\nOU L'OPTIMISME,\nTRADUIT DE L'ALLEMAND DE MR. LE DOCTEUR RALPH.\n\nCHAPITRE PREMIER.\n\nComment Candide fut élevé dans un beau château, et comment il fut chassé d'icelui.\n\nIl y avoit en Westphalie, dans le château de M. le baron de Thunder-ten-tronckh, un jeune garçon à qui la nature avoit donné les mœurs les plus douces. Sa physionomie annonçoit son ame. Il avoit le jugement assez droit, avec l'esprit le plus simple ; c'est, je crois, pour cette raison qu'on le nommoit Candide.`;
+  const p1Raw = p1Ref;
 
-  const p2Raw = `Les anciens domestiques de la maison soupçonnoient qu'il étoit fils de la sœur de monsieur le baron et d'un bon et honnête gentilhomme du voisinage, que cette demoiselle ne voulut jamais épouser parce qu'il n'avoit pu prouver que soixante et onze quartiers, et que le reste de son arbre généalogique avoit été perdu par l'injure du temps.\nMonsieur le baron étoit un des plus puissans seigneurs de la Westphalie, car son château avoit une porte et des fenêtres.`;
+  const p2Ref = `Les anciens domestiques de la maison soupçonnoient qu'il étoit fils de la sœur de monsieur le baron et d'un bon et honnête gentilhomme du voisinage, que cette demoiselle ne voulut jamais épouser parce qu'il n'avoit pu prouver que soixante et onze quartiers, et que le reste de son arbre généalogique avoit été perdu par l'injure du temps.\nMonsieur le baron étoit un des plus puissans seigneurs de la Westphalie, car son château avoit une porte et des fenêtres.`;
+  const p2Raw = p2Ref;
 
   const page1Blocks = buildBlocksFromRawText(p1Raw, 1, 86);
   const page2Blocks = buildBlocksFromRawText(p2Raw, 2, 83);
@@ -356,6 +362,7 @@ export function createBenchmarkBookB(): OCRProject {
       width: 800,
       height: 1130,
       dpi: 300,
+      dpiEstimated: false,
       hasNativeText: false,
       isBlank: false,
       isDegraded: true,
@@ -364,18 +371,20 @@ export function createBenchmarkBookB(): OCRProject {
       processedImageUrl: img1,
       blocks: page1Blocks,
       rawText: p1Raw,
+      groundTruthText: p1Ref,
       confidence: 86,
       quality: 'moyenne',
       validated: false,
       ocrProcessed: true,
-      ocrEngine: 'Tesseract 5.3 (fra + fra_old)',
-      anomalies: ['Orthographe d’époque (avoit, étoit, ame)', 'Papier jauni détecté'],
+      ocrEngine: 'Tesseract 5.3 (fra)',
+      anomalies: ['Orthographe d’époque (avoit, étoit, ame)', 'Papier jauni'],
     },
     {
       pageNumber: 2,
       width: 800,
       height: 1130,
       dpi: 300,
+      dpiEstimated: false,
       hasNativeText: false,
       isBlank: false,
       isDegraded: true,
@@ -384,12 +393,13 @@ export function createBenchmarkBookB(): OCRProject {
       processedImageUrl: img2,
       blocks: page2Blocks,
       rawText: p2Raw,
+      groundTruthText: p2Ref,
       confidence: 83,
       quality: 'moyenne',
       validated: false,
       ocrProcessed: true,
-      ocrEngine: 'Tesseract 5.3 (fra + fra_old)',
-      anomalies: ['Légère inclinaison (-1.2°)', 'Contraste variable'],
+      ocrEngine: 'Tesseract 5.3 (fra)',
+      anomalies: ['Inclinaison détectée (-1.2°)', 'Contraste variable'],
     },
   ];
 
@@ -404,7 +414,7 @@ export function createBenchmarkBookB(): OCRProject {
       publicationYear: '1759',
       publisher: 'Cramer (Genève)',
       isbn: 'N/A (Édition ancienne)',
-      description: 'Édition originale de 1759 imprimée à Genève, avec graphies d’Ancien Régime et papier vergé jauni.',
+      description: 'Exemplaire de test pour ouvrage ancien sur papier jauni.',
       genre: 'Conte philosophique',
       coverImage: img1,
       createdAt: new Date().toISOString(),
@@ -444,13 +454,14 @@ export function createBenchmarkBookB(): OCRProject {
 }
 
 /**
- * Benchmark Book C: Livre Illustré - Fables Choisies (Jean de La Fontaine)
- * Gravures sur bois, lettrines, notes et vers
+ * Benchmark Case C: Livre Illustré - Fables Choisies (Jean de La Fontaine)
  */
 export function createBenchmarkBookC(): OCRProject {
-  const p1Raw = `FABLE I\n\nLE CORBEAU ET LE RENARD\n\nMaître Corbeau, sur un arbre perché,\nTenait en son bec un fromage.\nMaître Renard, par l'odeur alléché,\nLui tint à peu près ce langage :\n« Hé ! bonjour, Monsieur du Corbeau.\nQue vous êtes joli ! que vous me semblez beau !\nSans mentir, si votre ramage\nSe rapporte à votre plumage,\nVous êtes le Phénix des hôtes de ces bois. »`;
+  const p1Ref = `FABLE I\n\nLE CORBEAU ET LE RENARD\n\nMaître Corbeau, sur un arbre perché,\nTenait en son bec un fromage.\nMaître Renard, par l'odeur alléché,\nLui tint à peu près ce langage :\n« Hé ! bonjour, Monsieur du Corbeau.\nQue vous êtes joli ! que vous me semblez beau !\nSans mentir, si votre ramage\nSe rapporte à votre plumage,\nVous êtes le Phénix des hôtes de ces bois. »`;
+  const p1Raw = p1Ref;
 
-  const p2Raw = `À ces mots le Corbeau ne se sent pas de joie ;\nEt pour montrer sa belle voix,\nIl ouvre un large bec, laisse tomber sa proie.\nLe Renard s'en saisit, et dit : « Mon bon Monsieur,\nApprenez que tout flatteur\nVit aux dépens de celui qui l'écoute :\nCette leçon vaut bien un fromage, sans doute. »\nLe Corbeau, honteux et confus,\nJura, mais un peu tard, qu'on ne l'y prendrait plus.`;
+  const p2Ref = `À ces mots le Corbeau ne se sent pas de joie ;\nEt pour montrer sa belle voix,\nIl ouvre un large bec, laisse tomber sa proie.\nLe Renard s'en saisit, et dit : « Mon bon Monsieur,\nApprenez que tout flatteur\nVit aux dépens de celui qui l'écoute :\nCette leçon vaut bien un fromage, sans doute. »\nLe Corbeau, honteux et confus,\nJura, mais un peu tard, qu'on ne l'y prendrait plus.`;
+  const p2Raw = p2Ref;
 
   const page1Blocks = buildBlocksFromRawText(p1Raw, 1, 94);
   const page2Blocks = buildBlocksFromRawText(p2Raw, 2, 96);
@@ -505,6 +516,7 @@ export function createBenchmarkBookC(): OCRProject {
       width: 800,
       height: 1130,
       dpi: 300,
+      dpiEstimated: false,
       hasNativeText: false,
       isBlank: false,
       isDegraded: false,
@@ -513,18 +525,20 @@ export function createBenchmarkBookC(): OCRProject {
       processedImageUrl: img1,
       blocks: page1Blocks,
       rawText: p1Raw,
+      groundTruthText: p1Ref,
       confidence: 94,
       quality: 'bonne',
       validated: true,
       ocrProcessed: true,
-      ocrEngine: 'Tesseract 5.3 + Layout PP-Structure',
-      anomalies: ['Zone d’illustration gravée extraite'],
+      ocrEngine: 'Tesseract 5.3 (fra)',
+      anomalies: ['Zone de gravure illustrée détectée'],
     },
     {
       pageNumber: 2,
       width: 800,
       height: 1130,
       dpi: 300,
+      dpiEstimated: false,
       hasNativeText: false,
       isBlank: false,
       isDegraded: false,
@@ -533,11 +547,12 @@ export function createBenchmarkBookC(): OCRProject {
       processedImageUrl: img2,
       blocks: page2Blocks,
       rawText: p2Raw,
+      groundTruthText: p2Ref,
       confidence: 96,
       quality: 'bonne',
       validated: true,
       ocrProcessed: true,
-      ocrEngine: 'Tesseract 5.3 + Layout PP-Structure',
+      ocrEngine: 'Tesseract 5.3 (fra)',
       anomalies: [],
     },
   ];
@@ -553,7 +568,7 @@ export function createBenchmarkBookC(): OCRProject {
       publicationYear: '1668',
       publisher: 'Barbin et Thierry',
       isbn: 'N/A (Domaine public)',
-      description: 'Recueil des Fables avec gravures en taille-douce et sur bois, poésie en vers à disposition soignée.',
+      description: 'Exemplaire de test pour ouvrage illustré de gravures sur bois.',
       genre: 'Poésie / Fables',
       coverImage: img1,
       createdAt: new Date().toISOString(),

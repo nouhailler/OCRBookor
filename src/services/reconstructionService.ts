@@ -29,11 +29,9 @@ export function applyFrenchTypography(text: string): string {
   formatted = formatted.replace(/(\w)'(\w)/g, '$1’$2');
   formatted = formatted.replace(/'(?=[A-Za-zÀ-ÖØ-öø-ÿ])/g, '’');
 
-  // 2. French Guillemets with non-breaking spaces (&nbsp; or \u00A0)
-  // Fix «word -> « word and word» -> word »
+  // 2. French Guillemets with non-breaking spaces
   formatted = formatted.replace(/«\s*/g, '«\u00A0');
   formatted = formatted.replace(/\s*»/g, '\u00A0»');
-  // Fix "quote" into « quote » if balanced in French text
   formatted = formatted.replace(/"([^"]+)"/g, '«\u00A0$1\u00A0»');
 
   // 3. Non-breaking spaces before double punctuation: ; : ! ? % € $ £
@@ -62,9 +60,7 @@ export function applyFrenchTypography(text: string): string {
 export function dehyphenateText(text: string): string {
   if (!text) return '';
 
-  // Match: word ending with hyphen, followed by newline, optional whitespace, and word continuation
   return text.replace(/([a-zA-ZÀ-ÖØ-öø-ÿ]+)[-\xAD]\r?\n\s*([a-zA-ZÀ-ÖØ-öø-ÿ]+)/g, (match, part1, part2) => {
-    const combined = `${part1.toLowerCase()}${part2.toLowerCase()}`;
     const hyphenated = `${part1.toLowerCase()}-${part2.toLowerCase()}`;
 
     // If it's a known legitimate hyphenated word, keep the hyphen (without newline)
@@ -103,10 +99,8 @@ export function detectChaptersFromBlocks(blocks: OCRBlock[]): Chapter[] {
     const isShortUppercase = trimmed.length < 50 && trimmed === trimmed.toUpperCase() && /[A-Z]/.test(trimmed) && !trimmed.includes('.') && block.text.length > 3;
 
     if (matchesKeyword || (isHeadingType && (matchesRoman || isShortUppercase))) {
-      // Create new chapter
       if (currentChapter.blockIds.length > 0) {
         if (!foundFirstExplicit && currentChapter.id === 'chap-intro') {
-          // Keep intro if it has content
           chapters.push(currentChapter);
         } else if (foundFirstExplicit) {
           chapters.push(currentChapter);
@@ -132,7 +126,6 @@ export function detectChaptersFromBlocks(blocks: OCRBlock[]): Chapter[] {
     chapters.push(currentChapter);
   }
 
-  // If no chapters detected, create a single default chapter
   if (chapters.length === 0 && blocks.length > 0) {
     chapters.push({
       id: 'chap-1',
@@ -149,7 +142,7 @@ export function detectChaptersFromBlocks(blocks: OCRBlock[]): Chapter[] {
 /**
  * Paragraph Builder: Groups raw OCR lines into coherent paragraphs and editorial blocks
  */
-export function buildBlocksFromRawText(rawText: string, pageNumber: number, initialConfidence: number = 90): OCRBlock[] {
+export function buildBlocksFromRawText(rawText: string, pageNumber: number, initialConfidence: number = 0): OCRBlock[] {
   const dehyphenated = dehyphenateText(rawText);
   const lines = dehyphenated.split(/\r?\n/);
   const blocks: OCRBlock[] = [];
@@ -180,11 +173,9 @@ export function buildBlocksFromRawText(rawText: string, pageNumber: number, init
       continue;
     }
 
-    // Check dialogue line start
     const isDialogue = /^[-—–]/.test(line);
 
     if (isDialogue && currentParagraph.trim()) {
-      // Flush previous paragraph before dialogue
       const text = applyFrenchTypography(currentParagraph.trim());
       blocks.push({
         id: `p${pageNumber}-b${blockIndex++}`,
@@ -233,7 +224,59 @@ function isLikelyHeading(text: string): boolean {
 }
 
 /**
- * Quality Analyzer & CER/WER computation
+ * Levenshtein distance on generic arrays or strings
+ */
+export function calculateLevenshteinDistance<T>(a: T[] | string, b: T[] | string): number {
+  const m = a.length;
+  const n = b.length;
+  if (m === 0) return n;
+  if (n === 0) return m;
+
+  const dp: number[][] = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,      // Deletion
+        dp[i][j - 1] + 1,      // Insertion
+        dp[i - 1][j - 1] + cost // Substitution
+      );
+    }
+  }
+
+  return dp[m][n];
+}
+
+/**
+ * Character Error Rate (CER) calculation using true Levenshtein edit distance
+ * CER = Levenshtein(hypothesis, reference) / reference.length
+ */
+export function calculateCER(recognizedText: string, referenceText: string): number {
+  if (!referenceText || referenceText.length === 0) return 0;
+  const dist = calculateLevenshteinDistance(recognizedText, referenceText);
+  return Number(((dist / referenceText.length) * 100).toFixed(2));
+}
+
+/**
+ * Word Error Rate (WER) calculation using word token edit distance
+ */
+export function calculateWER(recognizedText: string, referenceText: string): number {
+  const recWords = recognizedText.trim().split(/\s+/).filter(Boolean);
+  const refWords = referenceText.trim().split(/\s+/).filter(Boolean);
+  if (refWords.length === 0) return 0;
+
+  const dist = calculateLevenshteinDistance(recWords, refWords);
+  return Number(((dist / refWords.length) * 100).toFixed(2));
+}
+
+/**
+ * Quality Analyzer & metrics computation
+ * Note: CER and WER are strictly computed when reference transcription exists.
+ * When not available, they remain null and are never fabricated.
  */
 export function calculateQualityMetrics(pages: PageData[]): QualityReport {
   let totalWords = 0;
@@ -245,6 +288,13 @@ export function calculateQualityMetrics(pages: PageData[]): QualityReport {
   let processedPages = 0;
   let validatedPages = 0;
   let anomaliesDetected = 0;
+  let lowConfidenceWordsCount = 0;
+
+  let totalRefChars = 0;
+  let totalCharEdits = 0;
+  let totalRefWords = 0;
+  let totalWordEdits = 0;
+  let pagesWithGroundTruth = 0;
 
   pages.forEach((p) => {
     if (p.ocrProcessed) {
@@ -263,16 +313,35 @@ export function calculateQualityMetrics(pages: PageData[]): QualityReport {
         totalCharacters += text.length;
         const words = text.split(/\s+/).filter(Boolean);
         totalWords += words.length;
+
+        if (b.words) {
+          b.words.forEach((w) => {
+            if (w.confidence < 70) lowConfidenceWordsCount++;
+          });
+        }
       });
+
+      // Ground truth CER/WER computation if reference text exists
+      if (p.groundTruthText && p.groundTruthText.trim().length > 0) {
+        pagesWithGroundTruth++;
+        const refChars = p.groundTruthText.length;
+        const charDist = calculateLevenshteinDistance(p.rawText, p.groundTruthText);
+        totalRefChars += refChars;
+        totalCharEdits += charDist;
+
+        const refWords = p.groundTruthText.trim().split(/\s+/).filter(Boolean);
+        const hypWords = p.rawText.trim().split(/\s+/).filter(Boolean);
+        totalRefWords += refWords.length;
+        totalWordEdits += calculateLevenshteinDistance(hypWords, refWords);
+      }
     }
   });
 
   const averageConfidence = processedPages > 0 ? Math.round(confidenceSum / processedPages) : 0;
 
-  // Empirical CER/WER approximation model based on Tesseract confidence distribution
-  // 95% confidence ~ 0.8% CER, 85% ~ 2.5% CER, 70% ~ 6.5% CER
-  const estimatedCER = averageConfidence > 0 ? Math.max(0.2, Number(((100 - averageConfidence) * 0.18).toFixed(2))) : 0;
-  const estimatedWER = averageConfidence > 0 ? Math.max(0.5, Number((estimatedCER * 2.3).toFixed(2))) : 0;
+  const hasGroundTruth = pagesWithGroundTruth > 0 && totalRefChars > 0;
+  const groundTruthCER = hasGroundTruth ? Number(((totalCharEdits / totalRefChars) * 100).toFixed(2)) : null;
+  const groundTruthWER = hasGroundTruth ? Number(((totalWordEdits / totalRefWords) * 100).toFixed(2)) : null;
 
   return {
     totalPages: pages.length,
@@ -281,8 +350,10 @@ export function calculateQualityMetrics(pages: PageData[]): QualityReport {
     mediumPages,
     badPages,
     averageConfidence,
-    estimatedCER,
-    estimatedWER,
+    hasGroundTruth,
+    groundTruthCER,
+    groundTruthWER,
+    lowConfidenceWordsCount,
     totalWords,
     totalCharacters,
     anomaliesDetected,
@@ -291,11 +362,10 @@ export function calculateQualityMetrics(pages: PageData[]): QualityReport {
 }
 
 /**
- * Analyze a page for anomalies and quality category
+ * Analyze a page for anomalies and quality category based on actual extracted content
  */
 export function evaluatePageQuality(text: string, confidence: number): { quality: PageQuality; anomalies: string[] } {
   const anomalies: string[] = [];
-  const words = text.split(/\s+/).filter(Boolean);
   const chars = text.length;
 
   if (chars < 15) {
@@ -311,20 +381,18 @@ export function evaluatePageQuality(text: string, confidence: number): { quality
     anomalies.push(`Taux élevé de caractères bruités (${Math.round(abnormalRatio * 100)}%)`);
   }
 
-  // Detect repetitive nonsense strings (e.g., "||||||", "......", "//////")
   if (/(.)\1{6,}/.test(text)) {
     anomalies.push('Répétition anormale de caractères (bruit de scan)');
   }
 
-  // Confidence assessment
-  if (confidence < 65) {
-    anomalies.push(`Score de confiance faible (${Math.round(confidence)}%)`);
+  if (confidence > 0 && confidence < 65) {
+    anomalies.push(`Score de confiance OCR faible (${Math.round(confidence)}%)`);
   }
 
   let quality: PageQuality = 'bonne';
-  if (confidence < 60 || abnormalRatio > 0.12) {
+  if ((confidence > 0 && confidence < 60) || abnormalRatio > 0.12) {
     quality = 'insuffisante';
-  } else if (confidence < 80 || anomalies.length > 0) {
+  } else if ((confidence > 0 && confidence < 80) || anomalies.length > 0) {
     quality = 'moyenne';
   }
 

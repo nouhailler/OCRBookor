@@ -458,15 +458,19 @@ export const ExportView: React.FC<ExportViewProps> = ({
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
                   <span className="text-slate-500 text-[10px] block">Taux d’erreur car. (CER)</span>
-                  <span className="text-base font-bold text-emerald-400">
-                    ≤ {project.qualityReport.estimatedCER}%
+                  <span className="text-sm font-bold text-emerald-400">
+                    {project.qualityReport.hasGroundTruth && project.qualityReport.groundTruthCER !== null
+                      ? `${project.qualityReport.groundTruthCER}%`
+                      : 'N/A (Réf. requise)'}
                   </span>
                 </div>
 
                 <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
                   <span className="text-slate-500 text-[10px] block">Taux d’erreur mots (WER)</span>
-                  <span className="text-base font-bold text-emerald-400">
-                    ≤ {project.qualityReport.estimatedWER}%
+                  <span className="text-sm font-bold text-emerald-400">
+                    {project.qualityReport.hasGroundTruth && project.qualityReport.groundTruthWER !== null
+                      ? `${project.qualityReport.groundTruthWER}%`
+                      : 'N/A (Réf. requise)'}
                   </span>
                 </div>
 
@@ -478,9 +482,9 @@ export const ExportView: React.FC<ExportViewProps> = ({
                 </div>
 
                 <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                  <span className="text-slate-500 text-[10px] block">Pages Validées</span>
-                  <span className="text-base font-bold text-slate-200">
-                    {project.qualityReport.validatedPages} / {project.pages.length}
+                  <span className="text-slate-500 text-[10px] block">Mots incertains (&lt;70%)</span>
+                  <span className="text-base font-bold text-amber-400">
+                    {project.qualityReport.lowConfidenceWordsCount}
                   </span>
                 </div>
               </div>

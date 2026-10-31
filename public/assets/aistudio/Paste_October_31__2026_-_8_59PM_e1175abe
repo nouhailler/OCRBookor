@@ -1,0 +1,1003 @@
+# PROMPT CODEX — CORRECTION COMPLÈTE ET FINALISATION D’OCRBOOKOR
+
+## 1. Contexte du projet
+
+Dépôt GitHub : https://github.com/nouhailler/OCRBookor
+
+OCRBookor est une application destinée à transformer des livres numérisés au format PDF (documents constitués essentiellement d'images) en documents exploitables :
+
+- EPUB 3 ;
+- Markdown ;
+- TXT ;
+- HTML.
+
+L'application doit permettre d'importer un PDF, d'analyser ses pages, d'effectuer une reconnaissance optique de caractères (OCR), de reconstruire la structure du livre, de corriger le texte reconnu, puis de produire des fichiers exportables.
+
+Le projet doit fonctionner principalement en local, sans dépendance obligatoire à un service cloud, sans API payante et sans connexion Internet nécessaire après installation.
+
+L'application doit être utilisable sur Debian 13 et les distributions Linux modernes.
+
+## 2. Mission générale
+
+Effectuer une correction complète du dépôt existant pour obtenir une application réellement fonctionnelle, fiable, testable et installable.
+
+Il ne s'agit pas de produire une démonstration visuelle ni un prototype.
+
+Toutes les fonctionnalités affichées dans l'interface doivent correspondre à des traitements réellement exécutés.
+
+**Interdiction absolue de simuler les résultats OCR, les analyses, les comparaisons de moteurs, les benchmarks ou les tests.**
+
+Aucun texte fictif, score arbitraire, résultat prérempli ou retour artificiellement positif ne doit être utilisé pour masquer une fonctionnalité absente ou défaillante.
+
+Tu dois travailler directement dans le dépôt existant.
+
+---
+
+# PHASE 1 — AUDIT TECHNIQUE INITIAL
+
+Avant toute modification :
+
+1. Examiner l'intégralité de l'arborescence du projet.
+2. Lire le README, les fichiers de configuration et les dépendances.
+3. Examiner les composants React et tous les services frontend.
+4. Examiner l'intégralité du backend Python.
+5. Identifier les fonctionnalités réellement implémentées, partiellement implémentées, simulées ou absentes.
+6. Identifier les problèmes de sécurité, de persistance, de performance et de dépendances.
+7. Identifier les fonctionnalités de l'interface qui ne sont reliées à aucun traitement réel.
+
+Produire un document `AUDIT_INITIAL.md` comprenant :
+
+- l'architecture actuelle ;
+- les fonctionnalités existantes ;
+- les fonctionnalités incomplètes ;
+- les simulations identifiées ;
+- les problèmes techniques ;
+- les corrections nécessaires ;
+- les risques et les dépendances.
+
+Ne pas supprimer les fonctionnalités utiles de l'interface existante.
+
+Conserver autant que possible le design, la navigation et les composants React déjà développés.
+
+# PHASE 2 — ARCHITECTURE CIBLE
+
+Mettre en place une architecture locale cohérente.
+
+## Frontend
+
+Conserver :
+
+- React ;
+- TypeScript ;
+- Vite ;
+- l'interface existante.
+
+Le frontend doit communiquer avec le backend via une API REST documentée.
+
+## Backend
+
+Utiliser :
+
+- Python 3 ;
+- FastAPI ;
+- PyMuPDF ;
+- Pillow ;
+- OpenCV ;
+- Tesseract OCR ;
+- PaddleOCR en moteur secondaire ;
+- RapidOCR comme moteur optionnel si sa compatibilité et son intérêt sont confirmés ;
+- SQLite pour les métadonnées et l'état des projets ;
+- un stockage filesystem pour les PDF originaux, les pages extraites, les images et les résultats.
+
+Organiser le backend en modules indépendants :
+
+```text
+backend/
+├── api/
+│   ├── main.py
+│   ├── routes/
+│   │   ├── projects.py
+│   │   ├── documents.py
+│   │   ├── pages.py
+│   │   ├── ocr.py
+│   │   ├── corrections.py
+│   │   ├── exports.py
+│   │   └── jobs.py
+├── core/
+│   ├── config.py
+│   ├── database.py
+│   ├── storage.py
+│   └── exceptions.py
+├── pdf/
+│   ├── importer.py
+│   ├── analyzer.py
+│   ├── renderer.py
+│   └── image_extractor.py
+├── preprocessing/
+│   ├── pipeline.py
+│   ├── deskew.py
+│   ├── denoise.py
+│   ├── threshold.py
+│   └── borders.py
+├── ocr/
+│   ├── base.py
+│   ├── manager.py
+│   ├── tesseract_engine.py
+│   ├── paddle_engine.py
+│   └── rapid_engine.py
+├── reconstruction/
+│   ├── paragraphs.py
+│   ├── columns.py
+│   ├── headings.py
+│   ├── chapters.py
+│   └── reading_order.py
+├── quality/
+│   ├── confidence.py
+│   └── diagnostics.py
+├── export/
+│   ├── epub.py
+│   ├── markdown.py
+│   ├── text.py
+│   ├── html.py
+│   └── searchable_pdf.py
+└── tests/
+```
+
+Cette organisation peut être adaptée si une structure plus pertinente existe déjà, mais les responsabilités doivent rester séparées.
+
+## Principes architecturaux
+
+- Aucun service cloud obligatoire.
+- Aucun compte utilisateur obligatoire.
+- Aucune API payante.
+- Aucune transmission de PDF ou de texte à un tiers.
+- Traitement local des documents.
+- Traitement page par page.
+- Possibilité de reprendre un traitement interrompu.
+- Persistance réelle des résultats.
+- Communication frontend/backend documentée.
+- Dépendances installables sous Debian 13.
+- Fonctionnement sans CDN après installation.
+
+Les dépendances Python et JavaScript doivent être installées et distribuées localement. En particulier, supprimer la dépendance obligatoire au CDN pour le worker PDF.js.
+
+# PHASE 3 — IMPORT ET ANALYSE DES PDF
+
+Implémenter réellement l'importation des PDF.
+
+Fonctionnalités attendues :
+
+1. Importer un PDF depuis l'ordinateur.
+2. Vérifier son format et son intégrité.
+3. Contrôler sa taille.
+4. Conserver le fichier original.
+5. Extraire les métadonnées disponibles.
+6. Détecter le nombre de pages.
+7. Générer les aperçus des pages.
+8. Détecter les pages contenant du texte natif.
+9. Détecter les pages constituées d'images.
+10. Détecter les PDF hybrides mélangeant texte et images.
+11. Identifier les pages vides ou présentant des anomalies.
+12. Estimer la résolution des images lorsque cela est possible.
+
+Ne jamais attribuer une résolution fixe de 300 DPI par défaut.
+
+Les informations inconnues doivent être signalées comme inconnues.
+
+Créer une analyse par page, et non une simple analyse globale du document.
+
+L'utilisateur doit pouvoir consulter les résultats de l'analyse avant de lancer l'OCR.
+
+# PHASE 4 — PRÉTRAITEMENT DES IMAGES
+
+Implémenter un véritable pipeline de prétraitement configurable.
+
+Fonctionnalités :
+
+- conversion en niveaux de gris ;
+- amélioration du contraste ;
+- seuillage adaptatif ;
+- binarisation ;
+- réduction du bruit ;
+- correction de l'inclinaison (deskew) ;
+- détection et correction de la rotation ;
+- détection et suppression des bordures inutiles ;
+- amélioration des images faiblement contrastées ;
+- conservation de la résolution utile.
+
+Le redressement doit être réellement calculé à partir de l'image.
+
+Supprimer toute fonction qui renvoie systématiquement un angle nul ou une valeur fixe.
+
+Prévoir plusieurs profils :
+
+- rapide ;
+- équilibré ;
+- qualité maximale.
+
+L'utilisateur doit pouvoir comparer l'image originale et l'image prétraitée.
+
+Le prétraitement doit être effectué sans dégrader inutilement les illustrations.
+
+# PHASE 5 — MOTEURS OCR RÉELS
+
+## 5.1 Tesseract OCR
+
+Tesseract est le moteur principal.
+
+Implémenter :
+
+- installation et détection de Tesseract ;
+- vérification de sa version ;
+- détection des langues installées ;
+- sélection des langues ;
+- configuration du mode de segmentation ;
+- reconnaissance du texte ;
+- récupération des coordonnées des blocs ;
+- récupération des mots ;
+- récupération des niveaux de confiance ;
+- gestion des erreurs ;
+- traitement page par page.
+
+Prévoir notamment le français et l'anglais, avec possibilité d'ajouter d'autres langues.
+
+Ne jamais inventer de texte lorsque Tesseract échoue.
+
+Si le moteur n'est pas installé, afficher une erreur explicite et expliquer comment l'installer.
+
+## 5.2 PaddleOCR
+
+Implémenter un véritable moteur PaddleOCR.
+
+Il doit être réellement exécuté sur les images des pages.
+
+Prévoir :
+
+- chargement des modèles locaux ;
+- détection des zones de texte ;
+- reconnaissance ;
+- coordonnées des zones ;
+- scores de confiance ;
+- gestion des langues disponibles ;
+- gestion des erreurs et des ressources matérielles.
+
+Vérifier la compatibilité des versions de PaddleOCR, PaddlePaddle, Python et des modèles.
+
+Ne pas déclarer PaddleOCR disponible si son initialisation ou son exécution échoue.
+
+## 5.3 RapidOCR
+
+Évaluer l'intégration de RapidOCR.
+
+L'intégrer uniquement si une implémentation réelle et compatible peut être fournie.
+
+Ne pas afficher un moteur comme disponible simplement parce que sa dépendance figure dans `requirements.txt`.
+
+## 5.4 Gestion des moteurs
+
+Créer un gestionnaire OCR permettant :
+
+- de sélectionner un moteur ;
+- d'utiliser un moteur de secours réellement installé ;
+- de comparer les résultats de plusieurs moteurs ;
+- de relancer une page avec un autre moteur ;
+- de conserver les résultats de chaque moteur ;
+- de comparer les textes et les scores de confiance.
+
+Une comparaison doit exécuter réellement chaque moteur sélectionné.
+
+Afficher les erreurs si un moteur n'est pas disponible.
+
+Ne jamais produire une comparaison à partir d'un texte artificiellement transformé.
+
+## 5.5 Suppression des simulations
+
+Rechercher dans tout le dépôt :
+
+- `fallbackOCRSimulation` ;
+- `generatePaddleComparison` ;
+- les textes fictifs ;
+- les scores fixes ;
+- les résultats préremplis ;
+- les réponses simulées ;
+- les données artificielles présentées comme des résultats réels.
+
+Supprimer ou remplacer ces mécanismes.
+
+Une fonctionnalité non implémentée doit être clairement indiquée comme indisponible, et non simulée.
+
+# PHASE 6 — ANALYSE DE LA QUALITÉ OCR
+
+Pour chaque page, enregistrer :
+
+- le moteur utilisé ;
+- la langue ;
+- le temps de traitement ;
+- le texte reconnu ;
+- les coordonnées des blocs ;
+- le score de confiance lorsqu'il est fourni ;
+- les éventuelles erreurs ;
+- les paramètres de traitement.
+
+Calculer des indicateurs utiles :
+
+- confiance moyenne des mots, lorsque disponible ;
+- nombre de mots reconnus ;
+- nombre de caractères ;
+- proportion de zones sans texte ;
+- détection de pages potentiellement mal reconnues.
+
+Ne pas confondre score de confiance OCR et taux de précision réel.
+
+Les métriques CER et WER ne peuvent être calculées que lorsqu'une transcription de référence existe.
+
+Ne jamais afficher de taux de précision calculé à partir d'une simple confiance OCR.
+
+Prévoir une interface permettant d'identifier rapidement les pages nécessitant une correction manuelle.
+
+# PHASE 7 — RECONSTRUCTION DU LIVRE
+
+Le résultat OCR brut doit être transformé en un document structuré.
+
+Implémenter :
+
+## Paragraphes
+
+- détection des blocs ;
+- regroupement des lignes ;
+- détection des fins de paragraphes ;
+- gestion des césures ;
+- suppression des retours à la ligne artificiels ;
+- conservation des vrais paragraphes.
+
+## Colonnes
+
+- détection des mises en page à une ou plusieurs colonnes ;
+- identification de l'ordre de lecture ;
+- regroupement des blocs selon leur position.
+
+## Titres
+
+Détection des titres à partir de critères réels :
+
+- taille du texte ;
+- position ;
+- espacement ;
+- typographie lorsqu'elle est disponible ;
+- structure de la page.
+
+## Chapitres
+
+Détecter les chapitres à partir :
+
+- des titres ;
+- des numéros de chapitre ;
+- des pages de titre ;
+- des ruptures de structure.
+
+L'utilisateur doit pouvoir corriger manuellement les chapitres et modifier leur ordre.
+
+## Structure éditoriale
+
+Prévoir les éléments suivants :
+
+- couverture ;
+- page de titre ;
+- sommaire ;
+- préface ;
+- introduction ;
+- chapitres ;
+- sous-chapitres ;
+- notes ;
+- bibliographie ;
+- annexes.
+
+Ne pas imposer une structure lorsque le document ne permet pas de la déduire.
+
+La reconstruction doit rester modifiable par l'utilisateur.
+
+# PHASE 8 — EXTRACTION ET GESTION DES ILLUSTRATIONS
+
+Implémenter une véritable extraction des images du PDF original.
+
+Fonctionnalités :
+
+- extraction des images incorporées ;
+- récupération des dimensions ;
+- identification de la page d'origine ;
+- conservation du format d'origine lorsque possible ;
+- détection des doublons ;
+- distinction entre illustrations, logos et éléments décoratifs ;
+- aperçu des images ;
+- association d'une illustration à une page ou à un chapitre ;
+- possibilité d'exclure une image ;
+- possibilité de modifier sa position dans le livre.
+
+Pour les illustrations non récupérables directement, permettre une extraction par rendu de la zone de page.
+
+Ne pas extraire systématiquement toute la page comme illustration.
+
+Les images retenues doivent être réellement intégrées aux exports EPUB et HTML.
+
+Prévoir la gestion des légendes si elles peuvent être identifiées.
+
+# PHASE 9 — ÉDITEUR ET CORRECTION MANUELLE
+
+Conserver et améliorer l'interface de correction existante.
+
+L'utilisateur doit pouvoir :
+
+- visualiser la page originale ;
+- visualiser le texte OCR ;
+- modifier le texte ;
+- corriger les paragraphes ;
+- modifier les titres ;
+- créer ou supprimer des chapitres ;
+- réorganiser les chapitres ;
+- gérer les illustrations ;
+- comparer le texte reconnu et le texte corrigé ;
+- revenir à une version précédente ;
+- enregistrer les corrections.
+
+Prévoir deux modes :
+
+1. Correction page par page.
+2. Correction du livre reconstitué.
+
+Les modifications doivent être enregistrées dans la base de données.
+
+Ne pas perdre les corrections après actualisation de la page ou redémarrage du backend.
+
+Prévoir une sauvegarde automatique raisonnable et un indicateur d'état de sauvegarde.
+
+# PHASE 10 — EXPORTS RÉELS
+
+## EPUB 3
+
+Produire un EPUB 3 valide et lisible par les lecteurs EPUB courants.
+
+Le fichier doit contenir :
+
+- `mimetype` conforme ;
+- `META-INF/container.xml` ;
+- package OPF ;
+- navigation EPUB ;
+- fichiers XHTML ;
+- CSS ;
+- images réellement extraites ;
+- couverture lorsqu'elle existe ;
+- métadonnées du livre ;
+- chapitres ;
+- notes et légendes lorsqu'elles existent.
+
+Respecter les contraintes de l'EPUB 3.
+
+Vérifier le fichier généré avec EPUBCheck lorsque cet outil est disponible.
+
+L'export ne doit pas se limiter à une archive ZIP contenant quelques fichiers minimaux.
+
+Prévoir :
+
+- titre ;
+- auteur ;
+- éditeur ;
+- langue ;
+- description ;
+- identifiant ;
+- date ;
+- couverture.
+
+Les métadonnées inconnues doivent rester modifiables.
+
+## Markdown
+
+Générer un fichier Markdown structuré :
+
+- titre ;
+- métadonnées ;
+- sommaire ;
+- chapitres ;
+- sous-chapitres ;
+- paragraphes ;
+- notes ;
+- références aux illustrations.
+
+Les images doivent être exportées dans un répertoire associé.
+
+## TXT
+
+Générer un texte brut propre :
+
+- paragraphes reconstruits ;
+- titres ;
+- chapitres ;
+- encodage UTF-8 ;
+- suppression des caractères parasites.
+
+## HTML
+
+Générer un HTML autonome ou accompagné de ses ressources.
+
+Prévoir un CSS de lecture agréable.
+
+## PDF OCRisé (fonctionnalité complémentaire)
+
+Prévoir un PDF avec couche texte invisible superposée aux pages originales.
+
+Cette fonctionnalité doit préserver autant que possible l'apparence du PDF source tout en permettant la recherche et la sélection du texte.
+
+Ne pas annoncer cette fonctionnalité comme terminée si elle n'est pas réellement opérationnelle.
+
+# PHASE 11 — PERSISTANCE ET GESTION DES PROJETS
+
+Supprimer l'utilisation de `localStorage` pour conserver les gros documents, les pages ou les résultats OCR.
+
+Mettre en place :
+
+## SQLite
+
+Conserver les informations structurées :
+
+- projets ;
+- documents ;
+- pages ;
+- résultats OCR ;
+- moteurs utilisés ;
+- corrections ;
+- chapitres ;
+- illustrations ;
+- paramètres ;
+- tâches ;
+- exports.
+
+Prévoir des migrations de base de données.
+
+## Filesystem
+
+Stocker les fichiers volumineux :
+
+- PDF originaux ;
+- images extraites ;
+- aperçus ;
+- images prétraitées ;
+- exports ;
+- sauvegardes éventuelles.
+
+## Reprise
+
+Pouvoir :
+
+- retrouver les projets précédents ;
+- rouvrir un projet ;
+- consulter les pages déjà traitées ;
+- reprendre un traitement interrompu ;
+- relancer une page en erreur ;
+- conserver les corrections ;
+- retrouver les exports.
+
+Prévoir une suppression complète et propre d'un projet, avec confirmation de l'utilisateur.
+
+# PHASE 12 — TRAITEMENTS LONGS ET PERFORMANCE
+
+Un livre de plusieurs centaines de pages ne doit pas bloquer l'interface.
+
+Mettre en place un système de tâches :
+
+- création de tâche ;
+- état en attente ;
+- état en cours ;
+- progression ;
+- page en cours ;
+- nombre de pages terminées ;
+- nombre de pages en erreur ;
+- annulation ;
+- reprise ;
+- journal des erreurs.
+
+Le traitement doit être effectué par lots ou par pages.
+
+Prévoir une limitation de la consommation mémoire.
+
+Ne pas charger inutilement toutes les pages haute résolution en mémoire.
+
+Prévoir une configuration adaptée à une machine Linux disposant de ressources matérielles modestes.
+
+L'utilisateur doit pouvoir choisir le compromis entre vitesse et qualité.
+
+# PHASE 13 — INTERFACE UTILISATEUR
+
+Conserver l'identité visuelle actuelle et améliorer la cohérence des écrans.
+
+L'application doit proposer un parcours clair :
+
+1. Accueil et liste des projets.
+2. Importation du PDF.
+3. Analyse du document.
+4. Configuration OCR.
+5. Lancement du traitement.
+6. Suivi de la progression.
+7. Consultation des résultats.
+8. Correction du texte.
+9. Organisation du livre.
+10. Gestion des illustrations.
+11. Export.
+
+Les écrans doivent refléter l'état réel du backend.
+
+Ne jamais afficher une progression fictive.
+
+Prévoir des messages compréhensibles pour :
+
+- moteur OCR manquant ;
+- langue absente ;
+- fichier invalide ;
+- espace disque insuffisant ;
+- erreur de traitement ;
+- export impossible ;
+- sauvegarde échouée.
+
+Prévoir une interface responsive.
+
+# PHASE 14 — FONCTIONNEMENT HORS LIGNE
+
+L'application doit pouvoir fonctionner localement sans connexion Internet après installation.
+
+Actions obligatoires :
+
+- supprimer les CDN obligatoires ;
+- embarquer les dépendances frontend nécessaires ;
+- documenter l'installation des modèles OCR ;
+- permettre le téléchargement préalable des modèles ;
+- vérifier leur présence avant utilisation ;
+- ne pas appeler de service externe pour traiter les documents ;
+- ne pas intégrer de télémétrie non consentie.
+
+Le service worker PWA ne doit pas mettre en cache de manière incontrôlée les documents personnels.
+
+La confidentialité des livres importés doit être préservée.
+
+# PHASE 15 — SÉCURITÉ ET ROBUSTESSE
+
+Implémenter les protections suivantes :
+
+- validation stricte des fichiers importés ;
+- limitation de taille configurable ;
+- contrôle des chemins de stockage ;
+- prévention des traversées de répertoires ;
+- noms de fichiers sécurisés ;
+- gestion des fichiers temporaires ;
+- limitation des accès aux fichiers d'un projet ;
+- gestion propre des erreurs ;
+- validation des paramètres API ;
+- protection contre les imports malformés ;
+- nettoyage des fichiers temporaires après échec ;
+- sauvegarde cohérente des données.
+
+Ne pas exposer les fichiers du système via l'API.
+
+Ne pas exécuter de commandes shell construites à partir des données utilisateur.
+
+# PHASE 16 — TESTS AUTOMATISÉS
+
+Créer une véritable suite de tests.
+
+## Backend
+
+Tester notamment :
+
+- import PDF ;
+- PDF texte ;
+- PDF image-only ;
+- PDF hybride ;
+- PDF invalide ;
+- PDF vide ;
+- rendu des pages ;
+- prétraitement ;
+- redressement ;
+- Tesseract ;
+- PaddleOCR lorsqu'il est installé ;
+- absence d'un moteur ;
+- gestion des erreurs ;
+- reconstruction ;
+- sauvegarde ;
+- reprise ;
+- extraction des illustrations ;
+- export EPUB ;
+- export Markdown ;
+- export TXT ;
+- export HTML ;
+- PDF OCRisé si implémenté.
+
+## Frontend
+
+Tester :
+
+- import ;
+- affichage des projets ;
+- suivi des traitements ;
+- consultation des pages ;
+- correction ;
+- sauvegarde ;
+- gestion des chapitres ;
+- gestion des illustrations ;
+- export ;
+- gestion des erreurs.
+
+Utiliser des outils de test adaptés, par exemple pytest côté Python et Vitest/Testing Library côté frontend.
+
+## Tests de bout en bout
+
+Prévoir au moins un scénario complet :
+
+1. Importer un PDF scanné.
+2. Analyser ses pages.
+3. Effectuer un OCR réel.
+4. Vérifier le texte produit.
+5. Corriger un passage.
+6. Enregistrer.
+7. Redémarrer le backend.
+8. Vérifier que la correction est conservée.
+9. Exporter en EPUB.
+10. Vérifier l'intégrité de l'EPUB.
+11. Exporter en Markdown.
+12. Vérifier le contenu exporté.
+
+Les tests doivent utiliser des fichiers de test réels, maîtrisés et autorisés.
+
+Ne jamais déclarer un test réussi s'il n'a pas été exécuté.
+
+# PHASE 17 — BENCHMARKS OCR
+
+Revoir entièrement les benchmarks existants.
+
+Les benchmarks doivent s'appuyer sur des documents réels et des transcriptions de référence.
+
+Prévoir différents types de pages :
+
+- livre ancien ;
+- livre récent ;
+- caractères petits ;
+- scan incliné ;
+- scan bruité ;
+- page en colonnes ;
+- illustrations avec légendes ;
+- texte français ;
+- texte anglais.
+
+Mesurer :
+
+- temps de traitement ;
+- CER ;
+- WER ;
+- confiance moyenne ;
+- consommation mémoire lorsque mesurable.
+
+Les résultats doivent préciser :
+
+- matériel utilisé ;
+- versions des moteurs ;
+- langues ;
+- paramètres ;
+- nombre de pages ;
+- nature du corpus.
+
+Ne jamais présenter des pages Canvas artificielles ou des textes prédéfinis comme des benchmarks OCR.
+
+Si aucun corpus de référence n'est disponible, indiquer clairement que les métriques CER/WER ne sont pas calculables.
+
+# PHASE 18 — DOCUMENTATION ET INSTALLATION
+
+Mettre à jour le README avec :
+
+- présentation ;
+- captures d'écran réelles si disponibles ;
+- architecture ;
+- fonctionnalités réellement disponibles ;
+- prérequis ;
+- installation Debian 13 ;
+- installation des dépendances Python ;
+- installation des dépendances frontend ;
+- installation de Tesseract ;
+- installation des langues ;
+- installation de PaddleOCR ;
+- téléchargement et stockage des modèles ;
+- lancement du backend ;
+- lancement du frontend ;
+- utilisation ;
+- sauvegarde ;
+- dépannage ;
+- limitations connues ;
+- confidentialité.
+
+Fournir des scripts simples :
+
+```text
+scripts/
+├── install-debian.sh
+├── start-backend.sh
+├── start-frontend.sh
+├── start.sh
+├── stop.sh
+└── check-dependencies.sh
+```
+
+Prévoir des fichiers de configuration d'exemple sans secrets.
+
+Étudier également la possibilité d'un packaging Debian ou Flatpak, sans en faire une priorité au détriment du fonctionnement réel.
+
+# PHASE 19 — NETTOYAGE DU CODE
+
+Effectuer un nettoyage global :
+
+- supprimer les fonctions mortes ;
+- supprimer les simulations ;
+- supprimer les dépendances inutilisées ;
+- corriger les erreurs TypeScript ;
+- corriger les erreurs Python ;
+- supprimer les valeurs arbitraires ;
+- supprimer les données de démonstration présentées comme réelles ;
+- harmoniser les noms ;
+- documenter les fonctions complexes ;
+- séparer clairement logique métier et interface.
+
+Ne pas masquer les exceptions.
+
+Ne pas utiliser de valeurs par défaut trompeuses.
+
+Ne pas créer des interfaces qui donnent l'impression qu'une fonction existe alors qu'elle n'est pas opérationnelle.
+
+# PHASE 20 — VALIDATION FINALE OBLIGATOIRE
+
+À la fin des travaux :
+
+1. Installer les dépendances.
+2. Vérifier la compilation frontend.
+3. Vérifier le typage TypeScript.
+4. Exécuter les tests frontend.
+5. Exécuter les tests backend.
+6. Lancer les tests d'intégration possibles.
+7. Vérifier les exports générés.
+8. Vérifier la persistance après redémarrage.
+9. Vérifier le fonctionnement sans accès Internet après installation.
+10. Vérifier les scripts d'installation.
+
+Ne pas se contenter d'une analyse statique.
+
+Si un test ne peut pas être exécuté à cause d'une dépendance ou d'un environnement indisponible, le signaler précisément.
+
+Ne jamais remplacer un test impossible par un résultat simulé.
+
+---
+
+# 21. LIVRABLES OBLIGATOIRES
+
+Créer ou mettre à jour les documents suivants :
+
+### `AUDIT_INITIAL.md`
+État du projet avant corrections.
+
+### `IMPLEMENTATION_REPORT.md`
+Compte rendu détaillé des modifications réalisées.
+
+Pour chaque fonctionnalité, préciser :
+
+- terminée ;
+- partiellement terminée ;
+- non terminée ;
+- non testable dans l'environnement.
+
+### `TEST_REPORT.md`
+Résultats réels des tests :
+
+- commande exécutée ;
+- résultat ;
+- nombre de tests ;
+- erreurs éventuelles ;
+- limites.
+
+### `BENCHMARK_REPORT.md`
+Résultats des benchmarks réels ou explication de leur indisponibilité.
+
+### `ARCHITECTURE.md`
+Description de l'architecture finale.
+
+### `README.md`
+Documentation utilisateur complète.
+
+### `KNOWN_LIMITATIONS.md`
+Liste honnête des limites restantes.
+
+---
+
+# 22. ORDRE DE RÉALISATION
+
+Travailler par étapes cohérentes.
+
+**Lot 1 — Fiabilisation**
+- audit ;
+- suppression des simulations ;
+- correction des erreurs critiques ;
+- définition de l'architecture.
+
+**Lot 2 — Backend**
+- FastAPI ;
+- SQLite ;
+- filesystem ;
+- API frontend/backend ;
+- import PDF.
+
+**Lot 3 — OCR**
+- Tesseract réel ;
+- PaddleOCR réel ;
+- gestion des langues ;
+- prétraitement ;
+- suivi des traitements.
+
+**Lot 4 — Reconstruction**
+- paragraphes ;
+- colonnes ;
+- titres ;
+- chapitres ;
+- ordre de lecture.
+
+**Lot 5 — Édition**
+- correction ;
+- sauvegarde ;
+- reprise ;
+- gestion des illustrations.
+
+**Lot 6 — Exports**
+- EPUB 3 ;
+- Markdown ;
+- TXT ;
+- HTML ;
+- PDF OCRisé si réalisable.
+
+**Lot 7 — Qualité**
+- tests ;
+- benchmarks ;
+- sécurité ;
+- performance ;
+- fonctionnement hors ligne.
+
+**Lot 8 — Documentation et livraison**
+- README ;
+- scripts ;
+- rapports ;
+- installation.
+
+À chaque lot, vérifier que les fonctionnalités précédemment opérationnelles continuent de fonctionner.
+
+Ne pas attendre la fin du projet pour compiler et tester.
+
+---
+
+# 23. RÈGLES DE TRAVAIL IMPÉRATIVES POUR CODEX
+
+1. Ne pas repartir de zéro sans justification technique.
+2. Préserver l'interface React existante autant que possible.
+3. Ne pas supprimer une fonctionnalité utile sans expliquer pourquoi.
+4. Ne pas simuler une fonctionnalité manquante.
+5. Ne jamais fabriquer de texte OCR.
+6. Ne jamais fabriquer de scores de qualité.
+7. Ne jamais fabriquer de résultats de benchmarks.
+8. Ne jamais déclarer un moteur OCR opérationnel sans l'avoir exécuté.
+9. Ne jamais déclarer un export EPUB valide sans l'avoir vérifié.
+10. Ne jamais déclarer les tests réussis sans les avoir exécutés.
+11. Privilégier les bibliothèques libres et les solutions locales.
+12. Vérifier les licences des dépendances et des modèles.
+13. Ne pas introduire d'API payante.
+14. Ne pas envoyer les documents à un service externe.
+15. Documenter les limitations restantes.
+16. Maintenir une application fonctionnelle à chaque étape.
+17. Ne pas se limiter à modifier le README ou à produire des rapports : implémenter réellement les fonctionnalités.
+
+Si une fonctionnalité est trop complexe pour être terminée dans le cadre de l'exécution, fournir une implémentation partielle propre, signaler explicitement son état et ne pas la présenter comme terminée.
+
+## OBJECTIF FINAL
+
+Obtenir une véritable application OCRBookor permettant à un utilisateur de prendre un livre PDF scanné, de le convertir en texte structuré, de corriger le résultat, de reconstruire les chapitres, de conserver les illustrations et de produire un EPUB 3 ou un document Markdown/TXT/HTML exploitable.
+
+Le tout doit fonctionner localement, être fiable, reprendre les traitements interrompus, conserver les corrections et ne jamais inventer de résultats.
+
+**La priorité est la fiabilité du traitement réel, pas le nombre de fonctionnalités affichées dans l'interface.**
