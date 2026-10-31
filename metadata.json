@@ -1,0 +1,8 @@
+{
+  "name": "OCRBookor",
+  "description": "Application locale de numérisation, reconnaissance OCR et reconstruction de livres vers EPUB 3, Markdown, TXT et HTML.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,1340 @@
+# CAHIER DES CHARGES FONCTIONNEL ET TECHNIQUE
+# Convertisseur PDF OCR vers EPUB et texte
+
+**Nom de projet provisoire :** OCRBook  
+**Version :** 1.0  
+**Type :** Application locale de numérisation, reconnaissance et reconstruction de livres  
+**Environnement cible :** Linux Debian 13, extensible à Windows et macOS  
+**Licence envisagée :** Open source  
+**Langue de l'interface :** Français, avec architecture internationalisable
+
+---
+
+# PARTIE 1 – PRÉSENTATION DU PROJET
+
+## 1.1. Objectif général
+
+Développer une application permettant de transformer des documents PDF constitués exclusivement d'images numérisées en livres numériques structurés et exploitables.
+
+L'application doit être capable de reconnaître les caractères présents dans les images, de reconstruire la structure éditoriale du livre et de générer plusieurs formats de sortie.
+
+Le logiciel doit notamment permettre de convertir :
+- Des romans numérisés.
+- Des livres anciens.
+- Des essais et ouvrages documentaires.
+- Des livres illustrés.
+- Des documents imprimés dont les pages ont été photographiées ou scannées.
+- Des PDF présentant une qualité de numérisation variable.
+
+Le projet doit privilégier les technologies gratuites et open source, sans dépendance à des API commerciales.
+
+## 1.2. Résultats attendus
+
+Pour chaque PDF traité, l'utilisateur doit pouvoir obtenir :
+
+| Format | Description |
+|---|---|
+| EPUB 3 | Livre numérique structuré et compatible avec les liseuses |
+| Markdown | Texte structuré avec titres et chapitres |
+| TXT | Texte brut |
+| HTML | Version web structurée |
+| PDF OCRisé | PDF original avec couche de texte consultable, en option |
+
+L'application doit également conserver un projet intermédiaire permettant de reprendre les corrections et de régénérer les différents formats sans relancer l'OCR.
+
+## 1.3. Principes fondamentaux
+
+1. Fonctionnement entièrement local.
+2. Aucune transmission des documents à un service externe.
+3. Aucune API payante.
+4. Utilisation de moteurs OCR open source.
+5. Conservation du PDF original.
+6. Conservation des résultats OCR bruts.
+7. Corrections manuelles non destructives.
+8. Reprise des traitements interrompus.
+9. Export EPUB conforme aux standards.
+10. Traçabilité des opérations et des versions des moteurs OCR.
+
+---
+
+# PARTIE 2 – ARCHITECTURE TECHNIQUE
+
+## 2.1. Architecture générale
+
+L'application repose sur une architecture séparant clairement l'interface, le traitement documentaire et le stockage.
+
+### Frontend
+- React
+- TypeScript
+- Vite
+- Interface responsive
+- Éditeur de texte
+- Visualisation des pages PDF
+- Communication avec l'API locale
+
+### Backend
+- Python 3
+- FastAPI
+- Pydantic
+- Traitement asynchrone des tâches longues
+- Gestion des projets
+- Orchestration des moteurs OCR
+- Reconstruction documentaire
+- Génération des fichiers
+
+### Stockage
+- SQLite pour les métadonnées et l'état des traitements.
+- Système de fichiers pour les PDF, images et exports.
+- JSON pour la structure documentaire intermédiaire.
+
+### Schéma
+
+```text
+OCRBook
+│
+├── Frontend React / TypeScript
+│   ├── Bibliothèque
+│   ├── Import PDF
+│   ├── Analyse
+│   ├── OCR
+│   ├── Correction
+│   ├── Structure du livre
+│   └── Export
+│
+├── Backend FastAPI
+│   ├── Gestion des projets
+│   ├── Analyse PDF
+│   ├── Prétraitement images
+│   ├── Orchestration OCR
+│   ├── Reconstruction
+│   ├── Validation
+│   └── Export
+│
+├── Moteurs OCR
+│   ├── Tesseract
+│   ├── PaddleOCR
+│   └── RapidOCR (optionnel)
+│
+├── Base de données SQLite
+│
+└── Stockage local
+    ├── PDF originaux
+    ├── Images
+    ├── OCR bruts
+    ├── Documents JSON
+    └── Exports
+```
+
+## 2.2. Bibliothèques et dépendances
+
+| Domaine | Technologie | Utilisation |
+|---|---|---|
+| PDF | PyMuPDF | Lecture, rendu, extraction |
+| Images | OpenCV | Nettoyage et redressement |
+| Images | Pillow | Manipulation et conversion |
+| OCR principal | Tesseract | Reconnaissance de caractères |
+| Python OCR | pytesseract | Interface Python |
+| OCR avancé | PaddleOCR | Reconnaissance complémentaire |
+| Structure documentaire | PP-StructureV3 | Analyse de mise en page |
+| OCR alternatif | RapidOCR | Moteur complémentaire facultatif |
+| API | FastAPI | Communication frontend/backend |
+| Validation | Pydantic | Contrôle des données |
+| Base de données | SQLite | Gestion des projets |
+| ORM | SQLAlchemy | Accès aux données |
+| HTML | BeautifulSoup4 | Nettoyage et manipulation |
+| EPUB | EbookLib | Génération EPUB |
+| Markdown | Python-Markdown | Génération et conversion |
+| DOCX | python-docx | Extension facultative |
+| Tests | pytest | Tests automatisés |
+| Tests avancés | Hypothesis | Tests de propriétés |
+| Validation EPUB | EPUBCheck | Conformité EPUB |
+
+Toutes les dépendances doivent être documentées et leurs licences vérifiées avant intégration.
+
+Le logiciel doit fonctionner sans connexion Internet une fois les dépendances et les modèles OCR installés.
+
+## 2.3. Architecture modulaire
+
+Le code doit être organisé par responsabilité.
+
+```text
+backend/
+├── api/
+├── core/
+│   ├── pdf_analyzer.py
+│   ├── pdf_renderer.py
+│   ├── image_processor.py
+│   └── task_manager.py
+│
+├── ocr/
+│   ├── base_engine.py
+│   ├── tesseract_engine.py
+│   ├── paddle_engine.py
+│   ├── rapid_engine.py
+│   └── quality_analyzer.py
+│
+├── reconstruction/
+│   ├── paragraph_builder.py
+│   ├── chapter_detector.py
+│   ├── hyphenation.py
+│   ├── header_footer.py
+│   ├── layout_analyzer.py
+│   ├── footnotes.py
+│   └── image_extractor.py
+│
+├── validation/
+│   ├── text_validator.py
+│   ├── structure_validator.py
+│   └── epub_validator.py
+│
+├── exporters/
+│   ├── epub_exporter.py
+│   ├── markdown_exporter.py
+│   ├── text_exporter.py
+│   ├── html_exporter.py
+│   └── pdf_exporter.py
+│
+├── models/
+├── database/
+└── services/
+```
+
+Les moteurs OCR doivent respecter une interface commune afin de pouvoir être remplacés ou complétés sans modifier le reste de l'application.
+
+---
+
+# PARTIE 3 – FONCTIONNALITÉS
+
+## 3.1. Gestion de la bibliothèque
+
+Créer un espace permettant de gérer plusieurs projets de conversion.
+
+Fonctionnalités :
+- Créer un projet.
+- Importer un PDF.
+- Afficher le titre du document.
+- Afficher le nombre de pages.
+- Afficher la date d'importation.
+- Afficher le statut du traitement.
+- Afficher le taux de progression.
+- Reprendre un projet existant.
+- Supprimer un projet avec confirmation.
+- Exporter ou sauvegarder un projet.
+- Rechercher un projet dans la bibliothèque.
+
+Statuts possibles :
+
+- Importé.
+- En cours d'analyse.
+- Prêt pour OCR.
+- OCR en cours.
+- Reconstruction en cours.
+- À corriger.
+- Validé.
+- Exporté.
+- Interrompu.
+- En erreur.
+
+## 3.2. Importation et analyse du PDF
+
+Lors de l'importation, analyser automatiquement le document.
+
+Informations à récupérer :
+- Nom du fichier.
+- Nombre de pages.
+- Dimensions des pages.
+- Résolution estimée.
+- Taille du fichier.
+- Orientation.
+- Présence éventuelle d'une couche texte.
+- Présence d'images.
+- Pages blanches.
+- Pages potentiellement dégradées.
+
+L'application doit déterminer si le document est :
+- Un PDF constitué uniquement d'images.
+- Un PDF contenant du texte natif.
+- Un PDF hybride combinant texte et images.
+
+Pour un PDF hybride, éviter de lancer inutilement l'OCR sur les zones qui disposent déjà d'un texte natif exploitable.
+
+Afficher un rapport d'analyse avant le lancement du traitement.
+
+## 3.3. Prétraitement des images
+
+Le prétraitement doit être configurable.
+
+Fonctionnalités :
+- Conversion des pages en images.
+- Réglage de la résolution.
+- Détection automatique de l'orientation.
+- Rotation automatique.
+- Redressement des pages inclinées.
+- Correction du contraste.
+- Réduction du bruit.
+- Suppression des bordures inutiles.
+- Binarisation.
+- Détection des zones de texte.
+- Détection des pages blanches.
+
+Paramètres :
+- Résolution par défaut : 300 DPI.
+- Possibilité de choisir 200, 300 ou 400 DPI.
+- Traitement en niveaux de gris.
+- Conservation de l'image couleur originale.
+- Conservation des images prétraitées selon les paramètres du projet.
+
+Ne jamais modifier le PDF original.
+
+## 3.4. Reconnaissance OCR
+
+### Moteur principal : Tesseract
+
+Configuration :
+- Français par défaut.
+- Possibilité de choisir plusieurs langues.
+- Chargement du modèle linguistique avant traitement.
+- Récupération du texte.
+- Récupération des coordonnées.
+- Récupération des scores de confiance.
+- Conservation des résultats bruts.
+
+Modes de segmentation Tesseract configurables selon la nature des pages.
+
+### Moteur secondaire : PaddleOCR
+
+Intégrer PaddleOCR en option.
+
+Fonctionnalités :
+- Détection des zones de texte.
+- Reconnaissance des caractères.
+- Détection des paragraphes.
+- Analyse de la disposition.
+- Reconnaissance multilingue.
+- Extraction des structures documentaires.
+
+Prévoir un mode CPU pour les machines sans GPU.
+
+PP-StructureV3 doit être une fonctionnalité avancée, chargée uniquement lorsque nécessaire.
+
+### Stratégie de reconnaissance
+
+Le traitement doit suivre ce processus :
+
+1. Exécuter Tesseract sur toutes les pages sélectionnées.
+2. Évaluer la qualité des résultats.
+3. Identifier les pages présentant des anomalies.
+4. Proposer un second passage avec PaddleOCR.
+5. Comparer les résultats.
+6. Présenter les divergences.
+7. Permettre à l'utilisateur de choisir le résultat retenu.
+
+Ne jamais considérer automatiquement le score de confiance d'un moteur comme directement comparable à celui d'un autre.
+
+## 3.5. Analyse de qualité OCR
+
+Développer un module d'analyse permettant d'identifier les pages problématiques.
+
+Indicateurs :
+- Nombre de caractères reconnus.
+- Nombre de mots.
+- Proportion de caractères anormaux.
+- Nombre de lignes vides.
+- Score de confiance disponible.
+- Détection de répétitions anormales.
+- Détection des paragraphes suspects.
+- Détection de caractères manquants.
+- Détection des résultats OCR divergents.
+
+Classer les pages :
+
+- Bonne qualité.
+- Qualité moyenne.
+- Qualité insuffisante.
+- Reconnaissance probablement échouée.
+
+Les seuils doivent être configurables et présentés comme des indicateurs de qualité, pas comme une garantie de précision linguistique.
+
+Créer un tableau de bord de qualité global du livre.
+
+## 3.6. Reconstruction du texte
+
+Développer un moteur spécifique permettant de transformer les lignes OCR en texte structuré.
+
+### Gestion des paragraphes
+
+- Regrouper les lignes appartenant au même paragraphe.
+- Identifier les changements de paragraphe.
+- Supprimer les retours à la ligne artificiels.
+- Préserver les véritables séparations.
+- Identifier les dialogues.
+- Préserver les citations.
+- Gérer les alinéas.
+
+### Gestion des césures
+
+Reconstruire les mots coupés en fin de ligne.
+
+Exemple :
+
+```text
+Il observait attentivement les
+mouve-
+ments du paysage.
+```
+
+Résultat :
+
+```text
+Il observait attentivement les mouvements du paysage.
+```
+
+Ne jamais supprimer aveuglément les tirets : certains mots utilisent légitimement des traits d'union.
+
+### Gestion de la typographie
+
+- Guillemets français.
+- Apostrophes.
+- Espaces insécables.
+- Ponctuation française.
+- Tirets de dialogue.
+- Ligatures.
+- Caractères accentués.
+
+Préserver le texte original lorsque la correction est incertaine.
+
+## 3.7. Reconstruction de la structure éditoriale
+
+Identifier et reconstruire :
+
+- Page de couverture.
+- Page de titre.
+- Auteur.
+- Préface.
+- Introduction.
+- Parties.
+- Chapitres.
+- Sous-chapitres.
+- Paragraphes.
+- Notes de bas de page.
+- Bibliographie.
+- Index.
+- Annexes.
+- Illustrations et légendes.
+
+Le système doit proposer une structure automatique mais permettre une modification manuelle.
+
+Ne jamais imposer une détection automatique comme structure définitive.
+
+### Détection des chapitres
+
+Utiliser :
+- La taille des caractères.
+- La position.
+- Le centrage.
+- Les espaces avant et après.
+- Les numérotations.
+- Les expressions caractéristiques.
+- La typographie.
+
+Prévoir une interface permettant :
+- D'ajouter un chapitre.
+- De supprimer un chapitre.
+- De modifier son titre.
+- De déplacer un chapitre.
+- De changer son niveau hiérarchique.
+- De fusionner deux sections.
+
+## 3.8. Gestion des illustrations
+
+Extraire les illustrations des PDF.
+
+Fonctionnalités :
+- Détection des images.
+- Extraction des images originales lorsqu'elles existent.
+- Extraction de zones graphiques depuis les pages scannées.
+- Préservation de la résolution.
+- Association aux pages.
+- Association aux chapitres.
+- Détection des légendes.
+- Modification manuelle de l'emplacement.
+- Suppression d'une illustration.
+- Ajout d'une illustration externe par l'utilisateur.
+
+Les images doivent être intégrées au EPUB avec des références locales.
+
+Ne jamais utiliser de service externe pour héberger les illustrations.
+
+## 3.9. Éditeur de correction
+
+Créer un éditeur permettant de comparer la page scannée et le texte OCR.
+
+Disposition recommandée :
+
+- Partie gauche : image originale.
+- Partie droite : texte reconnu et modifiable.
+
+Fonctionnalités :
+- Navigation page précédente/suivante.
+- Zoom de l'image.
+- Sélection du texte.
+- Modification du texte.
+- Signalement des erreurs.
+- Affichage des passages incertains.
+- Affichage des résultats des différents moteurs.
+- Sauvegarde automatique.
+- Annulation/rétablissement des modifications.
+- Marquage d'une page comme validée.
+- Recherche et remplacement dans le livre.
+
+Chaque correction doit être enregistrée séparément du résultat OCR brut.
+
+## 3.10. Génération EPUB
+
+Générer des fichiers EPUB 3 conformes aux standards.
+
+Le fichier doit contenir :
+
+- Métadonnées.
+- Titre.
+- Auteur.
+- Langue.
+- Identifiant unique.
+- Couverture.
+- Sommaire.
+- Navigation.
+- Chapitres.
+- Images.
+- Notes.
+- Feuilles de style CSS.
+- Structure XHTML valide.
+
+Chaque chapitre doit pouvoir constituer un fichier XHTML distinct.
+
+Prévoir :
+- Une présentation adaptée aux liseuses.
+- Une typographie confortable.
+- Une largeur de lecture raisonnable.
+- Une gestion correcte des images.
+- Une navigation par chapitres.
+- Une compatibilité avec les principaux lecteurs EPUB.
+
+L'utilisateur doit pouvoir choisir :
+- Le style typographique.
+- La taille de police initiale.
+- Les marges.
+- La présence ou non des numéros de page.
+- La présence ou non des images.
+
+Utiliser EbookLib ou une autre bibliothèque EPUB si elle apporte une meilleure conformité.
+
+Valider les fichiers générés avec EPUBCheck.
+
+## 3.11. Export Markdown et TXT
+
+### Markdown
+
+Produire un document structuré :
+
+```markdown
+# Titre du livre
+
+Auteur
+
+## Préface
+
+Texte de la préface.
+
+## Chapitre 1
+
+### Section 1
+
+Texte du premier paragraphe.
+
+Texte du deuxième paragraphe.
+```
+
+Les illustrations doivent être référencées avec des chemins relatifs.
+
+### TXT
+
+Produire :
+- Texte sans balises HTML.
+- Titres clairement séparés.
+- Paragraphes conservés.
+- Encodage UTF-8.
+- Séparations entre chapitres.
+
+## 3.12. Export PDF OCRisé
+
+Fonctionnalité complémentaire :
+
+Permettre de générer un PDF consultable avec couche de texte invisible.
+
+Utiliser OCRmyPDF lorsque cela est pertinent.
+
+Préserver autant que possible l'apparence du document d'origine.
+
+Cette fonctionnalité ne doit pas être confondue avec la génération d'un nouveau PDF éditorial.
+
+---
+
+# PARTIE 4 – GESTION DES DONNÉES
+
+## 4.1. Format intermédiaire
+
+Le document structuré doit être enregistré en JSON.
+
+Chaque bloc doit contenir :
+- Un identifiant.
+- Un type.
+- Un contenu.
+- Une référence de page.
+- Des coordonnées.
+- Les résultats OCR associés.
+- Le score de confiance disponible.
+- L'état de validation.
+- Les éventuelles corrections.
+
+Types de blocs :
+- heading
+- paragraph
+- quote
+- footnote
+- image
+- caption
+- table
+- page_break
+- separator
+
+Exemple :
+
+```json
+{
+  "schema_version": "1.0",
+  "book": {
+    "id": "book-001",
+    "title": "Mon livre",
+    "author": "Auteur",
+    "language": "fr",
+    "source": "original.pdf"
+  },
+  "chapters": [
+    {
+      "id": "chapter-001",
+      "title": "Chapitre premier",
+      "blocks": [
+        {
+          "id": "block-001",
+          "type": "paragraph",
+          "text": "Texte reconnu.",
+          "source_page": 1,
+          "confidence": 0.98,
+          "validated": false,
+          "bbox": [100, 200, 800, 300]
+        }
+      ]
+    }
+  ]
+}
+```
+
+Ce modèle est illustratif. Le schéma définitif doit gérer également les résultats OCR multiples, les corrections et les métadonnées de provenance.
+
+## 4.2. Organisation des fichiers
+
+```text
+data/
+└── projects/
+    └── book-001/
+        ├── source/
+        │   └── original.pdf
+        ├── images/
+        │   ├── original/
+        │   └── processed/
+        ├── ocr/
+        │   ├── tesseract/
+        │   └── paddle/
+        ├── document/
+        │   ├── book.json
+        │   └── metadata.json
+        ├── exports/
+        │   ├── book.epub
+        │   ├── book.md
+        │   ├── book.txt
+        │   └── book.html
+        └── logs/
+```
+
+Les fichiers temporaires doivent être séparés des données permanentes.
+
+## 4.3. Base SQLite
+
+Prévoir les entités suivantes :
+
+- Projects
+- Pages
+- Chapters
+- Blocks
+- OCRResults
+- Corrections
+- Tasks
+- Exports
+- Settings
+
+La base doit permettre de retrouver l'état exact d'un projet après fermeture de l'application.
+
+Les migrations de schéma doivent être gérées avec Alembic.
+
+---
+
+# PARTIE 5 – EXPÉRIENCE UTILISATEUR
+
+## 5.1. Écrans
+
+### Écran 1 : Bibliothèque
+- Liste des projets.
+- Création et importation.
+- État des traitements.
+- Recherche.
+- Accès aux résultats.
+
+### Écran 2 : Analyse
+- Informations PDF.
+- Aperçu des pages.
+- Qualité des scans.
+- Choix de résolution.
+- Paramètres OCR.
+
+### Écran 3 : Reconnaissance
+- Progression.
+- Nombre de pages traitées.
+- Temps écoulé.
+- Pages problématiques.
+- Possibilité d'interrompre et de reprendre.
+
+### Écran 4 : Correction
+- Comparaison image/texte.
+- Édition.
+- Validation.
+- Navigation.
+
+### Écran 5 : Structure
+- Arborescence du livre.
+- Gestion des chapitres.
+- Illustrations.
+- Métadonnées.
+
+### Écran 6 : Export
+- Prévisualisation EPUB.
+- Export Markdown.
+- Export TXT.
+- Export HTML.
+- PDF OCRisé facultatif.
+- Rapport de validation.
+
+## 5.2. Ergonomie
+
+L'interface doit être :
+- Moderne.
+- Sobre.
+- Accessible.
+- En français.
+- Adaptée aux grands écrans.
+- Utilisable au clavier.
+- Dotée de notifications explicites.
+- Capable de présenter les erreurs sans interrompre inutilement le travail.
+
+Prévoir un thème clair et sombre.
+
+---
+
+# PARTIE 6 – PERFORMANCE ET ROBUSTESSE
+
+## 6.1. Matériel de référence
+
+Configuration cible initiale :
+- Debian 13.
+- 16 Go de RAM.
+- CPU sans GPU dédié.
+- SSD de 1 To.
+
+L'application doit être utilisable sur cette configuration.
+
+## 6.2. Optimisations
+
+- Traitement par lots limités.
+- Chargement unique des modèles OCR.
+- Limitation de la mémoire.
+- Traitement page par page.
+- Mise en cache des résultats.
+- Écriture progressive des données.
+- Reprise après interruption.
+- Gestion des erreurs individuelles par page.
+- Nettoyage contrôlé des fichiers temporaires.
+
+Ne jamais charger toutes les pages d'un gros PDF en mémoire simultanément.
+
+## 6.3. Fiabilité
+
+Prévoir :
+- Journalisation des opérations.
+- Sauvegarde automatique.
+- Transactions SQLite.
+- Gestion des erreurs.
+- Vérification des fichiers avant export.
+- Prévention des pertes de corrections.
+- Reprise après fermeture brutale.
+
+## 6.4. Sécurité
+
+- Écoute réseau limitée à localhost.
+- Pas de transmission externe.
+- Pas d'analytics.
+- Pas de télémétrie.
+- Pas de chargement distant de scripts.
+- Vérification des chemins de fichiers.
+- Protection contre les traversées de répertoires.
+- Limitation de la taille des fichiers importés selon les ressources disponibles.
+- Validation des fichiers générés.
+
+Les documents doivent rester privés sur la machine de l'utilisateur.
+
+---
+
+# PARTIE 7 – TESTS ET CRITÈRES D'ACCEPTATION
+
+## 7.1. Corpus de validation
+
+Constituer trois documents de référence :
+
+**Livre A : roman récent**
+- PDF scanné propre.
+- Texte imprimé classique.
+- Une colonne.
+- Pages régulières.
+
+**Livre B : ouvrage ancien**
+- Papier jauni.
+- Contraste variable.
+- Typographie ancienne.
+- Pages légèrement inclinées.
+
+**Livre C : livre illustré**
+- Illustrations.
+- Légendes.
+- Titres.
+- Notes.
+- Mise en page plus complexe.
+
+Les documents doivent être libres de droits, sous licence compatible ou fournis avec autorisation.
+
+Constituer une transcription de référence d'un échantillon de pages afin de mesurer les performances OCR.
+
+## 7.2. Tests OCR
+
+Mesurer :
+- CER : Character Error Rate.
+- WER : Word Error Rate.
+- Temps moyen par page.
+- Mémoire consommée.
+- Nombre de pages nécessitant une correction.
+- Résultats comparatifs Tesseract/PaddleOCR.
+
+Ne pas promettre un taux de reconnaissance universel : les résultats dépendent de la qualité des documents.
+
+Objectifs initiaux à mesurer sur le corpus propre :
+- CER inférieur ou égal à 2 %.
+- WER inférieur ou égal à 5 %.
+
+Ces objectifs sont des cibles expérimentales, pas des critères garantis pour tous les documents.
+
+## 7.3. Tests fonctionnels
+
+Vérifier :
+- Importation d'un PDF.
+- Analyse de pages.
+- Détection d'un PDF image.
+- Détection d'un PDF hybride.
+- OCR français.
+- Gestion des pages blanches.
+- Reprise d'un traitement.
+- Correction manuelle.
+- Sauvegarde.
+- Reconstruction des chapitres.
+- Conservation des images.
+- Génération EPUB.
+- Génération Markdown.
+- Génération TXT.
+- Validation EPUBCheck.
+- Suppression d'un projet.
+
+## 7.4. Critères d'acceptation globaux
+
+Le projet est considéré comme fonctionnel lorsque :
+
+1. Un PDF image peut être importé.
+2. Toutes les pages peuvent être traitées sans blocage global.
+3. Les résultats OCR sont enregistrés.
+4. Les pages problématiques sont signalées.
+5. Les textes peuvent être corrigés.
+6. Les corrections sont conservées.
+7. Les chapitres sont modifiables.
+8. Les illustrations peuvent être conservées.
+9. Un EPUB 3 valide peut être généré.
+10. Les exports TXT et Markdown sont disponibles.
+11. Le projet peut être fermé et repris.
+12. L'application fonctionne sans connexion Internet.
+13. Les tests automatisés sont exécutés et documentés.
+
+---
+
+# PARTIE 8 – LIVRABLES
+
+Le développement doit fournir :
+
+1. Code source complet.
+2. Frontend React.
+3. Backend Python.
+4. Base SQLite et migrations.
+5. Moteur OCR Tesseract.
+6. Intégration PaddleOCR.
+7. Moteur de reconstruction.
+8. Éditeur de correction.
+9. Générateur EPUB.
+10. Export Markdown et TXT.
+11. Tests automatisés.
+12. Documentation technique.
+13. Guide d'installation Debian.
+14. Guide utilisateur.
+15. Procédure de sauvegarde et restauration.
+16. Rapport de validation.
+17. Fichier de dépendances avec versions.
+18. Procédure de mise à jour.
+
+Prévoir une possibilité de packaging pour Debian et Flatpak dans une phase ultérieure.
+
+---
+
+# PARTIE 9 – ÉVOLUTIONS FUTURES
+
+Ne pas intégrer ces fonctionnalités dans le MVP, mais conserver une architecture permettant de les ajouter.
+
+- Reconnaissance de manuscrits.
+- OCR spécialisé pour les livres du XIXe siècle.
+- Reconnaissance de langues supplémentaires.
+- Reconnaissance de formules mathématiques.
+- Reconstruction avancée des tableaux.
+- Détection des notes de bas de page complexes.
+- Traduction du texte.
+- Export DOCX.
+- Export MOBI/AZW3 si une solution adaptée est disponible.
+- Création automatique de couvertures.
+- Entraînement de modèles OCR personnalisés.
+- Traitement par lots de bibliothèques entières.
+
+---
+
+# PARTIE 10 – PROMPT CODEX
+
+## Mission générale
+
+Tu es un ingénieur logiciel senior spécialisé en Python, traitement documentaire, OCR, reconnaissance de caractères, reconstruction de documents et développement d'applications locales.
+
+Tu dois développer une application complète de conversion de PDF numérisés en EPUB 3 et en documents texte structurés.
+
+Tu dois travailler directement dans le dépôt GitHub fourni.
+
+Le cahier des charges qui précède constitue la référence fonctionnelle et technique du projet.
+
+Ton objectif est de produire un logiciel réellement fonctionnel, testé, documenté et installable.
+
+## 1. Règles impératives de développement
+
+- Commencer par auditer le dépôt existant.
+- Ne pas supposer que les fonctionnalités sont déjà implémentées.
+- Ne pas remplacer du code fonctionnel sans raison.
+- Ne pas créer de simples maquettes présentées comme des fonctionnalités terminées.
+- Ne pas utiliser de données fictives pour simuler un traitement réel.
+- Ne pas utiliser d'API payante.
+- Ne pas dépendre d'un service cloud.
+- Ne pas envoyer les PDF vers un serveur externe.
+- Ne pas introduire de dépendance propriétaire.
+- Ne pas masquer les erreurs.
+- Ne pas déclarer une fonctionnalité terminée sans test.
+- Conserver les conventions et la qualité du dépôt existant.
+
+Toutes les fonctionnalités annoncées dans l'interface doivent fonctionner réellement.
+
+## 2. Phase initiale : audit technique
+
+Avant toute modification :
+
+1. Examiner l'ensemble du dépôt.
+2. Identifier la structure existante.
+3. Examiner les dépendances.
+4. Examiner les fonctionnalités déjà présentes.
+5. Identifier les tests existants.
+6. Vérifier la documentation.
+7. Identifier les lacunes par rapport au cahier des charges.
+8. Vérifier la compatibilité avec Debian 13.
+9. Vérifier les licences des dépendances.
+10. Établir un plan d'implémentation.
+
+Produire un document `AUDIT_INITIAL.md` contenant :
+- État du projet.
+- Architecture actuelle.
+- Fonctionnalités existantes.
+- Fonctionnalités manquantes.
+- Problèmes identifiés.
+- Dépendances à ajouter.
+- Risques techniques.
+- Plan d'action priorisé.
+
+Ne pas réécrire une fonctionnalité déjà correcte.
+
+## 3. Phase de validation des moteurs OCR
+
+C'est une étape obligatoire avant de développer toute la chaîne de conversion.
+
+Installer et tester :
+
+- Tesseract.
+- pytesseract.
+- PaddleOCR.
+- RapidOCR à titre comparatif si pertinent.
+- PyMuPDF.
+- OpenCV.
+
+Créer un petit banc d'essai permettant de traiter les trois types de documents décrits dans le cahier des charges.
+
+Comparer :
+- Temps de traitement.
+- Précision.
+- CER.
+- WER.
+- Utilisation mémoire.
+- Qualité sur pages inclinées.
+- Qualité sur pages jaunies.
+- Qualité sur textes français.
+- Qualité de restitution des paragraphes.
+
+Ne pas comparer directement les scores de confiance bruts des moteurs.
+
+Produire `OCR_BENCHMARK.md` avec les résultats réellement mesurés.
+
+Si certains moteurs sont incompatibles avec la configuration cible, documenter le problème et proposer une solution.
+
+## 4. Phase de développement du socle
+
+Implémenter :
+
+- Structure du projet.
+- Configuration.
+- Journalisation.
+- Gestion des erreurs.
+- API FastAPI.
+- Base SQLite.
+- Migrations Alembic.
+- Gestion des projets.
+- Gestion des fichiers.
+- Sauvegarde et reprise.
+- Communication frontend/backend.
+
+Créer une interface permettant de créer, ouvrir et supprimer des projets.
+
+Ne pas développer toute l'interface avant d'avoir validé le fonctionnement du backend.
+
+## 5. Phase PDF et prétraitement
+
+Implémenter réellement :
+
+- Importation PDF.
+- Analyse du document.
+- Détection des pages image.
+- Détection des pages avec texte natif.
+- Détection des PDF hybrides.
+- Extraction des informations.
+- Rendu des pages.
+- Redressement.
+- Nettoyage.
+- Réglage de la résolution.
+- Détection des pages blanches.
+
+Créer des tests sur des PDF réels.
+
+## 6. Phase OCR
+
+Créer une architecture commune pour les moteurs OCR.
+
+Implémenter :
+- Tesseract.
+- PaddleOCR.
+- Gestion des langues.
+- Gestion des erreurs.
+- Extraction des coordonnées.
+- Conservation des résultats bruts.
+- Conservation des scores de confiance.
+- Traitement par lots.
+- Interruption.
+- Reprise.
+
+Créer le module d'évaluation de la qualité.
+
+Les résultats doivent être persistés progressivement.
+
+Une erreur sur une page ne doit pas faire échouer tout le livre.
+
+## 7. Phase reconstruction documentaire
+
+Développer les modules :
+
+- `paragraph_builder`
+- `chapter_detector`
+- `hyphenation`
+- `header_footer`
+- `layout_analyzer`
+- `footnotes`
+- `image_extractor`
+
+Les traitements doivent être prudents.
+
+Ne jamais supprimer automatiquement un contenu simplement parce qu'il semble être un en-tête ou un pied de page.
+
+Prévoir une possibilité de validation manuelle.
+
+Le document JSON intermédiaire doit devenir la source de vérité pour tous les exports.
+
+Versionner son schéma.
+
+## 8. Phase éditeur de correction
+
+Créer une interface réelle avec :
+
+- Aperçu de la page.
+- Texte reconnu.
+- Édition.
+- Navigation.
+- Affichage des passages incertains.
+- Sauvegarde automatique.
+- Annulation/rétablissement.
+- Validation des pages.
+- Recherche.
+- Remplacement.
+
+Les corrections doivent être enregistrées séparément des résultats OCR initiaux.
+
+Vérifier qu'une fermeture brutale ne provoque pas la perte des modifications sauvegardées.
+
+## 9. Phase reconstruction du livre
+
+Implémenter :
+
+- Détection des chapitres.
+- Création de chapitres.
+- Modification.
+- Suppression.
+- Réorganisation.
+- Gestion des illustrations.
+- Gestion des légendes.
+- Gestion des notes.
+- Métadonnées bibliographiques.
+- Table des matières.
+
+L'utilisateur doit pouvoir modifier intégralement la structure proposée.
+
+## 10. Phase export
+
+Implémenter réellement :
+
+### EPUB 3
+
+- Métadonnées.
+- XHTML.
+- CSS.
+- Navigation.
+- Table des matières.
+- Couverture.
+- Chapitres.
+- Illustrations.
+- Notes.
+- Identifiant unique.
+
+Valider les fichiers avec EPUBCheck.
+
+### Markdown
+
+- Titres.
+- Chapitres.
+- Paragraphes.
+- Notes.
+- Images.
+
+### TXT
+
+- Texte UTF-8.
+- Paragraphes.
+- Titres.
+- Séparation des chapitres.
+
+### HTML
+
+Produire une version structurée et autonome du document.
+
+Ne pas considérer un simple changement d'extension comme une conversion.
+
+## 11. Phase interface finale
+
+Développer les six écrans définis dans le cahier des charges.
+
+L'interface doit être :
+- Moderne.
+- Sobre.
+- En français.
+- Cohérente.
+- Responsive.
+- Accessible.
+- Utilisable au clavier.
+
+Prévoir les états de chargement, d'erreur, de validation et de progression.
+
+Ne pas laisser de boutons inactifs.
+
+Ne pas afficher de données simulées lorsque le backend n'a pas fourni de résultats.
+
+## 12. Phase tests
+
+Créer des tests automatisés pour tous les modules.
+
+Exécuter :
+- Tests unitaires.
+- Tests d'intégration.
+- Tests API.
+- Tests de reconstruction.
+- Tests d'export.
+- Tests de persistance.
+- Tests de reprise.
+- Tests de conformité EPUB.
+
+Tester notamment :
+- PDF propre.
+- PDF ancien.
+- PDF incliné.
+- PDF hybride.
+- PDF contenant des pages blanches.
+- PDF avec illustrations.
+- PDF avec plusieurs colonnes.
+- PDF partiellement illisible.
+- PDF volumineux.
+
+Mesurer les performances sur une machine CPU sans GPU.
+
+Corriger les problèmes détectés avant de déclarer une phase terminée.
+
+## 13. Installation et déploiement
+
+Préparer :
+
+- `requirements.txt` ou `pyproject.toml`.
+- Configuration des modèles OCR.
+- Script d'installation Debian 13.
+- Script de lancement.
+- Configuration locale.
+- Guide de désinstallation.
+- Guide de sauvegarde.
+- README complet.
+
+Prévoir un lancement local sans connexion Internet.
+
+Vérifier les ports utilisés et limiter l'API à localhost.
+
+Le téléchargement initial des modèles OCR peut nécessiter Internet, mais doit être explicite et les modèles doivent ensuite être utilisables hors ligne.
+
+## 14. Documentation obligatoire
+
+Créer ou actualiser :
+
+- `README.md`
+- `ARCHITECTURE.md`
+- `INSTALLATION.md`
+- `USER_GUIDE.md`
+- `OCR_BENCHMARK.md`
+- `TEST_REPORT.md`
+- `CHANGELOG.md`
+- `AUDIT_INITIAL.md`
+
+Documenter les limitations réelles des moteurs OCR.
+
+## 15. Rapport final obligatoire
+
+À la fin du développement, produire un rapport détaillé :
+
+### A. Fonctionnalités
+Pour chaque exigence :
+- Implémentée.
+- Partiellement implémentée.
+- Non implémentée.
+
+### B. Tests
+- Tests exécutés.
+- Tests réussis.
+- Tests échoués.
+- Tests non réalisés.
+- Résultats OCR mesurés.
+
+### C. Performances
+- Temps de traitement.
+- Utilisation mémoire.
+- Résultats comparatifs des moteurs.
+- Limites identifiées.
+
+### D. Installation
+- Commandes exactes.
+- Dépendances système.
+- Modèles OCR.
+- Procédure de lancement.
+
+### E. Travaux restants
+Lister précisément les fonctionnalités qui nécessitent encore du travail.
+
+Ne jamais déclarer le projet terminé si des fonctionnalités essentielles du cahier des charges ne sont pas opérationnelles.
+
+## 16. Ordre de priorité
+
+Respecter cet ordre :
+
+**P0 – Fonctionnalités fondamentales**
+- Import PDF.
+- Analyse.
+- Tesseract.
+- Génération TXT.
+- Sauvegarde.
+
+**P1 – Reconstruction**
+- Paragraphes.
+- Césures.
+- Chapitres.
+- JSON intermédiaire.
+- Génération EPUB.
+
+**P2 – Ergonomie**
+- Interface de correction.
+- Prévisualisation.
+- Illustrations.
+- Métadonnées.
+
+**P3 – OCR avancé**
+- PaddleOCR.
+- Comparaison des résultats.
+- Analyse avancée.
+- Traitement des scans dégradés.
+
+**P4 – Industrialisation**
+- Packaging.
+- Documentation complète.
+- Optimisation.
+- Tests de charge.
+
+Tu dois privilégier un logiciel fonctionnel de bout en bout plutôt qu'une multitude de fonctionnalités incomplètes.
+
+**Résultat final attendu : une application locale capable de transformer un véritable livre PDF numérisé en un EPUB 3 structuré et agréable à lire, ainsi qu'en fichiers Markdown et TXT, avec possibilité de corriger les erreurs OCR et de reprendre le travail à tout moment.**
