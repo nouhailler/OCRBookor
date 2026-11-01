@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { OCRProject, Chapter, Illustration } from '../types/book';
 import { detectChaptersFromBlocks } from '../services/reconstructionService';
+import { Tooltip } from './Tooltip';
 
 interface StructureViewProps {
   project: OCRProject;
@@ -137,34 +138,40 @@ export const StructureView: React.FC<StructureViewProps> = ({
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       {/* Header */}
-      <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-800 pb-5">
+      <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
           <div className="flex items-center space-x-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-indigo-400">Écran 5</span>
-            <span className="text-xs text-slate-500">•</span>
-            <span className="text-xs text-slate-400">{project.metadata.title}</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Écran 5</span>
+            <span className="text-xs text-slate-400">•</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">{project.metadata.title}</span>
           </div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight mt-0.5">
-            Structure Éditoriale & Métadonnées
-          </h1>
+          <div className="flex items-center gap-2 mt-0.5">
+            <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Structure Éditoriale & Métadonnées
+            </h1>
+            <Tooltip
+              title="Organisation éditoriale"
+              content="Définit la hiérarchie du livre (table des matières H1/H2), le catalogue des gravures et illustrations, ainsi que les métadonnées Dublin Core requises par les liseuses."
+            />
+          </div>
         </div>
 
         <button
           onClick={onGoToExport}
-          className="flex items-center space-x-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 hover:from-indigo-500 hover:to-blue-500 transition"
+          className="flex items-center space-x-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-indigo-600/20 hover:from-indigo-500 hover:to-blue-500 transition"
         >
           <span>Accéder à la génération EPUB</span>
         </button>
       </div>
 
       {/* Tabs */}
-      <div className="mb-6 flex items-center space-x-2 border-b border-slate-800 pb-2">
+      <div className="mb-6 flex items-center space-x-2 border-b border-slate-200 dark:border-slate-800 pb-2">
         <button
           onClick={() => setActiveTab('chapters')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition ${
             activeTab === 'chapters'
-              ? 'bg-indigo-600 text-white'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              ? 'bg-indigo-600 text-white shadow-xs'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
           }`}
         >
           <Layers className="h-4 w-4" />
@@ -175,8 +182,8 @@ export const StructureView: React.FC<StructureViewProps> = ({
           onClick={() => setActiveTab('illustrations')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition ${
             activeTab === 'illustrations'
-              ? 'bg-indigo-600 text-white'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              ? 'bg-indigo-600 text-white shadow-xs'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
           }`}
         >
           <ImageIcon className="h-4 w-4" />
@@ -187,8 +194,8 @@ export const StructureView: React.FC<StructureViewProps> = ({
           onClick={() => setActiveTab('metadata')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition ${
             activeTab === 'metadata'
-              ? 'bg-indigo-600 text-white'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              ? 'bg-indigo-600 text-white shadow-xs'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
           }`}
         >
           <Book className="h-4 w-4" />

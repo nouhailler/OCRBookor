@@ -22,6 +22,7 @@ import {
 import { OCRProject, Chapter, OCRBlock } from '../types/book';
 import { generateEpub3Blob } from '../services/epubExporter';
 import { generateMarkdown, generatePlainText, generateSingleHtml, downloadFile } from '../services/exportService';
+import { Tooltip } from './Tooltip';
 
 interface ExportViewProps {
   project: OCRProject;
@@ -158,23 +159,30 @@ export const ExportView: React.FC<ExportViewProps> = ({
       {/* Format Cards Grid */}
       <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {/* EPUB 3 */}
-        <div className="rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-4 flex flex-col justify-between">
+        <div className="rounded-2xl border border-emerald-300 dark:border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20 p-4 flex flex-col justify-between shadow-xs">
           <div>
             <div className="flex items-center justify-between">
-              <span className="rounded bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
+              <span className="rounded bg-emerald-100 dark:bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-800 dark:text-emerald-300">
                 EPUB 3
               </span>
-              <BookOpen className="h-4 w-4 text-emerald-400" />
+              <BookOpen className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <h4 className="mt-2 text-sm font-bold text-white">Livre Numérique</h4>
-            <p className="mt-1 text-[11px] text-slate-400">
+            <div className="flex items-center gap-1 mt-2">
+              <h4 className="text-sm font-bold text-slate-900 dark:text-white">Livre Numérique</h4>
+              <Tooltip
+                title="Format Standard EPUB 3"
+                content="Livre électronique officiel IDPF/W3C. Compatible avec Apple Books, Kobo, Amazon Kindle, Tolino et Calibre."
+                tip="Contient la feuille de style, la table des matières et la typographie française complète."
+              />
+            </div>
+            <p className="mt-1 text-[11px] text-slate-600 dark:text-slate-400">
               Conforme IDPF, compatible liseuses (Kobo, Kindle, Apple Books, Calibre).
             </p>
           </div>
           <button
             onClick={handleExportEpub}
             disabled={isExportingEpub}
-            className="mt-4 flex items-center justify-center space-x-1.5 w-full rounded-xl bg-emerald-600 hover:bg-emerald-500 py-2 text-xs font-semibold text-white transition"
+            className="mt-4 flex items-center justify-center space-x-1.5 w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 py-2 text-xs font-semibold text-white shadow-xs transition"
           >
             <Download className="h-3.5 w-3.5" />
             <span>Télécharger .epub</span>
@@ -182,22 +190,28 @@ export const ExportView: React.FC<ExportViewProps> = ({
         </div>
 
         {/* Markdown */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-4 flex flex-col justify-between">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-4 flex flex-col justify-between shadow-xs">
           <div>
             <div className="flex items-center justify-between">
-              <span className="rounded bg-indigo-500/20 px-2 py-0.5 text-[10px] font-bold text-indigo-300">
+              <span className="rounded bg-indigo-100 dark:bg-indigo-500/20 px-2 py-0.5 text-[10px] font-bold text-indigo-800 dark:text-indigo-300">
                 Markdown
               </span>
-              <FileCode className="h-4 w-4 text-indigo-400" />
+              <FileCode className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
             </div>
-            <h4 className="mt-2 text-sm font-bold text-white">Document Structuré</h4>
-            <p className="mt-1 text-[11px] text-slate-400">
+            <div className="flex items-center gap-1 mt-2">
+              <h4 className="text-sm font-bold text-slate-900 dark:text-white">Document Structuré</h4>
+              <Tooltip
+                title="Format Markdown (.md)"
+                content="Idéal pour importer dans Obsidian, Notion, Logseq ou un dépôt Git avec métadonnées YAML en en-tête."
+              />
+            </div>
+            <p className="mt-1 text-[11px] text-slate-600 dark:text-slate-400">
               Titres, citations et alinéas formatés en Markdown standard.
             </p>
           </div>
           <button
             onClick={handleExportMarkdown}
-            className="mt-4 flex items-center justify-center space-x-1.5 w-full rounded-xl bg-slate-800 hover:bg-slate-700 py-2 text-xs font-semibold text-slate-200 transition"
+            className="mt-4 flex items-center justify-center space-x-1.5 w-full rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 py-2 text-xs font-semibold text-slate-800 dark:text-slate-200 transition"
           >
             <Download className="h-3.5 w-3.5" />
             <span>Télécharger .md</span>
@@ -205,22 +219,28 @@ export const ExportView: React.FC<ExportViewProps> = ({
         </div>
 
         {/* TXT */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-4 flex flex-col justify-between">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-4 flex flex-col justify-between shadow-xs">
           <div>
             <div className="flex items-center justify-between">
-              <span className="rounded bg-blue-500/20 px-2 py-0.5 text-[10px] font-bold text-blue-300">
+              <span className="rounded bg-blue-100 dark:bg-blue-500/20 px-2 py-0.5 text-[10px] font-bold text-blue-800 dark:text-blue-300">
                 TXT UTF-8
               </span>
-              <FileText className="h-4 w-4 text-blue-400" />
+              <FileText className="h-4 w-4 text-blue-500 dark:text-blue-400" />
             </div>
-            <h4 className="mt-2 text-sm font-bold text-white">Texte Brut</h4>
-            <p className="mt-1 text-[11px] text-slate-400">
+            <div className="flex items-center gap-1 mt-2">
+              <h4 className="text-sm font-bold text-slate-900 dark:text-white">Texte Brut</h4>
+              <Tooltip
+                title="Format Texte Brut (.txt)"
+                content="Texte épuré universel encodé en UTF-8 sans balises HTML ni enrichissements visuels."
+              />
+            </div>
+            <p className="mt-1 text-[11px] text-slate-600 dark:text-slate-400">
               Texte nettoyé de toute balise, séparateurs de chapitres explicites.
             </p>
           </div>
           <button
             onClick={handleExportPlainText}
-            className="mt-4 flex items-center justify-center space-x-1.5 w-full rounded-xl bg-slate-800 hover:bg-slate-700 py-2 text-xs font-semibold text-slate-200 transition"
+            className="mt-4 flex items-center justify-center space-x-1.5 w-full rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 py-2 text-xs font-semibold text-slate-800 dark:text-slate-200 transition"
           >
             <Download className="h-3.5 w-3.5" />
             <span>Télécharger .txt</span>
@@ -228,22 +248,28 @@ export const ExportView: React.FC<ExportViewProps> = ({
         </div>
 
         {/* HTML */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-4 flex flex-col justify-between">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-4 flex flex-col justify-between shadow-xs">
           <div>
             <div className="flex items-center justify-between">
-              <span className="rounded bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-300">
+              <span className="rounded bg-amber-100 dark:bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300">
                 HTML 5
               </span>
-              <Globe className="h-4 w-4 text-amber-400" />
+              <Globe className="h-4 w-4 text-amber-500 dark:text-amber-400" />
             </div>
-            <h4 className="mt-2 text-sm font-bold text-white">Page Web Autonome</h4>
-            <p className="mt-1 text-[11px] text-slate-400">
+            <div className="flex items-center gap-1 mt-2">
+              <h4 className="text-sm font-bold text-slate-900 dark:text-white">Page Web Autonome</h4>
+              <Tooltip
+                title="Format HTML 5 (.html)"
+                content="Page web responsive avec styles CSS typographiques intégrés, lisible immédiatement."
+              />
+            </div>
+            <p className="mt-1 text-[11px] text-slate-600 dark:text-slate-400">
               Page web responsive avec styles CSS typographiques intégrés.
             </p>
           </div>
           <button
             onClick={handleExportHtml}
-            className="mt-4 flex items-center justify-center space-x-1.5 w-full rounded-xl bg-slate-800 hover:bg-slate-700 py-2 text-xs font-semibold text-slate-200 transition"
+            className="mt-4 flex items-center justify-center space-x-1.5 w-full rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 py-2 text-xs font-semibold text-slate-800 dark:text-slate-200 transition"
           >
             <Download className="h-3.5 w-3.5" />
             <span>Télécharger .html</span>
@@ -251,22 +277,28 @@ export const ExportView: React.FC<ExportViewProps> = ({
         </div>
 
         {/* JSON Backup */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-4 flex flex-col justify-between">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-4 flex flex-col justify-between shadow-xs">
           <div>
             <div className="flex items-center justify-between">
-              <span className="rounded bg-purple-500/20 px-2 py-0.5 text-[10px] font-bold text-purple-300">
+              <span className="rounded bg-purple-100 dark:bg-purple-500/20 px-2 py-0.5 text-[10px] font-bold text-purple-800 dark:text-purple-300">
                 JSON v1.0
               </span>
-              <Layers className="h-4 w-4 text-purple-400" />
+              <Layers className="h-4 w-4 text-purple-500 dark:text-purple-400" />
             </div>
-            <h4 className="mt-2 text-sm font-bold text-white">Projet Intermédiaire</h4>
-            <p className="mt-1 text-[11px] text-slate-400">
+            <div className="flex items-center gap-1 mt-2">
+              <h4 className="text-sm font-bold text-slate-900 dark:text-white">Projet Intermédiaire</h4>
+              <Tooltip
+                title="Sauvegarde de projet JSON"
+                content="Structure avec coordonnées, OCR bruts et corrections manuelles pour archivage ou reprise."
+              />
+            </div>
+            <p className="mt-1 text-[11px] text-slate-600 dark:text-slate-400">
               Structure avec coordonnées, OCR bruts et corrections pour reprise.
             </p>
           </div>
           <button
             onClick={handleExportJsonProject}
-            className="mt-4 flex items-center justify-center space-x-1.5 w-full rounded-xl bg-slate-800 hover:bg-slate-700 py-2 text-xs font-semibold text-slate-200 transition"
+            className="mt-4 flex items-center justify-center space-x-1.5 w-full rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 py-2 text-xs font-semibold text-slate-800 dark:text-slate-200 transition"
           >
             <Download className="h-3.5 w-3.5" />
             <span>Télécharger .json</span>

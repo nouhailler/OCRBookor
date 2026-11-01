@@ -235,6 +235,16 @@ app.get('/api/projects/:id/source/pdf', (req: Request, res: Response) => {
   res.sendFile(filePath);
 });
 
+// 9. Download Debian package release (.deb)
+app.get('/releases/:filename', (req: Request, res: Response) => {
+  const releasesDir = path.resolve('releases');
+  const filePath = path.join(releasesDir, req.params.filename);
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).send('Paquet release introuvable');
+  }
+  res.download(filePath, req.params.filename);
+});
+
 // ==========================================
 // Vite Middleware / Static Serving
 // ==========================================

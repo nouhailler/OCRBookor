@@ -22,6 +22,7 @@ import { OCRProject, PageData } from '../types/book';
 import { performPageOCR } from '../services/tesseractService';
 import { calculateQualityMetrics, detectChaptersFromBlocks } from '../services/reconstructionService';
 import { preprocessImage } from '../services/imagePreprocessor';
+import { Tooltip } from './Tooltip';
 
 interface RecognitionViewProps {
   project: OCRProject;
@@ -170,23 +171,30 @@ export const RecognitionView: React.FC<RecognitionViewProps> = ({
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       {/* Header */}
-      <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-800 pb-5">
+      <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
           <div className="flex items-center space-x-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-indigo-400">Écran 3</span>
-            <span className="text-xs text-slate-500">•</span>
-            <span className="text-xs text-slate-400">{project.metadata.title}</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Écran 3</span>
+            <span className="text-xs text-slate-400">•</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">{project.metadata.title}</span>
           </div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight mt-0.5">
-            Reconnaissance OCR & Détection Éditoriale
-          </h1>
+          <div className="flex items-center gap-2 mt-0.5">
+            <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Reconnaissance OCR & Détection Éditoriale
+            </h1>
+            <Tooltip
+              title="Pipeline OCR Local"
+              content="Convertit les images numérisées en texte structuré avec calcul des boîtes englobantes et détection automatique des chapitres."
+              tip="L'exécution s'effectue à 100% dans votre navigateur via Tesseract.js WebAssembly."
+            />
+          </div>
         </div>
 
         <div className="flex items-center space-x-3">
           {processedCount > 0 && (
             <button
               onClick={onGoToCorrection}
-              className="flex items-center space-x-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white px-4 py-2.5 text-xs sm:text-sm font-semibold border border-slate-700 transition"
+              className="flex items-center space-x-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white px-4 py-2.5 text-xs sm:text-sm font-semibold border border-slate-200 dark:border-slate-700 transition shadow-xs"
             >
               <span>Accéder à la correction</span>
               <ArrowRight className="h-4 w-4" />
@@ -194,13 +202,20 @@ export const RecognitionView: React.FC<RecognitionViewProps> = ({
           )}
 
           {!isRunning ? (
-            <button
-              onClick={startBatchOCR}
-              className="flex items-center space-x-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 hover:from-indigo-500 hover:to-blue-500 transition"
-            >
-              <Play className="h-4 w-4 fill-white" />
-              <span>{processedCount > 0 ? 'Relancer l’OCR' : 'Démarrer l’OCR'}</span>
-            </button>
+            <div className="inline-flex items-center gap-1.5">
+              <button
+                onClick={startBatchOCR}
+                className="flex items-center space-x-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-indigo-600/20 hover:from-indigo-500 hover:to-blue-500 transition"
+              >
+                <Play className="h-4 w-4 fill-white" />
+                <span>{processedCount > 0 ? 'Relancer l’OCR' : 'Démarrer l’OCR'}</span>
+              </button>
+              <Tooltip
+                title="Lancement du traitement par lots"
+                content="Traite séquentiellement toutes les pages du livre avec prétraitement graphique à la volée."
+                placement="bottom"
+              />
+            </div>
           ) : (
             <div className="flex items-center space-x-2">
               <button
@@ -223,32 +238,32 @@ export const RecognitionView: React.FC<RecognitionViewProps> = ({
       </div>
 
       {/* Real-time Status Card */}
-      <div className="mb-6 rounded-2xl border border-slate-800 bg-slate-900/90 p-6 shadow-xl">
+      <div className="mb-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center space-x-3">
             <div
               className={`h-10 w-10 rounded-xl flex items-center justify-center ${
                 isRunning
-                  ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 animate-pulse'
-                  : 'bg-slate-800 text-slate-400'
+                  ? 'bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 animate-pulse'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
               }`}
             >
               <Cpu className="h-5 w-5" />
             </div>
             <div>
-              <div className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Statut du pipeline</div>
-              <div className="text-base font-bold text-white mt-0.5">{currentStepStatus}</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">Statut du pipeline</div>
+              <div className="text-base font-bold text-slate-900 dark:text-white mt-0.5">{currentStepStatus}</div>
             </div>
           </div>
 
-          <div className="flex items-center space-x-6 text-xs text-slate-400">
+          <div className="flex items-center space-x-6 text-xs text-slate-600 dark:text-slate-400">
             <div>
-              <span className="block text-slate-500">Temps écoulé :</span>
-              <span className="text-sm font-mono font-bold text-slate-200">{formatTime(elapsedSeconds)}</span>
+              <span className="block text-slate-400 dark:text-slate-500">Temps écoulé :</span>
+              <span className="text-sm font-mono font-bold text-slate-800 dark:text-slate-200">{formatTime(elapsedSeconds)}</span>
             </div>
             <div>
-              <span className="block text-slate-500">Pages traitées :</span>
-              <span className="text-sm font-mono font-bold text-indigo-400">
+              <span className="block text-slate-400 dark:text-slate-500">Pages traitées :</span>
+              <span className="text-sm font-mono font-bold text-indigo-600 dark:text-indigo-400">
                 {processedCount} / {totalCount} ({progressRatio}%)
               </span>
             </div>
@@ -257,11 +272,11 @@ export const RecognitionView: React.FC<RecognitionViewProps> = ({
 
         {/* Global Progress Bar */}
         <div className="mt-5">
-          <div className="flex justify-between text-xs text-slate-400 mb-1.5">
+          <div className="flex justify-between text-xs text-slate-600 dark:text-slate-400 mb-1.5">
             <span>Avancement global</span>
-            <span className="font-mono font-bold text-slate-200">{progressRatio}%</span>
+            <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{progressRatio}%</span>
           </div>
-          <div className="h-2.5 w-full bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+          <div className="h-2.5 w-full bg-slate-100 dark:bg-slate-950 rounded-full overflow-hidden border border-slate-200 dark:border-slate-800">
             <div
               className="h-full bg-gradient-to-r from-indigo-500 to-blue-500 rounded-full transition-all duration-300"
               style={{ width: `${progressRatio}%` }}

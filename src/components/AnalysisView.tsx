@@ -19,6 +19,7 @@ import {
   Maximize2
 } from 'lucide-react';
 import { OCRProject, PreprocessSettings } from '../types/book';
+import { Tooltip } from './Tooltip';
 
 interface AnalysisViewProps {
   project: OCRProject;
@@ -252,27 +253,38 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({
         </div>
 
         {/* Right: Preprocessing Config Panel (3 cols) */}
-        <div className="lg:col-span-3 rounded-2xl border border-slate-800 bg-slate-900/80 p-4 flex flex-col h-[650px] overflow-y-auto">
-          <div className="flex items-center space-x-2 pb-3 border-b border-slate-800">
-            <Sliders className="h-4 w-4 text-indigo-400" />
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+        <div className="lg:col-span-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-4 flex flex-col h-[650px] overflow-y-auto shadow-sm">
+          <div className="flex items-center space-x-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+            <Sliders className="h-4 w-4 text-indigo-500" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-300">
               Réglages Prétraitement
             </h3>
+            <Tooltip
+              title="Filtres d'amélioration d'image"
+              content="Ces paramètres optimisent le rendu des scans avant qu'ils ne soient soumis au moteur OCR afin de réduire le taux d'erreur de reconnaissance."
+            />
           </div>
 
           <div className="mt-4 space-y-4 text-xs">
             {/* Resolution DPI */}
             <div>
-              <label className="text-slate-300 font-semibold block mb-1.5">Résolution cible (DPI)</label>
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <label className="text-slate-800 dark:text-slate-300 font-semibold">Résolution cible (DPI)</label>
+                <Tooltip
+                  title="Résolution en DPI"
+                  content="Nombre de points par pouce (Dots Per Inch). En dessous de 200 DPI, les caractères sont flous et difficiles à lire pour le moteur OCR."
+                  tip="300 DPI est la norme optimale pour les livres imprimés."
+                />
+              </div>
               <div className="grid grid-cols-3 gap-2">
                 {[200, 300, 400].map((dpiVal) => (
                   <button
                     key={dpiVal}
                     onClick={() => updateSettings('dpi', dpiVal as any)}
-                    className={`py-1.5 px-2 rounded-lg font-medium border text-center transition ${
+                    className={`py-1.5 px-2 rounded-lg font-semibold border text-center transition ${
                       project.preprocessSettings.dpi === dpiVal
-                        ? 'bg-indigo-600 border-indigo-500 text-white'
-                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                        ? 'bg-indigo-600 border-indigo-500 text-white shadow-xs'
+                        : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
                     {dpiVal} DPI
@@ -283,73 +295,117 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({
             </div>
 
             {/* Checkbox Options */}
-            <div className="space-y-2.5 pt-2 border-t border-slate-800/80">
-              <label className="flex items-center space-x-2 text-slate-300 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={project.preprocessSettings.grayscale}
-                  onChange={(e) => updateSettings('grayscale', e.target.checked)}
-                  className="rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-0"
+            <div className="space-y-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+              <label className="flex items-center justify-between text-slate-700 dark:text-slate-300 cursor-pointer">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={project.preprocessSettings.grayscale}
+                    onChange={(e) => updateSettings('grayscale', e.target.checked)}
+                    className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-indigo-600 focus:ring-0"
+                  />
+                  <span>Conversion en niveaux de gris</span>
+                </div>
+                <Tooltip
+                  title="Niveaux de gris"
+                  content="Convertit l'image couleur en 256 nuances de gris pour éliminer les teintes de papier jauni."
                 />
-                <span>Conversion en niveaux de gris</span>
               </label>
 
-              <label className="flex items-center space-x-2 text-slate-300 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={project.preprocessSettings.contrastEnhance}
-                  onChange={(e) => updateSettings('contrastEnhance', e.target.checked)}
-                  className="rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-0"
+              <label className="flex items-center justify-between text-slate-700 dark:text-slate-300 cursor-pointer">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={project.preprocessSettings.contrastEnhance}
+                    onChange={(e) => updateSettings('contrastEnhance', e.target.checked)}
+                    className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-indigo-600 focus:ring-0"
+                  />
+                  <span>Correction & rehaussement du contraste</span>
+                </div>
+                <Tooltip
+                  title="Rehaussement de contraste"
+                  content="Éclaircit les fonds clairs et assombrit les caractères noirs estompés."
                 />
-                <span>Correction & rehaussement du contraste</span>
               </label>
 
-              <label className="flex items-center space-x-2 text-slate-300 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={project.preprocessSettings.autoDeskew}
-                  onChange={(e) => updateSettings('autoDeskew', e.target.checked)}
-                  className="rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-0"
+              <label className="flex items-center justify-between text-slate-700 dark:text-slate-300 cursor-pointer">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={project.preprocessSettings.autoDeskew}
+                    onChange={(e) => updateSettings('autoDeskew', e.target.checked)}
+                    className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-indigo-600 focus:ring-0"
+                  />
+                  <span>Redressement automatique (Deskew)</span>
+                </div>
+                <Tooltip
+                  title="Redressement des pages (Deskew)"
+                  content="Calcule l'angle d'inclinaison des lignes via le profil de projection horizontale et pivote la page pour la rendre parfaitement droite."
+                  tip="Essentiel pour éviter la fusion erronée de deux lignes contiguës."
                 />
-                <span>Redressement automatique des pages inclinées</span>
               </label>
 
-              <label className="flex items-center space-x-2 text-slate-300 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={project.preprocessSettings.removeBorders}
-                  onChange={(e) => updateSettings('removeBorders', e.target.checked)}
-                  className="rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-0"
+              <label className="flex items-center justify-between text-slate-700 dark:text-slate-300 cursor-pointer">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={project.preprocessSettings.removeBorders}
+                    onChange={(e) => updateSettings('removeBorders', e.target.checked)}
+                    className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-indigo-600 focus:ring-0"
+                  />
+                  <span>Suppression des bordures noires</span>
+                </div>
+                <Tooltip
+                  title="Suppression des bordures"
+                  content="Supprime les marges noires produites par les bords du scanner ou la reliure du livre."
                 />
-                <span>Suppression des bordures noires de scanner</span>
               </label>
 
-              <label className="flex items-center space-x-2 text-slate-300 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={project.preprocessSettings.denoise}
-                  onChange={(e) => updateSettings('denoise', e.target.checked)}
-                  className="rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-0"
+              <label className="flex items-center justify-between text-slate-700 dark:text-slate-300 cursor-pointer">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={project.preprocessSettings.denoise}
+                    onChange={(e) => updateSettings('denoise', e.target.checked)}
+                    className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-indigo-600 focus:ring-0"
+                  />
+                  <span>Filtre anti-bruit pour papier texturé</span>
+                </div>
+                <Tooltip
+                  title="Filtre anti-bruit"
+                  content="Efface les petits grains d'encre isolés et les taches de moisissure fréquentes sur les livres anciens."
                 />
-                <span>Filtre anti-bruit pour papier texturé</span>
               </label>
 
-              <label className="flex items-center space-x-2 text-slate-300 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={project.preprocessSettings.preserveColorImages}
-                  onChange={(e) => updateSettings('preserveColorImages', e.target.checked)}
-                  className="rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-0"
+              <label className="flex items-center justify-between text-slate-700 dark:text-slate-300 cursor-pointer">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={project.preprocessSettings.preserveColorImages}
+                    onChange={(e) => updateSettings('preserveColorImages', e.target.checked)}
+                    className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-indigo-600 focus:ring-0"
+                  />
+                  <span>Préserver les illustrations en couleur</span>
+                </div>
+                <Tooltip
+                  title="Conservation des gravures"
+                  content="Conserve la version originale en couleur des zones identifiées comme images ou gravures lors de l'export EPUB."
                 />
-                <span>Préserver les illustrations en couleur</span>
               </label>
             </div>
 
             {/* Binarization Slider */}
-            <div className="pt-2 border-t border-slate-800/80">
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80">
               <div className="flex justify-between items-center mb-1">
-                <span className="text-slate-300 font-semibold">Seuil de binarisation</span>
-                <span className="text-[11px] font-mono text-indigo-400">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-slate-800 dark:text-slate-300 font-semibold">Seuil de binarisation (Otsu)</span>
+                  <Tooltip
+                    title="Binarisation Noir & Blanc"
+                    content="Transforme les pixels en noir pur ou blanc pur selon un seuil d'intensité lumineuse."
+                    tip="0 = mode automatique recommandé."
+                  />
+                </div>
+                <span className="text-[11px] font-mono text-indigo-600 dark:text-indigo-400 font-bold">
                   {project.preprocessSettings.binarizationThreshold === 0
                     ? 'Désactivé'
                     : project.preprocessSettings.binarizationThreshold}
@@ -362,7 +418,7 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({
                 step="5"
                 value={project.preprocessSettings.binarizationThreshold}
                 onChange={(e) => updateSettings('binarizationThreshold', Number(e.target.value))}
-                className="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                className="w-full h-1.5 bg-slate-200 dark:bg-slate-950 rounded-lg appearance-none cursor-pointer accent-indigo-600"
               />
               <span className="text-[10px] text-slate-500 block mt-1">
                 0 = Niveaux de gris doux (recommandé pour roman & gravures)
@@ -370,8 +426,15 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({
             </div>
 
             {/* Language Selection */}
-            <div className="pt-2 border-t border-slate-800/80">
-              <label className="text-slate-300 font-semibold block mb-1">Modèle linguistique OCR</label>
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80">
+              <div className="flex items-center gap-1.5 mb-1">
+                <label className="text-slate-800 dark:text-slate-300 font-semibold block">Modèle linguistique OCR</label>
+                <Tooltip
+                  title="Dictionnaire linguistique"
+                  content="Charge le dictionnaire de grammaire et de lexique adapté à l'époque de parution du livre."
+                  tip="Pour les livres antérieurs à 1800 avec le 's' long ressemblant à 'f', sélectionnez Français ancien (fra_old)."
+                />
+              </div>
               <select
                 value={project.metadata.language}
                 onChange={(e) =>
@@ -380,7 +443,7 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({
                     metadata: { ...project.metadata, language: e.target.value },
                   })
                 }
-                className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-slate-200 focus:border-indigo-500 focus:outline-none"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-200 focus:border-indigo-500 focus:outline-none shadow-xs"
               >
                 <option value="fr">Français (fra) — Recommandé</option>
                 <option value="fra_old">Français ancien (XVIIe - XVIIIe s.)</option>

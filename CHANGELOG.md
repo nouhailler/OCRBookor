@@ -7,6 +7,41 @@ et ce projet adhère à la spécification [Semantic Versioning](https://semver.o
 
 ---
 
+## [1.2.0] - 2026-11-01
+
+### Ajouté
+- **Menu Hamburger Catégorisé :**
+  - Tiroir latéral d’accès rapide classant l'ensemble des fonctionnalités en 9 catégories fonctionnelles (Numérisation, Prétraitement, OCR, Édition, Structure, Export, Système, Légal, Documentation).
+  - Barre de recherche textuelle instantanée pour filtrer rapidement une fonctionnalité.
+  - Indicateur d'état du livre en cours avec nombre de pages.
+- **Menu Paramètres Système :**
+  - Date officielle de sortie : **1er Novembre 2026**.
+  - Horodatage mémorisé de la dernière vérification des mises à jour.
+  - Bouton interactif **« Vérifier les mises à jour »** avec diagnostic en temps réel.
+  - Détection dynamique des moteurs OCR hôtes (Tesseract CLI, PaddleOCR, RapidOCR).
+  - Bouton de téléchargement du paquet Debian Linux Desktop.
+- **Thème Clair & Thème Sombre :**
+  - Implémentation d'un thème clair soigné, à haut contraste et harmonieux en complément du thème sombre.
+  - Bascule en un clic avec synchronisation immédiate sur `document.documentElement` et mémorisation dans `localStorage`.
+- **Onboarding Juridique & Décharge de Responsabilité :**
+  - Modale d'accueil obligatoire au premier lancement rappelant que l'auteur décline toute responsabilité quant aux données fournies dans l'application et au respect de la propriété intellectuelle.
+  - Case à cocher d'acceptation obligatoire mémorisée localement.
+  - Accès permanent aux mentions légales depuis le menu Hamburger et le pied de page.
+- **Guide Contextuel Novice & Infobulles Interactives :**
+  - Composant `ContextualGuide` affichant un résumé pédagogique et les 3 étapes recommandées sur chaque écran.
+  - Composant `Tooltip` déployé sur tous les champs de formulaire, curseurs de prétraitement, boutons d'action et filtres.
+- **Identité Visuelle & Logo :**
+  - Logo vectoriel SVG officiel intégrant un livre ouvert géométrique, un faisceau laser de numérisation et la typographie OCRBookor.
+  - Favicon SVG adaptatif pour l'onglet du navigateur.
+- **Distribution Linux Desktop (.deb) :**
+  - Script automatisé `scripts/build-deb.sh` pour assembler `releases/ocrbookor_1.2.0_amd64.deb` avec `dpkg-deb`.
+  - Lanceur exécutable `/usr/bin/ocrbookor`, raccourci d’application `ocrbookor.desktop` et icône système SVG.
+- **Documentation & Visuel :**
+  - Capture d'écran haute résolution de l'application intégrée dans `README.md`.
+  - Création du document d'architecture et de contexte technique `CONTEXT.md`.
+
+---
+
 ## [1.0.0] - 2026-10-31
 
 ### Ajouté
