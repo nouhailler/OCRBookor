@@ -53,16 +53,9 @@ export function loadProjectsFromStorage(): OCRProject[] {
     console.warn('Erreur lecture localStorage:', e);
   }
 
-  // Initial seed with reference public domain test corpus
-  const initialProjects: OCRProject[] = [
-    createBenchmarkBookA(),
-    createBenchmarkBookB(),
-    createBenchmarkBookC(),
-  ];
-
-  saveProjectsToStorage(initialProjects);
-  inMemoryProjectsCache = initialProjects;
-  return initialProjects;
+  // Normal path: start with empty library; demo corpus is loaded only on explicit user action
+  inMemoryProjectsCache = [];
+  return [];
 }
 
 export function saveProjectsToStorage(projects: OCRProject[]): void {

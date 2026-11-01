@@ -1,0 +1,715 @@
+# PROMPT CODEX — OCRBookor : correction ciblée des lacunes fonctionnelles et validation de bout en bout
+
+## 1. Contexte et objectif
+
+Dépôt GitHub : https://github.com/nouhailler/OCRBookor
+
+OCRBookor est une application destinée à convertir des PDF, notamment des livres numérisés, en documents exploitables : EPUB 3, Markdown, TXT, HTML et, si possible, PDF avec couche de texte OCR.
+
+L'application utilise notamment :
+- Frontend : React, TypeScript et Vite.
+- Backend : Python et FastAPI.
+- OCR : Tesseract, avec des moteurs alternatifs PaddleOCR et RapidOCR.
+- Analyse PDF : PyMuPDF.
+- Persistance attendue : SQLite et système de fichiers.
+- Exports : EPUB 3 et formats textuels.
+- Cible : application locale, utilisable sur Debian 13, avec une architecture cohérente et autant de fonctionnement hors ligne que possible.
+
+Des audits statiques précédents ont identifié des lacunes possibles dans l'intégration frontend/backend, la persistance, l'analyse PDF, l'exécution réelle de certains moteurs OCR, les exports, les tests E2E et la documentation d'installation.
+
+**Ces constats sont des points à vérifier, pas des vérités à reproduire aveuglément.** Le dépôt a pu évoluer depuis. Commence par examiner le code actuel et confirmer chaque problème avant d'intervenir.
+
+### Mission
+
+Auditer, corriger, tester et documenter les fonctionnalités existantes afin que chaque fonctionnalité annoncée corresponde à une implémentation réelle, reliée à l'application et vérifiable.
+
+Ne réécris pas intégralement le projet. Préserve les composants fonctionnels, l'architecture utile, les données, les interfaces et les choix techniques pertinents.
+
+Ne te contente pas de produire un plan, des recommandations ou un rapport. **Implémente réellement les corrections nécessaires, exécute les tests disponibles et ajoute les tests manquants.**
+
+---
+
+## 2. Phase initiale obligatoire : audit de l'état actuel
+
+Avant toute modification :
+
+1. Examine l'arborescence du dépôt et la branche active.
+2. Lis les README, spécifications, rapports d'audit, rapports de tests, rapports de benchmark et instructions d'installation disponibles.
+3. Examine notamment, s'ils existent encore :
+   - `package.json`
+   - `requirements.txt`
+   - `backend/api/main.py`
+   - `backend/core/database.py`
+   - `backend/ocr/tesseract_engine.py`
+   - `backend/ocr/paddle_engine.py`
+   - `backend/ocr/rapid_engine.py`
+   - `backend/pdf/analyzer.py`
+   - `backend/pdf/image_extractor.py`
+   - `backend/export/epub.py`
+   - `backend/export/markdown.py`
+   - `src/services/pdfService.ts`
+   - `src/services/storage.ts`
+   - `scripts/start.sh`
+   - `INSTALLATION.md`
+   - les tests frontend, backend et E2E.
+
+4. Identifie les appels réels entre les composants, les routes API existantes et les dépendances réellement utilisées.
+5. Recherche explicitement les simulations, valeurs codées en dur, résultats de démonstration, faux succès, fonctions incomplètes et gestionnaires d'erreurs qui masquent les échecs.
+6. Établis une matrice de traçabilité reliant chaque fonctionnalité à :
+   - son implémentation ;
+   - son point d'entrée utilisateur ;
+   - son API éventuelle ;
+   - son stockage ;
+   - ses tests ;
+   - son statut réel.
+
+Crée ou mets à jour `AUDIT_IMPLEMENTATION.md` avec les résultats de cet audit.
+
+Ne marque pas une fonctionnalité comme opérationnelle simplement parce qu'une classe, une fonction ou une route existe.
+
+---
+
+## 3. Priorité P0 — Intégrer réellement le frontend et le backend
+
+### 3.1. API FastAPI
+
+Vérifie les routes présentes et complète uniquement celles qui sont nécessaires à un parcours documentaire fonctionnel.
+
+L'application doit disposer d'une API cohérente permettant au minimum de :
+
+- vérifier l'état du backend et la disponibilité des moteurs OCR ;
+- créer, consulter, modifier et supprimer un projet ;
+- importer un PDF ;
+- consulter les informations et les pages d'un document ;
+- lancer l'analyse PDF ;
+- lancer un traitement OCR ;
+- consulter la progression d'un traitement ;
+- récupérer les résultats OCR d'une page ;
+- modifier et sauvegarder le texte corrigé ;
+- récupérer les images et illustrations extraites ;
+- lancer et suivre un export ;
+- télécharger les fichiers exportés ;
+- gérer proprement les erreurs et les tâches interrompues.
+
+Adapte les routes à l'architecture existante. Évite les doublons et les endpoints artificiels.
+
+Définis des modèles de requête et de réponse explicites, des codes HTTP adaptés et des messages d'erreur exploitables par l'interface.
+
+Utilise une configuration centralisée pour l'URL de l'API. Le frontend ne doit pas dépendre de chemins locaux codés en dur.
+
+### 3.2. Client API frontend
+
+Crée ou consolide un service TypeScript centralisé pour les appels HTTP.
+
+Il doit :
+- gérer les erreurs HTTP et les réponses invalides ;
+- gérer les délais d'attente raisonnables ;
+- prendre en compte les interruptions et annulations lorsque c'est pertinent ;
+- typer les requêtes et réponses ;
+- distinguer les états « en cours », « terminé », « partiellement terminé » et « en échec » ;
+- fournir des messages d'erreur compréhensibles ;
+- ne jamais présenter un résultat simulé comme un résultat réel.
+
+Relie les composants React à ce service.
+
+**Critère d'acceptation :** les opérations documentaires principales passent réellement par le backend et ne reposent pas sur un parcours parallèle fictif côté navigateur.
+
+### 3.3. Démarrage unifié
+
+Corrige les scripts de démarrage pour lancer les composants requis de façon cohérente.
+
+Le lancement prévu pour un utilisateur doit :
+- vérifier les prérequis ;
+- vérifier ou installer les dépendances selon le mode d'installation documenté ;
+- démarrer FastAPI et le frontend ;
+- afficher les URL utiles ;
+- détecter les ports déjà utilisés ;
+- gérer l'arrêt des processus enfants ;
+- signaler clairement les erreurs de démarrage.
+
+Ne présente pas un simple serveur Vite comme le lancement complet de l'application si le backend est indispensable.
+
+Si plusieurs modes de démarrage sont nécessaires, documente-les explicitement.
+
+---
+
+## 4. Priorité P0 — Persistance durable et reprise
+
+### 4.1. SQLite et fichiers
+
+Vérifie que SQLite et le système de fichiers sont effectivement utilisés dans le parcours principal.
+
+La base doit enregistrer les données nécessaires, notamment :
+- projets ;
+- documents importés et chemins de stockage ;
+- métadonnées des PDF ;
+- état des traitements ;
+- résultats OCR ;
+- corrections manuelles ;
+- références vers les illustrations ;
+- exports générés ;
+- dates de création et de modification ;
+- erreurs ou états de reprise utiles.
+
+Adapte le schéma existant plutôt que de créer une deuxième couche de stockage concurrente.
+
+Ajoute des migrations ou une stratégie d'évolution de schéma sûre. Définis les clés étrangères, index et transactions nécessaires.
+
+Stocke les PDF, images et exports dans des répertoires contrôlés. Évite de stocker les fichiers volumineux directement en base.
+
+### 4.2. Frontend et IndexedDB
+
+Inspecte `src/services/storage.ts` et les autres mécanismes de stockage.
+
+Si IndexedDB est conservé pour des besoins de cache ou de mode hors ligne :
+- définis précisément quelles données y sont conservées ;
+- implémente la restauration effective au démarrage ;
+- gère les erreurs et migrations ;
+- évite les divergences silencieuses entre IndexedDB, localStorage et SQLite ;
+- définis la source de vérité pour chaque type de donnée.
+
+Ne conserve pas plusieurs mécanismes de persistance redondants sans justification.
+
+Supprime les créations automatiques de projets de démonstration dans le parcours normal, si elles existent. Les exemples doivent être explicitement activés par l'utilisateur.
+
+### 4.3. Critères d'acceptation
+
+Vérifie automatiquement que :
+1. un projet créé reste présent après actualisation du navigateur ;
+2. les corrections restent présentes après fermeture et réouverture du frontend ;
+3. les données persistent après redémarrage du backend ;
+4. les fichiers référencés existent encore ;
+5. une tâche interrompue possède un état explicite et peut être reprise lorsque cela est techniquement possible ;
+6. la suppression d'un projet ne laisse pas de références orphelines incontrôlées.
+
+---
+
+## 5. Priorité P0 — Supprimer les simulations et faux succès
+
+Recherche dans tout le dépôt les fonctions de simulation, mocks, données de démonstration et chemins de repli trompeurs.
+
+Exemples de noms à rechercher, s'ils existent encore :
+- `fallbackOCRSimulation`
+- `generatePaddleComparison`
+- fonctions de benchmark qui génèrent des pages avec Canvas ;
+- générateurs de faux résultats OCR ;
+- fonctions d'export qui retournent `true` sans créer de fichier.
+
+Pour chaque occurrence :
+
+1. Détermine si elle est utilisée en production, dans les tests ou uniquement dans une démonstration.
+2. Remplace tout faux résultat de production par une vraie exécution.
+3. Si une dépendance est absente, renvoie un état explicite « indisponible » ou une erreur documentée.
+4. Si un mode de démonstration est conservé, isole-le clairement et désactive-le par défaut.
+5. Vérifie qu'un succès n'est annoncé qu'après validation du résultat attendu.
+
+Un fichier vide, une sortie synthétique ou une réponse HTTP positive ne doit jamais être considéré comme une conversion réussie.
+
+Ajoute des tests qui échouent si un export prétend réussir sans produire un fichier valide.
+
+---
+
+## 6. Priorité P1 — OCR réel, résultats fiables et moteurs alternatifs
+
+### 6.1. Tesseract
+
+Vérifie le parcours complet entre le PDF importé, le rendu de la page, l'OCR et les résultats retournés à l'interface.
+
+Le traitement doit fournir, lorsque le moteur le permet :
+- texte reconnu ;
+- numéros de page ;
+- coordonnées réelles des mots ou blocs ;
+- confiance réelle fournie par le moteur ;
+- durée du traitement ;
+- langue et configuration utilisées ;
+- erreurs et avertissements.
+
+Les coordonnées doivent correspondre à la page réelle et être exprimées dans un repère documenté.
+
+Ne fabrique pas de coordonnées ou de scores de confiance. Ne considère pas la simple concaténation des mots comme une reconstruction éditoriale satisfaisante.
+
+Vérifie la gestion des langues, la disponibilité des fichiers de langue et les erreurs lorsque Tesseract ou ses données sont absents.
+
+### 6.2. PaddleOCR
+
+Vérifie :
+- les dépendances Python nécessaires ;
+- l'installation compatible avec les plateformes ciblées ;
+- l'import réel du moteur ;
+- le chargement des modèles ;
+- l'exécution sur une image de page ;
+- la récupération du texte, des coordonnées et des scores ;
+- la gestion des modèles indisponibles et des erreurs.
+
+Si PaddleOCR n'est pas installable de façon fiable dans l'environnement principal, propose un mode d'installation optionnel clairement documenté. Ne déclare pas le moteur disponible tant qu'il ne peut pas effectuer un OCR réel.
+
+### 6.3. RapidOCR
+
+Applique les mêmes exigences :
+- initialisation réelle ;
+- modèle disponible ;
+- exécution sur une image ;
+- résultats exploitables ;
+- gestion d'erreurs ;
+- test d'intégration lorsqu'un environnement compatible est disponible.
+
+### 6.4. Sélection des moteurs
+
+Implémente une interface commune aux moteurs afin de normaliser les résultats sans perdre les informations propres à chaque moteur.
+
+L'interface utilisateur doit afficher les moteurs effectivement disponibles. Une comparaison entre moteurs doit exécuter les moteurs sélectionnés sur les mêmes pages et présenter leurs résultats réels.
+
+N'installe pas automatiquement plusieurs environnements lourds si cela dégrade l'installation de base. Documente les dépendances optionnelles.
+
+### 6.5. Prétraitement
+
+Vérifie et implémente, si nécessaire :
+- conversion PDF vers image à une résolution contrôlée ;
+- niveaux de gris ;
+- amélioration du contraste ;
+- seuillage ;
+- réduction du bruit ;
+- redressement de pages inclinées, si l'algorithme existant le permet réellement.
+
+Les opérations doivent être configurables et traçables. Évite d'appliquer systématiquement un traitement qui dégrade les résultats.
+
+### 6.6. Tests OCR
+
+Prépare un petit jeu de documents de test légalement réutilisables, versionnés ou générés par le projet :
+- texte imprimé propre ;
+- scan de qualité moyenne ;
+- page contenant plusieurs colonnes ;
+- page avec illustration et légende ;
+- page inclinée ;
+- PDF contenant déjà du texte.
+
+Les tests doivent séparer :
+- les tests unitaires ;
+- les tests d'intégration avec moteur installé ;
+- les tests optionnels nécessitant des modèles ou ressources supplémentaires.
+
+Mesure les résultats sur les véritables images de test. Ne présente pas des valeurs attendues ou simulées comme des benchmarks observés.
+
+---
+
+## 7. Priorité P1 — Analyse PDF exacte
+
+### 7.1. Analyse réelle
+
+Inspecte `src/services/pdfService.ts` et `backend/pdf/analyzer.py`.
+
+L'analyse doit reposer sur le PDF réel, idéalement avec PyMuPDF côté backend lorsque cette dépendance est disponible.
+
+Pour chaque page, détermine réellement :
+- dimensions et orientation ;
+- présence de texte extractible ;
+- nombre de caractères ou de mots, selon la méthode retenue ;
+- présence d'images ;
+- métadonnées disponibles ;
+- nécessité probable d'un OCR ;
+- résolution des images incorporées, lorsqu'elle peut être calculée.
+
+Ne définis pas `hasImages` systématiquement à `true`.
+
+Ne déduis pas une résolution exacte d'une hypothèse A4. Si la résolution ne peut pas être déterminée, indique qu'elle est inconnue.
+
+Distingue :
+- PDF natif avec texte extractible ;
+- PDF numérisé ;
+- PDF mixte ;
+- PDF vide ou illisible ;
+- PDF protégé ou non pris en charge.
+
+### 7.2. Mode dégradé
+
+Si PyMuPDF est absent ou si une analyse échoue, affiche une erreur explicite ou un mode dégradé correctement identifié.
+
+Ne génère pas de pages fictives et ne présente pas des valeurs par défaut comme des caractéristiques réellement mesurées.
+
+### 7.3. Critères d'acceptation
+
+Teste des PDF de caractéristiques connues et compare les valeurs retournées aux propriétés réelles des fichiers.
+
+---
+
+## 8. Priorité P1 — Reconstruction éditoriale et correction du texte
+
+Le but n'est pas uniquement d'extraire des mots : il faut obtenir un document lisible.
+
+Vérifie et améliore, selon les possibilités du projet :
+- regroupement des mots en lignes ;
+- regroupement des lignes en blocs ;
+- ordre de lecture ;
+- gestion des colonnes ;
+- paragraphes et sauts de page ;
+- titres et sous-titres ;
+- listes ;
+- en-têtes et pieds de page ;
+- césures et mots coupés en fin de ligne ;
+- conservation des références aux pages sources.
+
+N'applique pas des heuristiques destructrices sans possibilité de revenir aux résultats OCR bruts.
+
+Conserve séparément :
+1. les résultats OCR originaux ;
+2. la version reconstruite ;
+3. le texte corrigé par l'utilisateur.
+
+L'éditeur doit permettre de corriger le texte, de sauvegarder les modifications, de passer d'une page à l'autre et de retrouver les corrections après redémarrage.
+
+Les corrections ne doivent pas être écrasées par une nouvelle exécution OCR sans confirmation explicite.
+
+Si des coordonnées réelles sont disponibles, exploite-les pour la reconstruction. Ne fabrique jamais de boîtes englobantes.
+
+---
+
+## 9. Priorité P1 — Extraction des illustrations
+
+Vérifie `backend/pdf/image_extractor.py` et le parcours réel de récupération des images.
+
+L'extraction doit :
+- analyser le PDF réel ;
+- récupérer les images incorporées et, si nécessaire, proposer un rendu des illustrations vectorielles ;
+- conserver les dimensions et le numéro de page source ;
+- éviter autant que possible les doublons ;
+- enregistrer les images sur disque ;
+- associer les illustrations au projet et au document ;
+- exposer leurs métadonnées à l'interface ;
+- permettre leur consultation et leur réutilisation dans les exports.
+
+Si une image est extraite plusieurs fois, utiliser une stratégie de dédoublonnage appropriée, sans fusionner abusivement des images distinctes.
+
+Distingue l'extraction d'images intégrées du rendu d'une page entière. Ne prétends pas avoir détecté une illustration s'il s'agit simplement de la page complète.
+
+Teste l'extraction sur un PDF de référence contenant plusieurs images connues.
+
+---
+
+## 10. Priorité P1 — Exports réels et valides
+
+Tous les exports doivent utiliser les données persistées et les corrections de l'utilisateur, pas des données de démonstration.
+
+### 10.1. EPUB 3
+
+Vérifie et complète `backend/export/epub.py`.
+
+Le fichier doit être un véritable EPUB 3 :
+- structure ZIP conforme ;
+- fichier `mimetype` placé en première entrée et non compressé ;
+- `META-INF/container.xml` valide ;
+- paquet OPF et métadonnées cohérentes ;
+- navigation EPUB 3 ;
+- chapitres XHTML valides ;
+- encodage UTF-8 ;
+- ordre de lecture correct ;
+- images référencées correctement ;
+- ressources intégrées et chemins relatifs valides ;
+- titre, auteur et métadonnées renseignés lorsqu'ils sont disponibles.
+
+Le document doit s'ouvrir dans des lecteurs EPUB courants.
+
+Ajoute un contrôle de cohérence du paquet avant de déclarer l'export réussi. Si EPUBCheck est installable, ajoute une validation dédiée ou un script facultatif qui l'utilise.
+
+N'ajoute pas automatiquement des métadonnées inventées : utilise les informations du document ou demande les champs manquants.
+
+### 10.2. Markdown, TXT et HTML
+
+Vérifie chaque générateur et son branchement à l'interface.
+
+Les exports doivent :
+- contenir le texte réellement corrigé ;
+- conserver l'ordre des chapitres ;
+- gérer les caractères accentués ;
+- préserver les paragraphes et titres détectés ;
+- inclure les images lorsque le format et les options le permettent ;
+- produire un fichier à l'emplacement attendu ;
+- fournir un lien de téléchargement fonctionnel.
+
+Le HTML doit être correctement encodé et ne pas introduire de scripts ou de contenus dangereux provenant des documents.
+
+### 10.3. PDF OCRisé avec couche de texte
+
+Vérifie explicitement si cette fonctionnalité est implémentée.
+
+Si elle est annoncée, génère un PDF dont les pages conservent leur apparence et comportent une véritable couche de texte OCR positionnée de manière cohérente.
+
+Le texte doit être sélectionnable et extractible par un lecteur PDF ou un outil tel que `pdftotext`.
+
+Une fonction qui retourne `true` sans générer le fichier ne constitue pas une implémentation.
+
+Si la fonctionnalité ne peut pas être finalisée de manière fiable, désactive-la dans l'interface et dans la documentation jusqu'à sa réalisation.
+
+### 10.4. Sécurité des exports
+
+- Valide les noms de fichiers.
+- Empêche les traversées de chemins.
+- Limite les accès aux fichiers aux répertoires autorisés.
+- Ne construis pas de commandes shell à partir de données utilisateur.
+- Nettoie les fichiers temporaires après usage.
+- Préviens les écrasements accidentels.
+
+### 10.5. Tests d'export
+
+Pour chaque format, teste :
+1. la génération ;
+2. l'existence du fichier ;
+3. sa taille non nulle ;
+4. son ouverture par un lecteur ou un parseur adapté ;
+5. la présence du texte attendu ;
+6. la présence des images attendues lorsqu'elles sont incluses ;
+7. le fonctionnement du téléchargement depuis l'interface.
+
+---
+
+## 11. Priorité P1 — Tests automatisés et E2E réels
+
+### 11.1. Backend
+
+Ajoute ou complète les tests couvrant :
+- API et validation des entrées ;
+- import PDF ;
+- analyse de pages ;
+- OCR avec moteur réel lorsque disponible ;
+- stockage et rechargement ;
+- corrections ;
+- extraction d'illustrations ;
+- génération des exports ;
+- erreurs de dépendances ;
+- fichiers invalides ;
+- interruption de traitement ;
+- sécurité des chemins et téléchargements.
+
+Utilise des fixtures déterministes et de petits PDF de test. Isole les tests des données personnelles et des fichiers utilisateur.
+
+### 11.2. Frontend
+
+Teste les états :
+- chargement ;
+- erreur backend ;
+- import invalide ;
+- progression ;
+- OCR terminé ;
+- OCR partiellement échoué ;
+- édition et sauvegarde ;
+- export réussi ;
+- export en échec ;
+- backend indisponible.
+
+### 11.3. Tests de bout en bout
+
+Utilise Playwright ou l'outil E2E déjà présent dans le projet. Évite d'introduire un deuxième framework sans nécessité.
+
+Crée un scénario automatisé complet :
+
+1. démarrer le backend et le frontend ;
+2. créer un projet ;
+3. importer un PDF de test ;
+4. vérifier les métadonnées et les pages ;
+5. lancer l'OCR ;
+6. vérifier la présence du texte reconnu ;
+7. vérifier les coordonnées lorsque disponibles ;
+8. modifier une phrase dans l'éditeur ;
+9. sauvegarder la correction ;
+10. exporter en EPUB ;
+11. télécharger le fichier ;
+12. valider sa structure et son contenu ;
+13. actualiser le navigateur ;
+14. vérifier que le projet et les corrections sont toujours présents ;
+15. redémarrer le backend et vérifier à nouveau la persistance ;
+16. tester un échec contrôlé et vérifier que l'interface le signale correctement.
+
+Le test doit utiliser de vrais composants et le vrai backend. Ne remplace pas les opérations critiques par des mocks dans ce scénario.
+
+Les mocks restent acceptables pour des tests unitaires ciblés, à condition de les identifier comme tels.
+
+### 11.4. Exécution obligatoire
+
+Exécute réellement les tests pertinents dans l'environnement disponible :
+- installation ou vérification des dépendances ;
+- lint ;
+- vérification TypeScript ;
+- build frontend ;
+- tests unitaires ;
+- tests backend ;
+- tests E2E ;
+- validation des exports.
+
+Si une étape ne peut pas être exécutée, explique précisément pourquoi et donne la commande reproductible.
+
+Ne déclare pas « tous les tests passent » si seuls certains tests ont été exécutés.
+
+---
+
+## 12. Priorité P2 — Benchmarks vérifiables
+
+Vérifie `BENCHMARK_REPORT.md` et les mécanismes de benchmark existants.
+
+Les benchmarks OCR doivent porter sur de vrais documents ou images de test, pas uniquement sur des pages synthétiques générées par Canvas.
+
+Lorsque c'est pertinent, mesure :
+- temps de traitement ;
+- nombre de pages traitées ;
+- disponibilité et erreurs du moteur ;
+- qualité de reconnaissance via CER (Character Error Rate) et/ou WER (Word Error Rate), avec une transcription de référence ;
+- mémoire utilisée, si elle peut être mesurée de manière fiable ;
+- environnement et versions des dépendances.
+
+Compare les moteurs uniquement sur les mêmes entrées et les mêmes conditions autant que possible.
+
+Enregistre les limites de l'expérience, la machine, les versions et les paramètres. Ne présente pas un benchmark comme universel.
+
+Sépare clairement :
+- résultats mesurés ;
+- résultats issus d'un exemple de démonstration ;
+- résultats attendus mais non mesurés.
+
+Si aucun benchmark réel n'a été exécuté, indique-le sans fabriquer de chiffres.
+
+---
+
+## 13. Priorité P2 — Installation Debian 13 et fonctionnement local
+
+Corrige les incohérences de `INSTALLATION.md`, des README et des scripts.
+
+Remplace les URL génériques ou placeholders, notamment les références éventuelles à `https://github.com/votre-compte/ocrbookor.git`, par les URL réelles du projet.
+
+Documente :
+- version de Python compatible ;
+- version de Node.js compatible ;
+- création et activation de l'environnement virtuel Python ;
+- installation des dépendances ;
+- installation de Tesseract et des langues ;
+- installation des dépendances optionnelles PaddleOCR et RapidOCR ;
+- initialisation de SQLite ;
+- démarrage ;
+- URL du frontend et de l'API ;
+- arrêt ;
+- répertoires de stockage ;
+- sauvegarde et restauration ;
+- résolution des erreurs courantes.
+
+Vérifie les commandes sous Debian 13 lorsque l'environnement le permet. N'affirme pas avoir testé Debian 13 si l'exécution a eu lieu ailleurs.
+
+### Fonctionnement hors ligne
+
+Distingue les différents niveaux :
+- interface utilisable sans accès Internet ;
+- OCR local après installation des modèles ;
+- import et export locaux ;
+- dépendances chargées depuis Internet au premier lancement ;
+- fonctionnalités nécessitant une ressource distante.
+
+L'application doit éviter les appels distants inutiles dans le parcours local. Les modèles OCR ne doivent pas être téléchargés silencieusement à chaque lancement.
+
+Ne revendique pas un fonctionnement hors ligne complet tant que l'application n'a pas été testée avec le réseau désactivé dans les conditions documentées.
+
+---
+
+## 14. Priorité P2 — Sécurité et robustesse
+
+Vérifie et corrige au minimum :
+- validation du type, de la taille et du contenu des fichiers importés ;
+- protection contre les traversées de chemins ;
+- restrictions d'accès aux fichiers ;
+- gestion des PDF malformés ou chiffrés ;
+- limites raisonnables sur les tâches simultanées ;
+- nettoyage des fichiers temporaires ;
+- absence d'exposition accidentelle des traces internes aux utilisateurs ;
+- validation des chemins de téléchargement ;
+- gestion des exceptions et journalisation sans fuite de contenu sensible ;
+- absence de secrets dans le dépôt.
+
+Pour une application locale, documente aussi les interfaces réseau exposées. Par défaut, n'expose pas le backend sur toutes les interfaces réseau si ce n'est pas nécessaire.
+
+Ne présente pas une application comme sécurisée sur la seule base de l'absence de vulnérabilité détectée par un outil automatique.
+
+---
+
+## 15. Critères de livraison et définition du « terminé »
+
+Une fonctionnalité n'est terminée que si :
+1. elle est implémentée ;
+2. elle est reliée à l'interface ou à une API documentée ;
+3. elle utilise des données réelles ;
+4. ses erreurs sont gérées ;
+5. elle est testée ;
+6. elle est documentée.
+
+Pour les fonctionnalités dépendant d'un moteur optionnel, distingue clairement « implémenté », « testé avec le moteur installé » et « non validé dans l'environnement actuel ».
+
+Mets à jour les documents suivants, s'ils existent ou crée-les lorsqu'ils sont utiles :
+- `AUDIT_IMPLEMENTATION.md` : constats initiaux et écarts confirmés ;
+- `IMPLEMENTATION_REPORT.md` : modifications réellement réalisées ;
+- `TEST_REPORT.md` : commandes exécutées et résultats ;
+- `E2E_REPORT.md` : scénario E2E, étapes réussies, échecs et limites ;
+- `BENCHMARK_REPORT.md` : mesures réelles et méthode ;
+- `INSTALLATION.md` : procédure actualisée.
+
+Les rapports doivent être cohérents entre eux. Ne recopie pas les mêmes conclusions obsolètes dans plusieurs documents.
+
+### Format du rapport final
+
+Fournis un bilan concis et factuel comportant :
+
+**A. Corrections effectuées**
+- fichiers et composants modifiés ;
+- problèmes réellement corrigés ;
+- choix techniques importants.
+
+**B. État des fonctionnalités**
+
+Pour chaque fonctionnalité, utilise l'un des statuts suivants :
+- `IMPLÉMENTÉ ET TESTÉ`
+- `IMPLÉMENTÉ, TESTS PARTIELS`
+- `PARTIEL`
+- `NON IMPLÉMENTÉ`
+- `NON VALIDÉ DANS CET ENVIRONNEMENT`
+
+**C. Tests exécutés**
+- commande exacte ;
+- résultat ;
+- nombre de tests réussis et échoués, lorsque disponible ;
+- éventuels avertissements.
+
+**D. Tests non exécutés**
+- motif ;
+- prérequis manquant ;
+- commande à exécuter pour poursuivre.
+
+**E. Points restant à traiter**
+- classés par priorité ;
+- sans masquer les limites.
+
+**F. Instructions pour lancer et vérifier l'application**
+- commandes exactes ;
+- URL attendues ;
+- emplacement des données ;
+- procédure de test du parcours complet.
+
+---
+
+## 16. Méthode de travail imposée
+
+Travaille par lots cohérents, en privilégiant l'ordre suivant :
+
+1. Audit initial et cartographie des écarts.
+2. API, client frontend et démarrage unifié.
+3. Persistance et restauration des données.
+4. Analyse PDF et OCR réel.
+5. Reconstruction, édition et extraction des illustrations.
+6. Exports réels.
+7. Tests unitaires, intégration et E2E.
+8. Installation, sécurité et fonctionnement hors ligne.
+9. Rapports finaux et vérification de cohérence.
+
+Après chaque lot :
+- exécute les tests ciblés ;
+- corrige les régressions ;
+- conserve une trace des résultats ;
+- ne passe pas sous silence un échec.
+
+Ne supprime pas une fonctionnalité simplement parce qu'elle est difficile à terminer. Si elle est annoncée mais ne peut pas être fiabilisée, implémente-la si possible ; sinon, signale honnêtement son statut et désactive toute promesse trompeuse dans l'interface.
+
+N'ajoute pas de dépendance lourde sans raison. Évite les refactorisations générales sans rapport direct avec les lacunes. Ne modifie pas les données utilisateur sans sauvegarde ni n'écrase des corrections existantes.
+
+**Commence maintenant par l'audit du dépôt actuel, puis poursuis jusqu'à l'implémentation, aux tests réellement exécutés et à la production des rapports. Ne t'arrête pas à la rédaction d'un plan.**

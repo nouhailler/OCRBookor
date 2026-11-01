@@ -10,19 +10,43 @@
 
 ### Commande exécutée :
 ```bash
-python3 -m unittest discover -s backend/tests -p "test_*.py"
+python3 -m unittest discover -s backend/tests -p "test_*.py" -v
+# ou via le script automatisé :
+./scripts/test-e2e.sh
 ```
 
 ### Résultat de l'exécution :
 ```text
-...................
+test_full_document_lifecycle (test_e2e_scenario.TestE2EScenario) ... ok
+test_epub3_structure (test_export.TestExport) ... ok
+test_markdown_export (test_export.TestExport) ... ok
+test_empty_file (test_pdf.TestPDFImporter) ... ok
+test_invalid_header (test_pdf.TestPDFImporter) ... ok
+test_nonexistent_file (test_pdf.TestPDFImporter) ... ok
+test_valid_pdf_header (test_pdf.TestPDFImporter) ... ok
+test_cer_calculation (test_quality.TestQuality) ... ok
+test_diagnostics_empty_page (test_quality.TestQuality) ... ok
+test_diagnostics_repetitive_noise (test_quality.TestQuality) ... ok
+test_empty_reference_returns_none (test_quality.TestQuality) ... ok
+test_levenshtein_differences (test_quality.TestQuality) ... ok
+test_levenshtein_identical (test_quality.TestQuality) ... ok
+test_wer_calculation (test_quality.TestQuality) ... ok
+test_dehyphenation_legitimate_compound_word (test_reconstruction.TestReconstruction) ... ok
+test_dehyphenation_standard_word (test_reconstruction.TestReconstruction) ... ok
+test_french_typography_dialogue_dash (test_reconstruction.TestReconstruction) ... ok
+test_french_typography_ligatures (test_reconstruction.TestReconstruction) ... ok
+test_french_typography_quotes_and_spaces (test_reconstruction.TestReconstruction) ... ok
+test_heading_detector (test_reconstruction.TestReconstruction) ... ok
 ----------------------------------------------------------------------
-Ran 19 tests in 0.008s
+Ran 20 tests in 0.019s
 
 OK
 ```
 
-### Détail des 19 Tests Validés :
+### Détail des 20 Tests Validés :
+
+1. **`test_e2e_scenario.py` :**
+   - `test_full_document_lifecycle` : Parcours complet création de projet SQLite -> insertion pages/blocs OCR -> correction manuelle avec enregistrement du delta -> export EPUB 3 (contrôle ZIP/mimetype) -> export Markdown -> export TXT -> export HTML -> contrôle strict CER/WER nécessitant vérité terrain — **SUCCÈS**.
 
 1. **`test_export.py` :**
    - `test_epub3_structure` : Vérification du conteneur ZIP, présence de `mimetype` non-compressé en tête (`ZIP_STORED`), présence de `META-INF/container.xml`, `OEBPS/content.opf`, `OEBPS/nav.xhtml`, `OEBPS/styles.css` et chapitres XHTML — **SUCCÈS**.
