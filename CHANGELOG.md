@@ -33,11 +33,14 @@ et ce projet adhère à la spécification [Semantic Versioning](https://semver.o
 - **Identité Visuelle & Logo :**
   - Logo vectoriel SVG officiel intégrant un livre ouvert géométrique, un faisceau laser de numérisation et la typographie OCRBookor.
   - Favicon SVG adaptatif pour l'onglet du navigateur.
-- **Distribution Linux Desktop (.deb) :**
+- **Distribution Linux Desktop (.deb) & GitHub Releases :**
   - Script automatisé `scripts/build-deb.sh` pour assembler `releases/ocrbookor_1.2.0_amd64.deb` avec `dpkg-deb`.
   - Lanceur exécutable `/usr/bin/ocrbookor`, raccourci d’application `ocrbookor.desktop` et icône système SVG.
+  - Workflow GitHub Actions `.github/workflows/release.yml` publiant automatiquement la release avec les binaires attachés et les sommes de contrôle SHA256.
+  - Script autonome `scripts/publish-github-release.sh` pour téléverser directement la release et le binaire vers l'API GitHub Releases.
 - **Documentation & Visuel :**
   - Capture d'écran haute résolution de l'application intégrée dans `README.md`.
+  - Liens de téléchargement direct du binaire et documentation détaillée du processus de release.
   - Création du document d'architecture et de contexte technique `CONTEXT.md`.
 
 ---

@@ -83,17 +83,36 @@ L'application est disponible immédiatement sur : **`http://localhost:3000`**
 
 ### Option B : Installation Linux Debian Desktop (.deb)
 
-Téléchargez la release binaire directement depuis le menu **Paramètres Système** de l'application ou installez le paquet via le terminal :
+Le paquet binaire Debian est disponible dans la section **[GitHub Releases v1.2.0](https://github.com/nouhailler/OCRBookor/releases/tag/v1.2.0)** ou directement téléchargeable :
+
+- **Lien direct GitHub (binaire brut) :** [ocrbookor_1.2.0_amd64.deb](https://github.com/nouhailler/OCRBookor/raw/main/releases/ocrbookor_1.2.0_amd64.deb)
+- **Depuis l'application Web :** Menu Hamburger ➔ *Paramètres Système* ➔ Bouton *Télécharger le .deb (v1.2.0)*
 
 ```bash
+# Téléchargement direct en ligne de commande
+wget https://github.com/nouhailler/OCRBookor/raw/main/releases/ocrbookor_1.2.0_amd64.deb
+
 # Installation du paquet Debian
-sudo dpkg -i releases/ocrbookor_1.2.0_amd64.deb
+sudo dpkg -i ocrbookor_1.2.0_amd64.deb
 
 # Résolution des dépendances système si nécessaire
 sudo apt-get install -f
 
 # Lancement depuis le terminal ou via le menu des applications
 ocrbookor
+```
+
+#### Publication automatisée sur GitHub Releases :
+Un workflow GitHub Actions (`.github/workflows/release.yml`) et un script autonome (`scripts/publish-github-release.sh`) sont intégrés pour publier la release officielle et son asset binaire en une commande :
+
+```bash
+# Via le script avec votre Personal Access Token GitHub (portée repo / contents:write)
+GITHUB_TOKEN=ghp_votretokency ./scripts/publish-github-release.sh
+
+# Ou via GitHub CLI (gh)
+gh release create v1.2.0 releases/ocrbookor_1.2.0_amd64.deb \
+  --title "OCRBookor v1.2.0 — Release Linux Desktop & Web" \
+  --notes "Release officielle v1.2.0 avec binaire .deb Debian/Ubuntu"
 ```
 
 ---

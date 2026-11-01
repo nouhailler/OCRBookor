@@ -1,0 +1,95 @@
+name: Release & Publish Binary
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name for the release (e.g. v1.2.0)'
+        required: true
+        default: 'v1.2.0'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build & Publish Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Debian packaging tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dpkg-dev binutils
+
+      - name: Install dependencies & Build frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Run E2E and Unit Tests
+        run: |
+          chmod +x scripts/*.sh
+          ./scripts/test-e2e.sh
+
+      - name: Build Debian Package (.deb)
+        run: |
+          ./scripts/build-deb.sh
+          ls -lh releases/
+
+      - name: Compute SHA256 Checksum
+        run: |
+          cd releases
+          sha256sum *.deb > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Create GitHub Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag_name || github.ref_name }}
+          name: OCRBookor ${{ github.event.inputs.tag_name || github.ref_name }}
+          body: |
+            ## 🚀 OCRBookor v1.2.0 — Release Officielle Linux Desktop & Web
+
+            Application locale de numérisation, reconnaissance OCR et reconstruction éditoriale de livres imprimés vers EPUB 3, Markdown, TXT et HTML.
+
+            ### 📦 Fichiers téléchargeables
+            - **`ocrbookor_1.2.0_amd64.deb`** : Paquet d'installation natif Debian / Ubuntu x86_64.
+            - **`SHA256SUMS.txt`** : Empreintes cryptographiques de vérification d'intégrité.
+
+            ### 🔧 Installation sur Linux (Debian 12/13, Ubuntu 22.04/24.04, Linux Mint)
+            ```bash
+            sudo dpkg -i ocrbookor_1.2.0_amd64.deb
+            sudo apt-get install -f
+            ocrbookor
+            ```
+
+            ### 🌟 Nouveautés v1.2.0
+            - 🍔 **Menu Hamburger Catégorisé** (9 catégories avec recherche en temps réel).
+            - ⚙️ **Paramètres Système** (date de sortie 1er Novembre 2026, vérificateur de mises à jour en direct).
+            - 🌓 **Thème Clair & Thème Sombre** (sélection instantanée et persistante).
+            - ⚖️ **Onboarding Juridique & Décharge de Responsabilité** (protection de l'auteur sur les données importées).
+            - 💡 **Infobulles Interactives & Guides Novices** sur chaque écran et champ.
+            - 🎯 **Conformité EPUB 3 Strict & Typographie Française**.
+          files: |
+            releases/*.deb
+            releases/SHA256SUMS.txt
+          draft: false
+          prerelease: false

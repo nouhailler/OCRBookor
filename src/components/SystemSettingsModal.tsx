@@ -205,18 +205,29 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
             <p className="text-slate-600 dark:text-slate-300 text-[11.5px] leading-relaxed">
               Installez OCRBookor comme application native sur votre bureau Linux Debian 13 avec raccourci d’application et dépendances intégrées.
             </p>
-            <div className="pt-1 flex items-center justify-between">
+            <div className="pt-1 flex flex-wrap items-center justify-between gap-2">
               <span className="text-[10px] text-slate-500">
                 Fichier : <code className="font-mono text-indigo-600 dark:text-indigo-400">ocrbookor_1.2.0_amd64.deb</code>
               </span>
-              <a
-                href="/releases/ocrbookor_1.2.0_amd64.deb"
-                download="ocrbookor_1.2.0_amd64.deb"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-sm transition"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Télécharger le .deb</span>
-              </a>
+              <div className="flex items-center gap-2">
+                <a
+                  href="https://github.com/nouhailler/OCRBookor/releases"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+                >
+                  <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                  <span>GitHub Releases</span>
+                </a>
+                <a
+                  href="/releases/ocrbookor_1.2.0_amd64.deb"
+                  download="ocrbookor_1.2.0_amd64.deb"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-sm transition"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Télécharger le .deb</span>
+                </a>
+              </div>
             </div>
           </div>
 
