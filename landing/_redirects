@@ -1,0 +1,3 @@
+# Cloudflare Pages Redirects for OCRBookor Landing Page
+# Permet une navigation propre et le fallback SPA
+/*    /index.html   200

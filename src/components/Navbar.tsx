@@ -19,6 +19,7 @@ import {
   HelpCircle,
   Settings,
   Compass,
+  Globe,
 } from 'lucide-react';
 import { OCRProject } from '../types/book';
 import { Logo } from './Logo';
@@ -36,6 +37,7 @@ interface NavbarProps {
   onOpenDocs: (docKey: string) => void;
   onOpenHamburger: () => void;
   onOpenSettings: () => void;
+  onOpenLanding?: () => void;
   lastSavedTime?: string;
 }
 
@@ -50,6 +52,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenDocs,
   onOpenHamburger,
   onOpenSettings,
+  onOpenLanding,
   lastSavedTime,
 }) => {
   const tabs = [
@@ -128,8 +131,20 @@ export const Navbar: React.FC<NavbarProps> = ({
           })}
         </nav>
 
-        {/* Utilities: System Settings, Docs, Theme Toggle */}
+        {/* Utilities: Landing Page, System Settings, Docs, Theme Toggle */}
         <div className="flex items-center space-x-1 sm:space-x-1.5 shrink-0">
+          {onOpenLanding && (
+            <button
+              type="button"
+              onClick={onOpenLanding}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 dark:hover:bg-amber-900/60 rounded-xl border border-amber-200 dark:border-amber-800 transition"
+              title="Afficher la Landing Page PWA"
+            >
+              <Globe className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Landing PWA</span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={onOpenSettings}

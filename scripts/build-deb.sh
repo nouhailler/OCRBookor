@@ -20,9 +20,12 @@ echo "  Construction du Paquet Debian Desktop (.deb) pour OCRBookor"
 echo "  Version : ${VERSION} | Architecture : ${ARCH}"
 echo "================================================================="
 
-# 1. Compilation préalable du frontend
+# 1. Compilation préalable du frontend & backend
 echo "→ 1/5 Compilation du frontend (Vite build)..."
 npm run build
+
+echo "→ 1b/5 Compilation du serveur autonome Node.js (server.js)..."
+npx esbuild server.ts --bundle --platform=node --target=node18 --format=esm --banner:js="import { createRequire } from 'module'; const require = createRequire(import.meta.url);" --outfile="$ROOT_DIR/server.js" --external:vite
 
 # 2. Préparation de l'arborescence du paquet
 echo "→ 2/5 Préparation de l'arborescence /opt et /usr..."
@@ -69,8 +72,14 @@ cat << 'EOF' > "$BUILD_ROOT/usr/bin/ocrbookor"
 set -e
 export OCRBOOKOR_DATA_DIR="${OCRBOOKOR_DATA_DIR:-$HOME/.local/share/ocrbookor}"
 mkdir -p "$OCRBOOKOR_DATA_DIR"
+export NODE_ENV=production
 
-echo "Démarrage d'OCRBookor v1.2.0 sur http://localhost:3000..."
+echo "================================================================="
+echo "  Démarrage d'OCRBookor v1.2.0 Desktop"
+echo "  URL locale : http://localhost:3000"
+echo "  Données : $OCRBOOKOR_DATA_DIR"
+echo "================================================================="
+
 cd /opt/ocrbookor
 exec node /opt/ocrbookor/server.js "$@"
 EOF
@@ -101,6 +110,7 @@ fi
 echo "→ 4/5 Copie des sources, du build et des modules backend..."
 cp -r "$ROOT_DIR/dist" "$BUILD_ROOT/opt/${APP_NAME}/"
 cp -r "$ROOT_DIR/backend" "$BUILD_ROOT/opt/${APP_NAME}/"
+cp "$ROOT_DIR/server.js" "$BUILD_ROOT/opt/${APP_NAME}/"
 cp "$ROOT_DIR/package.json" "$BUILD_ROOT/opt/${APP_NAME}/"
 if [ -f "$ROOT_DIR/README.md" ]; then
     cp "$ROOT_DIR/README.md" "$BUILD_ROOT/usr/share/doc/${APP_NAME}/"

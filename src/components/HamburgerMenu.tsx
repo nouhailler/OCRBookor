@@ -42,6 +42,7 @@ interface HamburgerMenuProps {
   onOpenLegal: () => void;
   onOpenDocs: (docKey: string) => void;
   onResetBenchmarkCorpus: () => void;
+  onOpenLanding?: () => void;
 }
 
 interface MenuItem {
@@ -73,6 +74,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
   onOpenLegal,
   onOpenDocs,
   onResetBenchmarkCorpus,
+  onOpenLanding,
 }) => {
   const [searchFilter, setSearchFilter] = useState('');
 
@@ -200,6 +202,16 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
             window.location.href = '/releases/ocrbookor_1.2.0_amd64.deb';
           },
           badge: 'Desktop',
+        },
+        {
+          id: 'landing-pwa',
+          label: 'Site Officiel & Landing Page PWA',
+          description: 'Présentation complète, pipeline, démonstrateur et téléchargement',
+          action: () => {
+            onClose();
+            onOpenLanding?.();
+          },
+          badge: 'PWA',
         },
       ],
     },

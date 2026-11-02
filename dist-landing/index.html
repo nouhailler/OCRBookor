@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- SEO & Identité -->
+  <title>OCRBookor — Du livre scanné au document numérique structuré (EPUB 3, Markdown, TXT)</title>
+  <meta name="description" content="Découvrez OCRBookor, une suite logicielle souveraine pour reconnaître le texte des livres scannés en PDF, reconstruire leur structure éditoriale et produire des fichiers EPUB 3, Markdown et HTML 100% hors-ligne." />
+  <meta name="author" content="Patrick Nouhailler" />
+  <meta name="keywords" content="OCR, Livre scanné, EPUB 3, Numérisation, Tesseract, Typographie française, Markdown, Dé-césure, Patrimoine écrit" />
+
+  <!-- Open Graph / Réseaux Sociaux -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="OCRBookor — Du livre scanné au document numérique structuré" />
+  <meta property="og:description" content="Suite documentaire locale pour numériser, océriser et reconstruire des livres scannés vers EPUB 3 strict, Markdown et HTML. 100% hors-ligne." />
+  <meta property="og:image" content="/images/screenshot.jpg" />
+  <meta property="og:site_name" content="OCRBookor" />
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="OCRBookor — Du livre scanné au document numérique structuré" />
+  <meta name="twitter:description" content="Suite logicielle locale de numérisation, OCR et reconstruction de livres scannés." />
+  <meta name="twitter:image" content="/images/screenshot.jpg" />
+
+  <!-- PWA & Mobile Web App -->
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#1E293B" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="OCRBookor" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+
+  <!-- Tailwind CSS via CDN pour Cloudflare Pages statique -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            paper: '#FAF7F2',
+            ink: '#0F172A',
+            copper: {
+              DEFAULT: '#B45309',
+              light: '#D97706',
+              dark: '#78350F'
+            }
+          },
+          fontFamily: {
+            serif: ['Georgia', 'Cambria', '"Times New Roman"', 'Times', 'serif'],
+            sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Typographie éditoriale */
+    .font-editorial {
+      font-family: Georgia, Cambria, 'Times New Roman', Times, serif;
+    }
+    ::selection {
+      background-color: rgba(180, 83, 9, 0.25);
+      color: #78350F;
+    }
+  </style>
+</head>
+
+<body class="bg-[#FAF7F2] dark:bg-[#111625] text-stone-900 dark:text-stone-100 font-sans antialiased selection:bg-amber-600/20 selection:text-amber-900 transition-colors duration-200">
+
+  <!-- ==================================================================== -->
+  <!-- BARRE DE NAVIGATION SUPÉRIEURE -->
+  <!-- ==================================================================== -->
+  <header class="sticky top-0 z-40 bg-[#FAF7F2]/90 dark:bg-[#111625]/90 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      
+      <!-- Logo & Titre -->
+      <a href="#hero" class="flex items-center gap-3 group">
+        <img src="/logo.svg" alt="OCRBookor Logo" class="w-9 h-9 transition-transform group-hover:scale-105" />
+        <div class="flex flex-col">
+          <span class="font-editorial text-lg font-bold tracking-tight text-stone-950 dark:text-white flex items-center gap-1.5">
+            OCRBookor
+            <span class="text-[10px] font-sans font-semibold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+              v1.2.0
+            </span>
+          </span>
+          <span class="text-[10px] text-stone-600 dark:text-stone-300 -mt-0.5 font-medium tracking-wide">
+            Numérisation &amp; Reconstruction EPUB 3
+          </span>
+        </div>
+      </a>
+
+      <!-- Navigation Desktop -->
+      <nav class="hidden lg:flex items-center gap-6 text-xs font-medium text-stone-700 dark:text-stone-200">
+        <a href="#pipeline" class="hover:text-amber-700 dark:hover:text-amber-400 transition">Pipeline</a>
+        <a href="#fonctionnalites" class="hover:text-amber-700 dark:hover:text-amber-400 transition">Fonctionnalités</a>
+        <a href="#formats" class="hover:text-amber-700 dark:hover:text-amber-400 transition">Formats d’Export</a>
+        <a href="#demonstration" class="hover:text-amber-700 dark:hover:text-amber-400 transition">Démonstration</a>
+        <a href="#telechargement" class="hover:text-amber-700 dark:hover:text-amber-400 transition">Téléchargement</a>
+        <a href="#faq" class="hover:text-amber-700 dark:hover:text-amber-400 transition">FAQ</a>
+      </nav>
+
+      <!-- Boutons d'Action & Thème -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Bouton PWA -->
+        <button id="pwa-install-btn" class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-700 hover:bg-amber-800 text-white shadow-xs transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Installer PWA
+        </button>
+
+        <!-- Thème Toggle -->
+        <button id="theme-toggle" class="p-2 text-stone-600 dark:text-stone-300 hover:bg-stone-200/60 dark:hover:bg-stone-800 rounded-lg transition" aria-label="Basculer le thème">
+          <svg id="theme-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+
+        <a href="https://github.com/nouhailler/OCRBookor/releases" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-950 hover:bg-stone-800 dark:hover:bg-white transition">
+          Télécharger .deb
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <main>
+    <!-- ==================================================================== -->
+    <!-- SECTION 1 — HERO -->
+    <!-- ==================================================================== -->
+    <section id="hero" class="relative pt-12 pb-20 border-b border-stone-200/60 dark:border-stone-800/60">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          
+          <div class="lg:col-span-7 space-y-6">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                100% Hors-Ligne &amp; Souverain
+              </span>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                IDPF EPUB 3.3 Strict
+              </span>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-stone-200/80 text-stone-700 dark:bg-stone-800 dark:text-stone-300">
+                Linux Desktop (.deb) &amp; Web
+              </span>
+            </div>
+
+            <h1 class="font-editorial text-3xl sm:text-5xl lg:text-5xl font-bold tracking-tight text-stone-950 dark:text-white leading-[1.15]">
+              Du livre scanné au document numérique structuré
+            </h1>
+
+            <p className="text-base sm:text-lg text-stone-600 dark:text-stone-300 leading-relaxed max-w-2xl">
+              OCRBookor vous accompagne dans la transformation de livres numérisés en PDF en documents numériques reconnus, reconstruits et exploitables. Découvrez une suite logicielle conçue pour faciliter le traitement et la valorisation des livres scannés, sans dépendance au cloud.
+            </p>
+
+            <div class="pt-2 flex flex-wrap items-center gap-3 sm:gap-4">
+              <a href="https://github.com/nouhailler/OCRBookor/releases" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold bg-amber-700 text-white hover:bg-amber-800 shadow-md transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Télécharger OCRBookor (v1.2.0)
+              </a>
+
+              <a href="#pipeline" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-medium border border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800/60 transition">
+                Découvrir le fonctionnement →
+              </a>
+
+              <a href="https://github.com/nouhailler/OCRBookor" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-4 py-3 rounded-xl text-sm font-medium text-stone-700 dark:text-stone-300 hover:text-amber-700 dark:hover:text-amber-400 transition">
+                Code source GitHub ↗
+              </a>
+            </div>
+
+            <div class="pt-4 border-t border-stone-200/80 dark:border-stone-800/80 grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
+              <div>
+                <span class="block text-stone-600 dark:text-stone-300 font-medium">Version Stable</span>
+                <span class="font-semibold text-stone-800 dark:text-stone-200">v1.2.0 (1er Nov. 2026)</span>
+              </div>
+              <div>
+                <span class="block text-stone-600 dark:text-stone-300 font-medium">Paquet Linux</span>
+                <span class="font-semibold text-stone-800 dark:text-stone-200">Debian / Ubuntu (.deb)</span>
+              </div>
+              <div>
+                <span class="block text-stone-600 dark:text-stone-300 font-medium">Licence</span>
+                <span class="font-semibold text-stone-800 dark:text-stone-200">Apache 2.0 / Libre</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-5">
+            <div class="relative rounded-2xl overflow-hidden shadow-2xl border border-stone-300 dark:border-stone-800 bg-stone-900">
+              <img src="/images/screenshot.jpg" alt="Capture d'écran authentique de l'application OCRBookor" class="w-full h-auto" />
+              <div class="absolute bottom-3 left-3 right-3 p-3 rounded-lg bg-stone-950/80 backdrop-blur-xs border border-stone-800 text-[11px] text-stone-300 flex items-center justify-between">
+                <div>
+                  <span class="font-bold text-white block">Écran 4 : Éditeur Bi-Fenêtre Synchronisé</span>
+                  <span class="text-stone-400">Scan historique vs texte océrisé avec indices de certitude</span>
+                </div>
+                <span class="px-2 py-0.5 rounded bg-emerald-900/60 text-emerald-300 font-mono text-[10px] border border-emerald-700">
+                  98.7% Confiance
+                </span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- SECTION 2 — LE PROBLÈME -->
+    <!-- ==================================================================== -->
+    <section id="probleme" class="py-16 border-b border-stone-200/60 dark:border-stone-800/60 bg-stone-100/50 dark:bg-stone-900/40">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-3xl mx-auto space-y-3">
+          <span class="text-xs font-editorial font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">
+            Le constat documentaire
+          </span>
+          <h2 class="font-editorial text-2xl sm:text-4xl font-bold text-stone-950 dark:text-white">
+            Pourquoi un PDF scanné ne suffit pas
+          </h2>
+          <p class="text-sm sm:text-base text-stone-600 dark:text-stone-400 leading-relaxed">
+            Un fichier PDF constitué uniquement d'images brutes est inerte : le texte ne peut être recherché, les césures sont brisées et les liseuses ne peuvent pas le formater.
+          </p>
+        </div>
+
+        <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="p-6 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-xs space-y-2">
+            <h3 class="font-editorial text-base font-bold text-stone-900 dark:text-stone-100">Texte inerte &amp; invisible</h3>
+            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
+              Le texte ne peut pas être sélectionné, copié ou indexé par un moteur de recherche.
+            </p>
+          </div>
+
+          <div class="p-6 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-xs space-y-2">
+            <h3 class="font-editorial text-base font-bold text-stone-900 dark:text-stone-100">Inclinaison &amp; Bruit optique</h3>
+            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
+              Les pages souffrent d'inclinaison (skew), de courbure de reliure et de taches de vieillissement.
+            </p>
+          </div>
+
+          <div class="p-6 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-xs space-y-2">
+            <h3 class="font-editorial text-base font-bold text-stone-900 dark:text-stone-100">Césures brisées &amp; ponctuation</h3>
+            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
+              Les mots coupés en fin de ligne restent scindés et les règles typographiques françaises sont ignorées.
+            </p>
+          </div>
+
+          <div class="p-6 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-xs space-y-2 border-emerald-500/40">
+            <h3 class="font-editorial text-base font-bold text-emerald-800 dark:text-emerald-300">La solution OCRBookor</h3>
+            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
+              Calcul DPI, redressement automatique, binarisation Otsu, Tesseract v5 local, dé-césure et export EPUB 3 strict.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- SECTION 3 — LE PIPELINE RÉEL EN 5 ÉTAPES -->
+    <!-- ==================================================================== -->
+    <section id="pipeline" class="py-16 border-b border-stone-200/60 dark:border-stone-800/60">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-3xl mx-auto space-y-3 mb-12">
+          <span class="text-xs font-editorial font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">
+            Méthodologie Documentaire
+          </span>
+          <h2 class="font-editorial text-2xl sm:text-4xl font-bold text-stone-950 dark:text-white">
+            Le pipeline de traitement vérifié
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div class="p-5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-2">
+            <span class="text-xs font-mono font-bold text-amber-700 dark:text-amber-400">01 / 05</span>
+            <h3 class="font-editorial text-base font-bold">1. Importer</h3>
+            <p class="text-xs text-stone-600 dark:text-stone-400">Glisser-déposer de scans PDF, analyse des flux d'images.</p>
+          </div>
+
+          <div class="p-5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-2">
+            <span class="text-xs font-mono font-bold text-amber-700 dark:text-amber-400">02 / 05</span>
+            <h3 class="font-editorial text-base font-bold">2. Analyser</h3>
+            <p class="text-xs text-stone-600 dark:text-stone-400">Calcul DPI, redressement Deskew et binarisation Otsu.</p>
+          </div>
+
+          <div class="p-5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-2">
+            <span class="text-xs font-mono font-bold text-amber-700 dark:text-amber-400">03 / 05</span>
+            <h3 class="font-editorial text-base font-bold">3. Reconnaître</h3>
+            <p class="text-xs text-stone-600 dark:text-stone-400">Tesseract v5 100% local, indice de confiance mot à mot.</p>
+          </div>
+
+          <div class="p-5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-2">
+            <span class="text-xs font-mono font-bold text-amber-700 dark:text-amber-400">04 / 05</span>
+            <h3 class="font-editorial text-base font-bold">4. Reconstruire</h3>
+            <p class="text-xs text-stone-600 dark:text-stone-400">Dé-césure, règles de l'Imprimerie Nationale, ligatures.</p>
+          </div>
+
+          <div class="p-5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-2">
+            <span class="text-xs font-mono font-bold text-amber-700 dark:text-amber-400">05 / 05</span>
+            <h3 class="font-editorial text-base font-bold">5. Exporter</h3>
+            <p class="text-xs text-stone-600 dark:text-stone-400">EPUB 3 strict, Markdown Dublin Core, HTML5 et TXT.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- SECTION 4 — LES FONCTIONNALITÉS VÉRIFIÉES -->
+    <!-- ==================================================================== -->
+    <section id="fonctionnalites" class="py-16 border-b border-stone-200/60 dark:border-stone-800/60 bg-stone-100/50 dark:bg-stone-900/40">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-3xl mx-auto space-y-3 mb-12">
+          <span class="text-xs font-editorial font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">
+            Capacités Confirmées
+          </span>
+          <h2 class="font-editorial text-2xl sm:text-4xl font-bold text-stone-950 dark:text-white">
+            Fonctionnalités réelles du logiciel
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
+          <div class="p-5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-2">
+            <h3 class="font-bold text-sm text-stone-900 dark:text-stone-100">Traitement 100% Local</h3>
+            <p class="text-stone-600 dark:text-stone-400">Tesseract WebAssembly &amp; CLI. Zéro donnée transmise à des tiers.</p>
+          </div>
+          <div class="p-5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-2">
+            <h3 class="font-bold text-sm text-stone-900 dark:text-stone-100">Éditeur Bi-Fenêtre</h3>
+            <p class="text-stone-600 dark:text-stone-400">Scan original zoomable avec coordonnées spatiales vs texte éditable.</p>
+          </div>
+          <div class="p-5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-2">
+            <h3 class="font-bold text-sm text-stone-900 dark:text-stone-100">Typographie Imprimerie Nationale</h3>
+            <p class="text-stone-600 dark:text-stone-400">Espaces insécables devant <code>! ? ; : % €</code>, guillemets <code>« »</code>, ligatures <code>œ</code>.</p>
+          </div>
+          <div class="p-5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-2">
+            <h3 class="font-bold text-sm text-stone-900 dark:text-stone-100">Dé-césure Intelligente</h3>
+            <p class="text-stone-600 dark:text-stone-400">Recollage des mots coupés en fin de ligne avec respect des mots composés.</p>
+          </div>
+          <div class="p-5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-2">
+            <h3 class="font-bold text-sm text-stone-900 dark:text-stone-100">Planches &amp; Illustrations</h3>
+            <p class="text-stone-600 dark:text-stone-400">Extraction des gravures anciennes et association avec légendes.</p>
+          </div>
+          <div class="p-5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-2">
+            <h3 class="font-bold text-sm text-stone-900 dark:text-stone-100">Paquet Debian (.deb)</h3>
+            <p class="text-stone-600 dark:text-stone-400">Intégration Linux avec lanceur <code>/usr/bin/ocrbookor</code> et raccourci bureau.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- SECTION 5 — LES FORMATS DE SORTIE -->
+    <!-- ==================================================================== -->
+    <section id="formats" class="py-16 border-b border-stone-200/60 dark:border-stone-800/60">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-3xl mx-auto space-y-3 mb-10">
+          <span class="text-xs font-editorial font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">
+            Livrables Normalisés
+          </span>
+          <h2 class="font-editorial text-2xl sm:text-4xl font-bold text-stone-950 dark:text-white">
+            Documents obtenus avec OCRBookor
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+          <div class="p-5 rounded-xl bg-white dark:bg-stone-900 border border-amber-600/40 space-y-2">
+            <span class="font-bold text-amber-700 dark:text-amber-400 uppercase text-[10px]">Standard W3C</span>
+            <h3 class="font-editorial font-bold text-base text-stone-900 dark:text-white">EPUB 3.3 Strict</h3>
+            <p class="text-stone-600 dark:text-stone-400">Mimetype non compressé, container.xml, content.opf, nav.xhtml.</p>
+          </div>
+          <div class="p-5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-2">
+            <span class="font-bold text-indigo-600 uppercase text-[10px]">Recherche &amp; Notes</span>
+            <h3 class="font-editorial font-bold text-base text-stone-900 dark:text-white">Markdown (.md)</h3>
+            <p class="text-stone-600 dark:text-stone-400">Frontmatter Dublin Core YAML compatible Obsidian et Git.</p>
+          </div>
+          <div class="p-5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-2">
+            <span class="font-bold text-emerald-600 uppercase text-[10px]">Web Autonome</span>
+            <h3 class="font-editorial font-bold text-base text-stone-900 dark:text-white">HTML 5 Prêt</h3>
+            <p class="text-stone-600 dark:text-stone-400">Page web autonome avec styles typographiques intégrés.</p>
+          </div>
+          <div class="p-5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-2">
+            <span class="font-bold text-stone-500 uppercase text-[10px]">Universel</span>
+            <h3 class="font-editorial font-bold text-base text-stone-900 dark:text-white">Texte Brut (.txt)</h3>
+            <p class="text-stone-600 dark:text-stone-400">UTF-8 pur avec alinéas et paragraphes nettoyés.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- SECTION 9 — TÉLÉCHARGEMENT & INSTALLATION -->
+    <!-- ==================================================================== -->
+    <section id="telechargement" class="py-16 border-b border-stone-200/60 dark:border-stone-800/60 bg-stone-100/50 dark:bg-stone-900/40">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-3xl mx-auto space-y-3 mb-10">
+          <span class="text-xs font-editorial font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">
+            Versions Officielles
+          </span>
+          <h2 class="font-editorial text-2xl sm:text-4xl font-bold text-stone-950 dark:text-white">
+            Commencez à transformer vos livres scannés
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="p-6 rounded-2xl bg-white dark:bg-stone-900 border-2 border-amber-600 shadow-md space-y-3">
+            <div class="flex justify-between items-center text-xs">
+              <span class="font-bold text-amber-700">Paquet Linux Desktop (.deb)</span>
+              <span class="font-mono text-stone-500">v1.2.0 • 1.5 Mo</span>
+            </div>
+            <h3 class="font-editorial text-lg font-bold">Installation Linux Debian / Ubuntu</h3>
+            <p class="text-xs text-stone-600 dark:text-stone-400">Compatible Debian 12/13, Ubuntu 22.04/24.04, Linux Mint.</p>
+            <div class="p-3 bg-stone-900 text-stone-200 rounded font-mono text-[11px] space-y-1">
+              <div>sudo dpkg -i ocrbookor_1.2.0_amd64.deb</div>
+              <div>sudo apt-get install -f</div>
+              <div>ocrbookor</div>
+            </div>
+            <div class="pt-2 flex gap-3">
+              <a href="https://github.com/nouhailler/OCRBookor/releases/tag/v1.2.0" target="_blank" rel="noopener noreferrer" class="px-4 py-2 rounded-lg text-xs font-bold bg-amber-700 text-white hover:bg-amber-800 transition">
+                Télécharger sur GitHub Releases
+              </a>
+              <a href="https://github.com/nouhailler/OCRBookor/raw/main/releases/ocrbookor_1.2.0_amd64.deb" class="px-3 py-2 rounded-lg text-xs border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-100 transition">
+                Binaire direct
+              </a>
+            </div>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-3">
+            <div class="flex justify-between items-center text-xs">
+              <span class="font-bold text-stone-700 dark:text-stone-300">Code Source Libre</span>
+              <span class="font-mono text-stone-500">Apache 2.0</span>
+            </div>
+            <h3 class="font-editorial text-lg font-bold">Dépôt GitHub &amp; Exécution Node.js</h3>
+            <p class="text-xs text-stone-600 dark:text-stone-400">Clonez le dépôt pour lancer le serveur local Express + Vite.</p>
+            <div class="p-3 bg-stone-900 text-stone-200 rounded font-mono text-[11px] space-y-1">
+              <div>git clone https://github.com/nouhailler/OCRBookor.git</div>
+              <div>cd OCRBookor &amp;&amp; npm install</div>
+              <div>npm run dev</div>
+            </div>
+            <div class="pt-2">
+              <a href="https://github.com/nouhailler/OCRBookor" target="_blank" rel="noopener noreferrer" class="px-4 py-2 rounded-lg text-xs font-bold border border-stone-900 dark:border-white text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition">
+                Explorer sur GitHub ↗
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- SECTION 10 — FAQ -->
+    <!-- ==================================================================== -->
+    <section id="faq" class="py-16 border-b border-stone-200/60 dark:border-stone-800/60">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        
+        <div class="text-center max-w-2xl mx-auto space-y-2 mb-8">
+          <span class="text-xs font-editorial font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">Questions Fréquentes</span>
+          <h2 class="font-editorial text-2xl sm:text-3xl font-bold">Foire aux questions</h2>
+        </div>
+
+        <div class="space-y-3 text-xs sm:text-sm">
+          <details class="p-4 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800">
+            <summary class="font-editorial font-bold cursor-pointer text-stone-900 dark:text-stone-100">Qu'est-ce qu'OCRBookor exactement ?</summary>
+            <p class="mt-2 text-stone-600 dark:text-stone-400 leading-relaxed">Une suite logicielle locale permettant de transformer des scans PDF de livres en documents structurés EPUB 3, Markdown et HTML avec moteur de réconciliation bi-fenêtre.</p>
+          </details>
+
+          <details class="p-4 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800">
+            <summary class="font-editorial font-bold cursor-pointer text-stone-900 dark:text-stone-100">Mes livres sont-ils envoyés sur internet ?</summary>
+            <p class="mt-2 text-stone-600 dark:text-stone-400 leading-relaxed">Non. OCRBookor fonctionne de manière 100% locale et hors-ligne via Tesseract v5 WebAssembly ou CLI natif.</p>
+          </details>
+
+          <details class="p-4 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800">
+            <summary class="font-editorial font-bold cursor-pointer text-stone-900 dark:text-stone-100">Le logiciel lit-il l'écriture manuscrite ?</summary>
+            <p class="mt-2 text-stone-600 dark:text-stone-400 leading-relaxed">Non, OCRBookor v1.2.0 est conçu pour les textes imprimés au plomb ou contemporains.</p>
+          </details>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================================================================== -->
+  <!-- SECTION 11 — PIED DE PAGE -->
+  <!-- ==================================================================== -->
+  <footer class="py-12 bg-stone-950 text-stone-300 text-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <span class="font-editorial text-base font-bold text-white block">OCRBookor v1.2.0</span>
+          <p class="text-stone-400 mt-1 max-w-md">Suite de numérisation, reconnaissance OCR et reconstruction de livres vers EPUB 3.</p>
+        </div>
+        <div class="flex gap-4">
+          <a href="https://github.com/nouhailler/OCRBookor" target="_blank" rel="noopener noreferrer" class="hover:text-amber-400">GitHub ↗</a>
+          <a href="https://github.com/nouhailler/OCRBookor/releases" target="_blank" rel="noopener noreferrer" class="hover:text-amber-400">Releases ↗</a>
+          <a href="https://github.com/nouhailler/OCRBookor/blob/main/USER_GUIDE.md" target="_blank" rel="noopener noreferrer" class="hover:text-amber-400">Manuel ↗</a>
+        </div>
+      </div>
+      <div class="pt-6 border-t border-stone-800 flex flex-col sm:flex-row justify-between gap-2 text-stone-500 text-[11px]">
+        <div>© 2026 OCRBookor — Logiciel libre Apache 2.0. Décharge légale : l'auteur décline toute responsabilité quant aux données importées par les utilisateurs.</div>
+        <a href="#hero" class="hover:text-stone-300">Haut de page ↑</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Script PWA & Thème -->
+  <script>
+    // Enregistrement Service Worker PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('SW enregistré:', reg.scope))
+          .catch(err => console.warn('Erreur SW:', err));
+      });
+    }
+
+    // Gestion de l'installation PWA
+    let deferredPrompt;
+    const pwaBtn = document.getElementById('pwa-install-btn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (pwaBtn) pwaBtn.classList.remove('hidden');
+    });
+
+    if (pwaBtn) {
+      pwaBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          pwaBtn.classList.add('hidden');
+        }
+        deferredPrompt = null;
+      });
+    }
+
+    // Thème Sombre / Clair
+    const themeBtn = document.getElementById('theme-toggle');
+    themeBtn?.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      const isDark = document.documentElement.classList.contains('dark');
+      localStorage.setItem('ocrbookor_theme', isDark ? 'dark' : 'light');
+    });
+
+    // Initialisation thème
+    if (localStorage.getItem('ocrbookor_theme') === 'dark' || (!localStorage.getItem('ocrbookor_theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    }
+  </script>
+
+</body>
+</html>

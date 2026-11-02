@@ -1,0 +1,33 @@
+{
+  "id": "/",
+  "name": "OCRBookor — Suite de Numérisation",
+  "short_name": "OCRBookor",
+  "description": "Du livre scanné au document numérique structuré : EPUB 3, Markdown, TXT et HTML 100% hors-ligne.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FAF7F2",
+  "theme_color": "#1E293B",
+  "orientation": "any",
+  "categories": ["utilities", "books", "productivity", "education"],
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

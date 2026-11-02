@@ -1,0 +1,21 @@
+<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="48" height="48" rx="12" fill="url(#grad)" />
+  <!-- Book Left Page -->
+  <path d="M8 11C13.5 9.8 20 12.5 23 15V38C20 35.5 13.5 33 8 34.2V11Z" fill="#FFFFFF" fill-opacity="0.85" />
+  <!-- Book Right Page -->
+  <path d="M40 11C34.5 9.8 28 12.5 25 15V38C28 35.5 34.5 33 40 34.2V11Z" fill="#FFFFFF" fill-opacity="0.95" />
+  <!-- Book Spine Center -->
+  <path d="M23 15C24 14.2 24 14.2 25 15V38C24 37.2 24 37.2 23 38V15Z" fill="#C7D2FE" />
+  <!-- Scanning Laser Beam -->
+  <path d="M4 24H44" stroke="#38BDF8" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="3 1.5" />
+  <circle cx="24" cy="24" r="3.2" fill="#38BDF8" />
+  <!-- OCR Text Glyphs -->
+  <path d="M31 21L33 26M33 26L35 31M33 26H30" stroke="#4F46E5" stroke-width="1.6" stroke-linecap="round" />
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4F46E5" />
+      <stop offset="0.5" stop-color="#6366F1" />
+      <stop offset="1" stop-color="#2563EB" />
+    </linearGradient>
+  </defs>
+</svg>

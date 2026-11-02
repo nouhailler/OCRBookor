@@ -16,6 +16,7 @@ import { HamburgerMenu } from './components/HamburgerMenu';
 import { SystemSettingsModal } from './components/SystemSettingsModal';
 import { OnboardingModal } from './components/OnboardingModal';
 import { ContextualGuide } from './components/ContextualGuide';
+import { LandingView } from './components/LandingView';
 import { OCRProject } from './types/book';
 import {
   loadProjectsFromStorage,
@@ -32,6 +33,15 @@ export default function App() {
   const [activeProjectId, setActiveId] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<ActiveTab>('bibliotheque');
   
+  // View mode: defaults to landing page with option to switch to studio app
+  const [viewMode, setViewMode] = useState<'landing' | 'app'>(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash;
+      if (hash.startsWith('#app')) return 'app';
+    }
+    return 'landing';
+  });
+
   // Theme management: defaults to dark or saved preference
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
@@ -182,6 +192,22 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeProject]);
 
+  if (viewMode === 'landing') {
+    return (
+      <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
+        <LandingView
+          onLaunchApp={() => setViewMode('app')}
+          onOpenDocs={handleOpenDocs}
+        />
+        <DocumentationModal
+          isOpen={docsModalOpen}
+          onClose={() => setDocsModalOpen(false)}
+          defaultDoc={docsModalKey}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className={`min-h-screen ${darkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'} flex flex-col font-sans transition-colors duration-200`}>
       {/* Top Navbar */}
@@ -196,6 +222,7 @@ export default function App() {
         onOpenDocs={handleOpenDocs}
         onOpenHamburger={() => setHamburgerOpen(true)}
         onOpenSettings={() => setSettingsModalOpen(true)}
+        onOpenLanding={() => setViewMode('landing')}
         lastSavedTime={lastSavedTime}
       />
 
@@ -303,6 +330,10 @@ export default function App() {
           handleOpenDocs(key);
         }}
         onResetBenchmarkCorpus={handleResetBenchmarkCorpus}
+        onOpenLanding={() => {
+          setHamburgerOpen(false);
+          setViewMode('landing');
+        }}
       />
 
       {/* System Settings & Updates Modal */}
