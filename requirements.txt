@@ -17,8 +17,8 @@ numpy>=1.26.4
 
 # Moteurs OCR
 pytesseract>=0.3.10
-# PaddleOCR & RapidOCR pour architecture avancée optionnelle
-rapidocr-onnxruntime>=1.3.14
+# PaddleOCR & RapidOCR pour architecture avancée optionnelle (compatible < 3.13)
+rapidocr-onnxruntime>=1.3.14; python_version < "3.13"
 
 # Reconstruction & Génération de formats
 EbookLib>=0.18
