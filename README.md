@@ -61,9 +61,56 @@
 
 ---
 
+## 🌐 Site Officiel & Démonstration en Ligne
+
+- **Landing Page PWA officielle :** [https://decouvrir-ocrbookor.pages.dev/](https://decouvrir-ocrbookor.pages.dev/)
+- **Dépôt GitHub :** [https://github.com/nouhailler/OCRBookor](https://github.com/nouhailler/OCRBookor)
+- **Releases & Binaires :** [https://github.com/nouhailler/OCRBookor/releases](https://github.com/nouhailler/OCRBookor/releases)
+
+---
+
 ## 🚀 Installation & Démarrage
 
-### Option A : Version Web / Développement Local
+### Option A : Installation Express en 1 ligne (Recommandée sur Linux Debian / Ubuntu)
+
+Installez automatiquement la dernière version d'OCRBookor avec ses dépendances et son lanceur système sans aucun téléchargement manuel :
+
+```bash
+curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh | sudo bash
+```
+
+Une fois installé, démarrez simplement l'application :
+```bash
+ocrbookor
+```
+*L'application démarre immédiatement sur `http://localhost:3000` et ajoute un raccourci dans le menu des applications de votre bureau.*
+
+---
+
+### Option B : Installation Manuelle via Paquet Debian Desktop (.deb)
+
+Le paquet binaire Debian est disponible dans la section **[GitHub Releases v1.2.0](https://github.com/nouhailler/OCRBookor/releases/tag/v1.2.0)** ou directement téléchargeable :
+
+- **Lien direct GitHub (binaire brut) :** [ocrbookor_1.2.0_amd64.deb](https://github.com/nouhailler/OCRBookor/raw/main/releases/ocrbookor_1.2.0_amd64.deb)
+- **Depuis l'application Web :** Menu Hamburger ➔ *Paramètres Système* ➔ Bouton *Télécharger le .deb (v1.2.0)*
+
+```bash
+# Téléchargement direct en ligne de commande
+wget https://github.com/nouhailler/OCRBookor/raw/main/releases/ocrbookor_1.2.0_amd64.deb
+
+# Installation du paquet Debian
+sudo dpkg -i ocrbookor_1.2.0_amd64.deb
+
+# Résolution des dépendances système si nécessaire
+sudo apt-get install -f
+
+# Lancement depuis le terminal ou via le menu des applications
+ocrbookor
+```
+
+---
+
+### Option C : Version Web / Développement Local Node.js
 
 ```bash
 # 1. Cloner le dépôt
@@ -78,19 +125,6 @@ npm run dev
 ```
 
 L'application est disponible immédiatement sur : **`http://localhost:3000`**
-
----
-
-### Option B : Installation Linux Debian Desktop (.deb)
-
-Le paquet binaire Debian est disponible dans la section **[GitHub Releases v1.2.0](https://github.com/nouhailler/OCRBookor/releases/tag/v1.2.0)** ou directement téléchargeable :
-
-- **Lien direct GitHub (binaire brut) :** [ocrbookor_1.2.0_amd64.deb](https://github.com/nouhailler/OCRBookor/raw/main/releases/ocrbookor_1.2.0_amd64.deb)
-- **Depuis l'application Web :** Menu Hamburger ➔ *Paramètres Système* ➔ Bouton *Télécharger le .deb (v1.2.0)*
-
-```bash
-# Téléchargement direct en ligne de commande
-wget https://github.com/nouhailler/OCRBookor/raw/main/releases/ocrbookor_1.2.0_amd64.deb
 
 # Installation du paquet Debian
 sudo dpkg -i ocrbookor_1.2.0_amd64.deb

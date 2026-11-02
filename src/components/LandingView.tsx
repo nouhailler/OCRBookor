@@ -27,7 +27,8 @@ import {
   Eye,
   GitBranch,
   Search,
-  BookMarked
+  BookMarked,
+  Copy
 } from 'lucide-react';
 import { PWAInstallButton } from './PWAInstallButton';
 import { BeforeAfterViewer } from './BeforeAfterViewer';
@@ -40,6 +41,13 @@ interface LandingViewProps {
 export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
   // État des accordéons de la FAQ
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [copiedCurl, setCopiedCurl] = useState(false);
+
+  const handleCopyCurl = () => {
+    navigator.clipboard.writeText('curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh | sudo bash');
+    setCopiedCurl(true);
+    setTimeout(() => setCopiedCurl(false), 2500);
+  };
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -751,19 +759,68 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
               Commencez à transformer vos livres scannés
             </h2>
             <p className="text-sm sm:text-base text-stone-600 dark:text-stone-400 leading-relaxed">
-              Consultez les versions officielles d’OCRBookor et choisissez l’installation adaptée à votre environnement.
+              Installez OCRBookor en une seule ligne de commande ou téléchargez directement le paquet Debian officiel.
             </p>
+          </div>
+
+          {/* Méthode Express Recommandée : 1 ligne via curl */}
+          <div className="mb-8 p-6 sm:p-8 rounded-2xl bg-linear-to-br from-amber-900/10 via-amber-800/5 to-transparent border-2 border-amber-600/80 dark:border-amber-500 shadow-lg">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-3">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase bg-amber-700 text-white tracking-wider">
+                  Méthode Express Recommandée
+                </span>
+                <span className="text-xs font-semibold text-stone-800 dark:text-stone-200">
+                  Installation directe via curl (toujours à jour)
+                </span>
+              </div>
+              <span className="text-[11px] text-stone-500 font-mono">Debian 12/13, Ubuntu 22.04/24.04, Linux Mint</span>
+            </div>
+
+            <p className="text-xs text-stone-600 dark:text-stone-400 mb-3 leading-relaxed">
+              Cette commande télécharge automatiquement la dernière version du binaire, l'installe proprement avec <code>dpkg</code>, résout toutes les dépendances et configure l'exécutable <code>/usr/bin/ocrbookor</code> :
+            </p>
+
+            <div className="relative flex items-center bg-stone-950 text-stone-100 p-3.5 rounded-xl font-mono text-xs overflow-x-auto border border-stone-800">
+              <span className="select-none text-amber-500 mr-2 font-bold">$</span>
+              <code className="text-emerald-400 flex-1 whitespace-nowrap">curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh | sudo bash</code>
+              <button
+                onClick={handleCopyCurl}
+                className={`ml-3 px-3 py-1.5 rounded-lg text-xs font-semibold transition shrink-0 flex items-center gap-1.5 border border-stone-700 ${
+                  copiedCurl ? 'bg-emerald-700 text-white' : 'bg-stone-800 hover:bg-stone-700 text-white'
+                }`}
+                title="Copier la commande"
+              >
+                {copiedCurl ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-300" />
+                    <span>Copié !</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5 text-stone-300" />
+                    <span>Copier</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div className="mt-3 flex flex-wrap items-center gap-4 text-[11px] text-stone-500 dark:text-stone-400">
+              <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-500" /> Aucun téléchargement manuel</span>
+              <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-500" /> Résolution automatique des dépendances</span>
+              <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-500" /> Exécutable <code>/usr/bin/ocrbookor</code> prêt</span>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             {/* Carte Linux Desktop .deb */}
-            <div className="p-6 sm:p-8 rounded-2xl bg-white dark:bg-stone-900 border-2 border-amber-600 dark:border-amber-500 shadow-xl space-y-4">
+            <div className="p-6 sm:p-8 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
               <div className="flex items-center justify-between">
                 <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-                  Version Desktop Native
+                  Téléchargement Manuel (.deb)
                 </span>
-                <span className="text-xs font-mono text-stone-600 dark:text-stone-300">v1.2.0 • 1.5 Mo</span>
+                <span className="text-xs font-mono text-stone-600 dark:text-stone-300">v1.2.0 • 2.1 Mo</span>
               </div>
 
               <h3 className="font-serif text-xl font-bold text-stone-900 dark:text-stone-100">
