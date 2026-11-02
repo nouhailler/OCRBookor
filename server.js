@@ -12,7 +12,11 @@ var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require
   throw Error('Dynamic require of "' + x + '" is not supported');
 });
 var __commonJS = (cb, mod) => function __require2() {
-  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  try {
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  } catch (e) {
+    throw mod = 0, e;
+  }
 };
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
@@ -15315,7 +15319,7 @@ var require_shams = __commonJS({
         return true;
       }
       var obj = {};
-      var sym = Symbol("test");
+      var sym = /* @__PURE__ */ Symbol("test");
       var symObj = Object(sym);
       if (typeof sym === "string") {
         return false;
@@ -15374,7 +15378,7 @@ var require_has_symbols = __commonJS({
       if (typeof origSymbol("foo") !== "symbol") {
         return false;
       }
-      if (typeof Symbol("bar") !== "symbol") {
+      if (typeof /* @__PURE__ */ Symbol("bar") !== "symbol") {
         return false;
       }
       return hasSymbolSham();
@@ -27516,7 +27520,9 @@ var import_multer = __toESM(require_multer(), 1);
 import { execFile } from "child_process";
 import path from "path";
 import fs from "fs";
-import { createServer as createViteServer } from "vite";
+import { fileURLToPath } from "url";
+var __filename = fileURLToPath(import.meta.url);
+var __dirname = path.dirname(__filename);
 var app = (0, import_express.default)();
 var PORT = Number(process.env.PORT) || 3e3;
 var isProduction = process.env.NODE_ENV === "production";
@@ -27544,9 +27550,10 @@ var upload = (0, import_multer.default)({
   limits: { fileSize: 250 * 1024 * 1024 }
   // 250 MB
 });
+var APP_ROOT = fs.existsSync("/opt/ocrbookor/backend") ? "/opt/ocrbookor" : process.cwd();
 function runPythonCli(args) {
   return new Promise((resolve, reject) => {
-    execFile("python3", ["-m", "backend.api.cli", ...args], { maxBuffer: 10 * 1024 * 1024 }, (error, stdout, stderr) => {
+    execFile("python3", ["-m", "backend.api.cli", ...args], { cwd: APP_ROOT, maxBuffer: 10 * 1024 * 1024 }, (error, stdout, stderr) => {
       if (error) {
         console.error(`Python CLI error: ${stderr || error.message}`);
         return reject(new Error(stderr || error.message));
@@ -27706,13 +27713,19 @@ app.get("/releases/:filename", (req, res) => {
 });
 async function startServer() {
   if (!isProduction) {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa"
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.resolve("dist");
+    const candidateDirs = [
+      path.resolve("dist"),
+      path.join(__dirname, "dist"),
+      "/opt/ocrbookor/dist"
+    ];
+    const distPath = candidateDirs.find((d) => fs.existsSync(path.join(d, "index.html"))) || path.resolve("dist");
     app.use(import_express.default.static(distPath));
     app.get("*", (_req, res) => {
       res.sendFile(path.join(distPath, "index.html"));

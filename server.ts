@@ -7,8 +7,11 @@ import express, { Request, Response } from 'express';
 import { execFile } from 'child_process';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 import multer from 'multer';
-import { createServer as createViteServer } from 'vite';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -44,12 +47,14 @@ const upload = multer({
   limits: { fileSize: 250 * 1024 * 1024 }, // 250 MB
 });
 
+const APP_ROOT = fs.existsSync('/opt/ocrbookor/backend') ? '/opt/ocrbookor' : process.cwd();
+
 /**
  * Execute Python CLI command helper
  */
 function runPythonCli(args: string[]): Promise<any> {
   return new Promise((resolve, reject) => {
-    execFile('python3', ['-m', 'backend.api.cli', ...args], { maxBuffer: 10 * 1024 * 1024 }, (error, stdout, stderr) => {
+    execFile('python3', ['-m', 'backend.api.cli', ...args], { cwd: APP_ROOT, maxBuffer: 10 * 1024 * 1024 }, (error, stdout, stderr) => {
       if (error) {
         console.error(`Python CLI error: ${stderr || error.message}`);
         return reject(new Error(stderr || error.message));
@@ -250,13 +255,19 @@ app.get('/releases/:filename', (req: Request, res: Response) => {
 // ==========================================
 async function startServer() {
   if (!isProduction) {
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.resolve('dist');
+    const candidateDirs = [
+      path.resolve('dist'),
+      path.join(__dirname, 'dist'),
+      '/opt/ocrbookor/dist',
+    ];
+    const distPath = candidateDirs.find((d) => fs.existsSync(path.join(d, 'index.html'))) || path.resolve('dist');
     app.use(express.static(distPath));
     app.get('*', (_req: Request, res: Response) => {
       res.sendFile(path.join(distPath, 'index.html'));
