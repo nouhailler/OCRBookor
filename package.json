@@ -10,6 +10,8 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
+    "test": "tsx scripts/test-i18n.mjs",
+    "test:i18n": "tsx scripts/test-i18n.mjs",
     "build:landing": "node scripts/build-landing.mjs"
   },
   "dependencies": {

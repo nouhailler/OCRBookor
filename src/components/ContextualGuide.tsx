@@ -4,8 +4,9 @@
  */
 
 import React, { useState } from 'react';
-import { Compass, ChevronDown, ChevronUp, Lightbulb, ArrowRight, Check } from 'lucide-react';
+import { Compass, ChevronDown, ChevronUp, Lightbulb, ArrowRight } from 'lucide-react';
 import { ActiveTab } from './Navbar';
+import { useTranslation } from '../i18n';
 
 interface ContextualGuideProps {
   currentTab: ActiveTab;
@@ -22,7 +23,7 @@ interface GuideContent {
   nextLabel?: string;
 }
 
-const GUIDES: Record<ActiveTab, GuideContent> = {
+const GUIDES_FR: Record<ActiveTab, GuideContent> = {
   bibliotheque: {
     title: 'Étape 1 : Gestion de votre Bibliothèque & Import de PDF',
     badge: 'Démarrage',
@@ -58,7 +59,7 @@ const GUIDES: Record<ActiveTab, GuideContent> = {
       'Lancez le traitement par lots (« Tout traiter ») ou page par page.',
       'Surveillez la jauge de confiance moyenne : les pages surlignées en orange contiennent des mots incertains.',
     ],
-    noviceTip: 'Tout le calcul s’effectue en local dans votre navigateur via WebAssembly sans envoyer la moindre donnée sur Internet.',
+    noviceTip: 'Tout le calcul s’effectue en local dans votre navigateur via WebAssembly ou daemon sans envoyer la moindre donnée sur Internet.',
     nextTab: 'correction',
     nextLabel: 'Ouvrir l’Éditeur de Correction',
   },
@@ -101,12 +102,93 @@ const GUIDES: Record<ActiveTab, GuideContent> = {
   },
 };
 
+const GUIDES_EN: Record<ActiveTab, GuideContent> = {
+  bibliotheque: {
+    title: 'Step 1: Library Management & PDF Ingestion',
+    badge: 'Getting Started',
+    description: 'This screen allows you to import scanned book PDF files, manage your collection, and pick the book you want to work on.',
+    steps: [
+      'Drag and drop a scanned PDF book or click "Import Scanned Book (PDF)".',
+      'If you are new to the app, click "Load Benchmark Corpus" to test a classical novel or historic book right away.',
+      'Click "Open this book" to start preprocessing and recognition.',
+    ],
+    noviceTip: 'A clean PDF with 300 DPI scans achieves recognition accuracy greater than 98%.',
+    nextTab: 'analyse',
+    nextLabel: 'Go to Analysis',
+  },
+  analyse: {
+    title: 'Step 2: Scan Diagnostics & Preprocessing Filters',
+    badge: 'Preparation',
+    description: 'Inspect scan quality before OCR. Image filters allow you to straighten tilted pages and clean up noise or spine bleed-through.',
+    steps: [
+      'Review estimated resolution (DPI) and PDF nature (Pure scan or hybrid vector).',
+      'Turn on "Auto Deskew" if lines of text are angled or tilted.',
+      'Adjust contrast or Otsu binarization to enhance faded or low-contrast characters.',
+    ],
+    noviceTip: 'Deskewing eliminates rotational tilt and drastically reduces end-of-line hyphenation and misrecognition errors.',
+    nextTab: 'reconnaissance',
+    nextLabel: 'Run OCR',
+  },
+  reconnaissance: {
+    title: 'Step 3: Optical Character Recognition (OCR)',
+    badge: 'Processing',
+    description: 'The local OCR engine converts scanned images into raw text, pinpoints word bounding boxes, and calculates confidence scores.',
+    steps: [
+      'Select document language (e.g., Modern French `fra`, Historical French `fra_old`, or English `eng`).',
+      'Launch batch processing ("Process All") or run page by page.',
+      'Monitor average confidence: orange highlighted pages indicate words needing proofreading.',
+    ],
+    noviceTip: 'All computations run locally on your machine without transmitting any data over the Internet.',
+    nextTab: 'correction',
+    nextLabel: 'Open Correction Studio',
+  },
+  correction: {
+    title: 'Step 4: Side-by-Side Review & Typography Studio',
+    badge: 'Editing & Quality',
+    description: 'The primary workspace: view the high-resolution original scan on the left and the editable text on the right.',
+    steps: [
+      'Click on yellow-highlighted words to compare directly with the original scan facsimile.',
+      'Use the "Typography Normalization" tool to fix guillemets, non-breaking spaces, and ligatures in one click.',
+      'Use "Dehyphenate Line Ends" to automatically rejoin split words (e.g., "re- construction").',
+    ],
+    noviceTip: 'Keyboard shortcut: press Ctrl+S (or Cmd+S) at any time to immediately save your corrections.',
+    nextTab: 'structure',
+    nextLabel: 'Structure Book',
+  },
+  structure: {
+    title: 'Step 5: Editorial Structure, Chapters & Illustrations',
+    badge: 'Layout',
+    description: 'Organize the hierarchical table of contents (H1, H2) and fill out Dublin Core metadata required by e-readers.',
+    steps: [
+      'Verify automated chapter detection or manually add new chapter headings.',
+      'Fill in Title, Author, Year, and ISBN so your EPUB renders gorgeously in e-reader bookshelves.',
+      'Assign captions and options to detected engravings and illustration plates.',
+    ],
+    noviceTip: 'A clear H1 table of contents guarantees strict EPUB 3 compliance and smooth navigation on Kobo, Kindle, and Apple Books.',
+    nextTab: 'export',
+    nextLabel: 'Export Book',
+  },
+  export: {
+    title: 'Step 6: Multi-Format Exports & EPUB E-Reader',
+    badge: 'Finalization',
+    description: 'Generate and download your publication-ready book in IDPF EPUB 3, Markdown, TXT, or HTML 5, and preview it in the built-in reader.',
+    steps: [
+      'Click "Download .epub" to obtain the reflowable digital book for e-readers and smartphones.',
+      'Test reading comfort in the integrated reader with Light, Sepia, and Dark themes.',
+      'Download Markdown or plain text versions if needed for personal archives or LLM text analysis.',
+    ],
+    noviceTip: 'The generated EPUB 3 archive places the uncompressed mimetype first, ensuring full compatibility with Apple Books, Calibre, and EPUBCheck.',
+  },
+};
+
 export const ContextualGuide: React.FC<ContextualGuideProps> = ({ currentTab, onNavigateTab }) => {
+  const { language } = useTranslation();
   const [isOpen, setIsOpen] = useState(() => {
     return localStorage.getItem('ocrbookor_show_guide') !== 'false';
   });
 
-  const guide = GUIDES[currentTab];
+  const guides = language === 'fr' ? GUIDES_FR : GUIDES_EN;
+  const guide = guides[currentTab];
   if (!guide) return null;
 
   const toggleOpen = () => {
@@ -114,6 +196,8 @@ export const ContextualGuide: React.FC<ContextualGuideProps> = ({ currentTab, on
     setIsOpen(next);
     localStorage.setItem('ocrbookor_show_guide', String(next));
   };
+
+  const isFr = language === 'fr';
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-3 pb-1">
@@ -140,7 +224,7 @@ export const ContextualGuide: React.FC<ContextualGuideProps> = ({ currentTab, on
               onClick={toggleOpen}
               className="flex items-center gap-1 text-xs font-medium text-indigo-700 dark:text-indigo-300 hover:text-indigo-900 dark:hover:text-white px-2 py-1 rounded-md hover:bg-indigo-100/60 dark:hover:bg-slate-800 transition"
             >
-              <span>{isOpen ? 'Masquer le guide' : 'Afficher l’aide novice'}</span>
+              <span>{isOpen ? (isFr ? 'Masquer le guide' : 'Hide guide') : (isFr ? 'Afficher le guide' : 'Show guide')}</span>
               {isOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             </button>
           </div>
@@ -171,7 +255,9 @@ export const ContextualGuide: React.FC<ContextualGuideProps> = ({ currentTab, on
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 text-[11.5px]">
               <div className="flex items-center gap-1.5 text-indigo-800 dark:text-indigo-300 bg-indigo-100/50 dark:bg-indigo-950/50 px-2.5 py-1 rounded-md">
                 <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                <span><strong>Astuce pratique :</strong> {guide.noviceTip}</span>
+                <span>
+                  <strong>{isFr ? 'Astuce pratique :' : 'Pro tip:'}</strong> {guide.noviceTip}
+                </span>
               </div>
 
               {guide.nextTab && onNavigateTab && (

@@ -18,13 +18,14 @@ import {
   FolderOpen,
   RefreshCw,
   Layers,
-  ArrowRight
+  ArrowRight,
 } from 'lucide-react';
 import { OCRProject, ProjectStatus } from '../types/book';
 import { analyzePDF } from '../services/pdfService';
 import { buildBlocksFromRawText, calculateQualityMetrics } from '../services/reconstructionService';
 import { createBenchmarkBookA, createBenchmarkBookB, createBenchmarkBookC } from '../services/benchmarkData';
 import { Tooltip } from './Tooltip';
+import { useTranslation } from '../i18n';
 
 interface LibraryViewProps {
   projects: OCRProject[];
@@ -45,6 +46,9 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   onDeleteProject,
   onResetBenchmarkCorpus,
 }) => {
+  const { t, language } = useTranslation();
+  const isFr = language === 'fr';
+
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isUploading, setIsUploading] = useState(false);
@@ -70,7 +74,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
     if (!file) return;
 
     if (!file.name.toLowerCase().endsWith('.pdf')) {
-      setUploadError('Veuillez sélectionner un fichier au format PDF.');
+      setUploadError(isFr ? 'Veuillez sélectionner un fichier au format PDF.' : 'Please select a PDF file.');
       return;
     }
 
@@ -80,7 +84,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
       const analysis = await analyzePDF(file);
 
       // Convert analyzed pages to project pages
-      const newPages = analysis.pages.map((p) => {
+      const newPages: any[] = analysis.pages.map((p) => {
         const blocks = p.extractedText ? buildBlocksFromRawText(p.extractedText, p.pageNumber, 92) : [];
         return {
           pageNumber: p.pageNumber,
@@ -100,29 +104,30 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           quality: (p.isBlank ? 'bonne' : p.hasNativeText ? 'bonne' : 'moyenne') as any,
           validated: false,
           ocrProcessed: p.hasNativeText,
-          ocrEngine: p.hasNativeText ? 'Texte natif extrait' : undefined,
-          anomalies: p.isBlank ? ['Page blanche détectée'] : [],
+          anomalies: [],
         };
       });
 
-      const titleWithoutExt = file.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' ');
+      const initialQualityReport = calculateQualityMetrics(newPages);
 
       const newProject: OCRProject = {
         id: `proj-${Date.now()}`,
         schema_version: '1.0',
+        status: (analysis.documentType === 'native_text' ? 'a_corriger' : 'pret_ocr') as ProjectStatus,
+        documentType: analysis.documentType,
         metadata: {
-          id: `book-${Date.now()}`,
-          title: titleWithoutExt,
-          author: 'Auteur à renseigner',
-          language: 'fr',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          id: `meta-${Date.now()}`,
+          title: file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' '),
+          author: isFr ? 'Auteur inconnu' : 'Unknown Author',
+          language: 'fra',
           sourceFileName: file.name,
           fileSizeBytes: file.size,
-          coverImage: newPages[0]?.imageUrl,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          description: isFr
+            ? `Projet créé à partir de ${file.name} (${analysis.totalPages} pages, ~${analysis.estimatedDpi} DPI)`
+            : `Project created from ${file.name} (${analysis.totalPages} pages, ~${analysis.estimatedDpi} DPI)`,
         },
-        status: analysis.documentType === 'image_only' ? 'pret_ocr' : 'a_corriger',
-        progressPercent: analysis.documentType === 'image_only' ? 10 : 60,
         preprocessSettings: {
           dpi: 300,
           grayscale: true,
@@ -134,28 +139,19 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           preserveColorImages: true,
         },
         pages: newPages,
-        chapters: [
-          {
-            id: 'chap-1',
-            title: 'Chapitre Premier',
-            level: 1,
-            startPage: 1,
-            blockIds: newPages.flatMap((p) => p.blocks.map((b) => b.id)),
-          },
-        ],
+        chapters: [],
         illustrations: [],
         footnotes: [],
-        qualityReport: calculateQualityMetrics(newPages),
-        documentType: analysis.documentType,
+        qualityReport: initialQualityReport,
+        progressPercent: analysis.documentType === 'native_text' ? 50 : 10,
         lastActivePage: 1,
       };
 
       onCreateProject(newProject);
       onSelectProject(newProject.id);
-      onOpenProjectTab(newProject.id, 'analyse');
     } catch (err: any) {
-      console.error('Error parsing PDF:', err);
-      setUploadError(`Erreur lors de l’analyse du PDF : ${err.message || 'Fichier inaccessible'}`);
+      console.error('PDF upload error:', err);
+      setUploadError(err.message || (isFr ? 'Erreur lors de l’analyse du PDF.' : 'Error analyzing PDF.'));
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -170,18 +166,14 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
     reader.onload = (event) => {
       try {
         const parsed = JSON.parse(event.target?.result as string);
-        if (parsed && parsed.metadata && Array.isArray(parsed.pages)) {
-          const importedProject: OCRProject = {
-            ...parsed,
-            id: `proj-imp-${Date.now()}`,
-          };
-          onCreateProject(importedProject);
-          onSelectProject(importedProject.id);
+        if (parsed.id && parsed.pages && parsed.metadata) {
+          onCreateProject(parsed);
+          onSelectProject(parsed.id);
         } else {
-          setUploadError('Le fichier JSON ne respecte pas le schéma de projet OCRBookor.');
+          setUploadError(isFr ? 'Format JSON de projet invalide.' : 'Invalid JSON project format.');
         }
-      } catch (err: any) {
-        setUploadError(`Fichier JSON invalide : ${err.message}`);
+      } catch (err) {
+        setUploadError(isFr ? 'Fichier JSON corrompu ou illisible.' : 'Corrupted or unreadable JSON file.');
       }
     };
     reader.readAsText(file);
@@ -190,16 +182,16 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
 
   const getStatusBadge = (status: ProjectStatus) => {
     const map: Record<ProjectStatus, { label: string; bg: string; text: string }> = {
-      importe: { label: 'Importé', bg: 'bg-slate-700', text: 'text-slate-300' },
-      analyse_en_cours: { label: 'Analyse...', bg: 'bg-amber-900/50', text: 'text-amber-300' },
-      pret_ocr: { label: 'Prêt pour OCR', bg: 'bg-blue-900/50', text: 'text-blue-300' },
-      ocr_en_cours: { label: 'OCR en cours', bg: 'bg-indigo-900/50', text: 'text-indigo-300' },
-      reconstruction_en_cours: { label: 'Reconstruction', bg: 'bg-purple-900/50', text: 'text-purple-300' },
-      a_corriger: { label: 'À corriger', bg: 'bg-amber-500/20', text: 'text-amber-400' },
-      valide: { label: 'Validé', bg: 'bg-emerald-900/50', text: 'text-emerald-300' },
-      exporte: { label: 'Exporté', bg: 'bg-teal-900/50', text: 'text-teal-300' },
-      interrompu: { label: 'Interrompu', bg: 'bg-rose-900/50', text: 'text-rose-300' },
-      erreur: { label: 'En erreur', bg: 'bg-red-900/50', text: 'text-red-300' },
+      importe: { label: isFr ? 'Importé' : 'Imported', bg: 'bg-slate-700/60', text: 'text-slate-200' },
+      analyse_en_cours: { label: isFr ? 'Analyse...' : 'Analyzing...', bg: 'bg-amber-900/50', text: 'text-amber-300' },
+      pret_ocr: { label: isFr ? 'Prêt OCR' : 'Ready for OCR', bg: 'bg-blue-900/50', text: 'text-blue-300' },
+      ocr_en_cours: { label: isFr ? 'OCR en cours' : 'OCR Running', bg: 'bg-indigo-900/50', text: 'text-indigo-300' },
+      reconstruction_en_cours: { label: isFr ? 'Reconstruction...' : 'Reconstructing...', bg: 'bg-indigo-900/60', text: 'text-indigo-300' },
+      a_corriger: { label: isFr ? 'À corriger' : 'Needs Review', bg: 'bg-amber-900/60', text: 'text-amber-300' },
+      valide: { label: isFr ? 'Validé' : 'Validated', bg: 'bg-emerald-900/50', text: 'text-emerald-300' },
+      exporte: { label: isFr ? 'Exporté' : 'Exported', bg: 'bg-teal-900/50', text: 'text-teal-300' },
+      interrompu: { label: isFr ? 'Interrompu' : 'Paused', bg: 'bg-rose-900/50', text: 'text-rose-300' },
+      erreur: { label: isFr ? 'En erreur' : 'Error', bg: 'bg-red-900/50', text: 'text-red-300' },
     };
     const s = map[status] || { label: status, bg: 'bg-slate-700', text: 'text-slate-300' };
     return (
@@ -216,16 +208,22 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Bibliothèque des Projets
+              {isFr ? 'Bibliothèque des Projets' : 'Project Library'}
             </h1>
             <Tooltip
-              title="Bibliothèque de numérisation"
-              content="Point central de gestion de tous vos livres numérisés. Vos documents sont stockés en local sur votre poste (IndexedDB / SQLite)."
-              tip="Vous pouvez importer n'importe quel livre au format PDF pour démarrer."
+              title={isFr ? 'Bibliothèque de numérisation' : 'Digitization Library'}
+              content={
+                isFr
+                  ? 'Point central de gestion de tous vos livres numérisés. Vos documents sont stockés en local sur votre poste (IndexedDB / SQLite).'
+                  : 'Central hub for all your digitized book projects. Stored locally on your machine.'
+              }
+              tip={isFr ? 'Vous pouvez importer n’importe quel livre au format PDF pour démarrer.' : 'Import any scanned PDF book to get started.'}
             />
           </div>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-            Gestion locale de vos livres numérisés, numérisation OCR Tesseract et exports EPUB 3
+            {isFr
+              ? 'Gestion locale de vos livres numérisés, reconnaissance OCR Tesseract/RapidOCR et exports EPUB 3'
+              : 'Local management of scanned books, Tesseract/RapidOCR recognition, and EPUB 3 exports'}
           </p>
         </div>
 
@@ -255,19 +253,22 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
               {isUploading ? (
                 <>
                   <RefreshCw className="h-4 w-4 animate-spin" />
-                  <span>Analyse du PDF...</span>
+                  <span>{isFr ? 'Analyse du PDF...' : 'Analyzing PDF...'}</span>
                 </>
               ) : (
                 <>
                   <Upload className="h-4 w-4" />
-                  <span>Importer un PDF</span>
+                  <span>{isFr ? 'Importer un PDF' : 'Import Scanned PDF'}</span>
                 </>
               )}
             </button>
             <Tooltip
-              title="Importer un scan PDF"
-              content="Sélectionnez un document PDF composé de scans de pages. L'analyse initiale calculera la résolution estimée en DPI et détectera si le fichier contient des images pures ou du texte natif."
-              tip="Résolution idéale : 300 DPI pour une reconnaissance textuelle optimale."
+              title={isFr ? 'Importer un scan PDF' : 'Import PDF Scan'}
+              content={
+                isFr
+                  ? 'Sélectionnez un document PDF composé de scans de pages. L’analyse calculera le DPI estimé et le type de scan.'
+                  : 'Select a PDF document containing scanned pages. Pre-analysis will estimate DPI and document structure.'
+              }
               placement="bottom"
             />
           </div>
@@ -276,33 +277,26 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
             <button
               onClick={() => jsonInputRef.current?.click()}
               className="flex items-center space-x-1.5 rounded-xl bg-white dark:bg-slate-800 px-3.5 py-2.5 text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 transition shadow-sm"
-              title="Importer une sauvegarde de projet au format JSON"
+              title={isFr ? 'Importer une sauvegarde de projet au format JSON' : 'Import project backup from JSON'}
             >
               <FolderOpen className="h-4 w-4 text-slate-400" />
-              <span>Importer JSON</span>
+              <span>{isFr ? 'Importer JSON' : 'Import JSON'}</span>
             </button>
-            <Tooltip
-              title="Sauvegarde & Restauration"
-              content="Permet de restaurer un livre précédemment exporté au format book.json avec tous ses calques, ses boîtes englobantes et ses corrections éditoriales."
-              placement="bottom"
-            />
           </div>
 
           <div className="inline-flex items-center gap-1">
             <button
               onClick={onResetBenchmarkCorpus}
               className="flex items-center space-x-1.5 rounded-xl bg-indigo-50 dark:bg-slate-800/80 px-3 py-2.5 text-xs sm:text-sm font-semibold text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700/40 transition shadow-sm"
-              title="Restaurer les 3 ouvrages de référence du cahier des charges (Roman récent, Ouvrage ancien 1759, Livre illustré)"
+              title={
+                isFr
+                  ? 'Restaurer les 3 ouvrages de référence (Candide 1759, Descartes, Montesquieu)'
+                  : 'Restore the 3 benchmark books (Voltaire 1759, Descartes, Montesquieu)'
+              }
             >
               <Sparkles className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
-              <span>Charger le Corpus de Test</span>
+              <span>{isFr ? 'Charger le Corpus de Test' : 'Load Benchmark Corpus'}</span>
             </button>
-            <Tooltip
-              title="Corpus de validation"
-              content="Charge immédiatement les 3 livres de référence du banc d'essai : Livre A (Roman contemporain), Livre B (Ouvrage ancien de 1759 avec s longs) et Livre C (Fables avec gravures extraites)."
-              tip="Parfait pour découvrir toutes les fonctionnalités sans importer vos propres scans."
-              placement="bottom"
-            />
           </div>
         </div>
       </div>
@@ -318,7 +312,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
       <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-4 shadow-sm transition">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs">
-            <span>Total Projets</span>
+            <span>{isFr ? 'Total Projets' : 'Total Projects'}</span>
             <BookOpen className="h-4 w-4 text-indigo-500" />
           </div>
           <div className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">{projects.length}</div>
@@ -326,7 +320,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
 
         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-4 shadow-sm transition">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs">
-            <span>Pages Numérisées</span>
+            <span>{isFr ? 'Pages Numérisées' : 'Scanned Pages'}</span>
             <Layers className="h-4 w-4 text-blue-500" />
           </div>
           <div className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">{totalPagesCount}</div>
@@ -334,7 +328,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
 
         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-4 shadow-sm transition">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs">
-            <span>Ouvrages Validés</span>
+            <span>{isFr ? 'Ouvrages Validés' : 'Validated Books'}</span>
             <Sparkles className="h-4 w-4 text-emerald-500" />
           </div>
           <div className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">{validatedBooksCount}</div>
@@ -342,10 +336,10 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
 
         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-4 shadow-sm transition">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs">
-            <span>Moteur OCR Actif</span>
+            <span>{isFr ? 'Moteur OCR Actif' : 'Active OCR Engine'}</span>
             <span className="text-emerald-600 dark:text-emerald-400 font-mono text-[11px] font-bold">100% Local</span>
           </div>
-          <div className="mt-2 text-xs font-semibold text-slate-800 dark:text-slate-200">Tesseract Wasm + Layout</div>
+          <div className="mt-2 text-xs font-semibold text-slate-800 dark:text-slate-200">Tesseract + RapidOCR</div>
         </div>
       </div>
 
@@ -356,7 +350,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Rechercher par titre, auteur..."
+              placeholder={isFr ? 'Rechercher par titre, auteur...' : 'Search by title, author...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 pl-9 pr-4 py-2 text-xs sm:text-sm text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:border-indigo-500 focus:outline-none shadow-sm"
@@ -365,24 +359,19 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
         </div>
 
         <div className="flex items-center space-x-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-          <span className="text-xs text-slate-500 dark:text-slate-400">Statut :</span>
+          <span className="text-xs text-slate-500 dark:text-slate-400">{isFr ? 'Statut :' : 'Status:'}</span>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-1.5 text-xs text-slate-700 dark:text-slate-300 focus:border-indigo-500 focus:outline-none shadow-sm"
           >
-            <option value="all">Tous les statuts</option>
-            <option value="pret_ocr">Prêt pour OCR</option>
-            <option value="ocr_en_cours">OCR en cours</option>
-            <option value="a_corriger">À corriger</option>
-            <option value="valide">Validé</option>
-            <option value="exporte">Exporté</option>
+            <option value="all">{isFr ? 'Tous les statuts' : 'All statuses'}</option>
+            <option value="pret_ocr">{isFr ? 'Prêt pour OCR' : 'Ready for OCR'}</option>
+            <option value="ocr_en_cours">{isFr ? 'OCR en cours' : 'OCR Running'}</option>
+            <option value="a_corriger">{isFr ? 'À corriger' : 'Needs review'}</option>
+            <option value="valide">{isFr ? 'Validé' : 'Validated'}</option>
+            <option value="exporte">{isFr ? 'Exporté' : 'Exported'}</option>
           </select>
-          <Tooltip
-            title="Filtrage par étape"
-            content="Permet d'isoler rapidement les ouvrages en attente de relecture ou prêts pour l'exportation EPUB 3."
-            placement="bottom"
-          />
         </div>
       </div>
 
@@ -390,22 +379,26 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
       {filteredProjects.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-slate-800 bg-slate-900/40 p-12 text-center">
           <BookOpen className="mx-auto h-12 w-12 text-slate-600 mb-3" />
-          <h3 className="text-lg font-semibold text-slate-200">Aucun projet trouvé</h3>
+          <h3 className="text-lg font-semibold text-slate-200">
+            {isFr ? 'Aucun projet trouvé' : 'No projects found'}
+          </h3>
           <p className="mt-1 text-sm text-slate-400 max-w-md mx-auto">
-            Importez un document PDF de livre numérisé ou chargez les trois livres de référence du cahier des charges pour démarrer.
+            {isFr
+              ? 'Importez un document PDF de livre numérisé ou chargez les trois livres de référence du cahier des charges pour démarrer.'
+              : 'Import a scanned PDF book or load the three reference benchmark books to start exploring.'}
           </p>
           <div className="mt-6 flex justify-center gap-3">
             <button
               onClick={() => fileInputRef.current?.click()}
               className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-500"
             >
-              Importer un PDF
+              {isFr ? 'Importer un PDF' : 'Import PDF'}
             </button>
             <button
               onClick={onResetBenchmarkCorpus}
               className="rounded-xl bg-slate-800 px-4 py-2 text-xs font-semibold text-indigo-300 hover:bg-slate-700"
             >
-              Charger le corpus de test
+              {isFr ? 'Charger le corpus de test' : 'Load Benchmark Corpus'}
             </button>
           </div>
         </div>
@@ -431,23 +424,23 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                   ) : (
                     <div className="flex flex-col items-center justify-center text-slate-400 dark:text-slate-600">
                       <BookOpen className="h-10 w-10 mb-1" />
-                      <span className="text-xs">Pas d’aperçu</span>
+                      <span className="text-xs">{isFr ? 'Pas d’aperçu' : 'No preview'}</span>
                     </div>
                   )}
 
                   <div className="absolute top-3 left-3">{getStatusBadge(p.status)}</div>
 
                   <div className="absolute top-3 right-3 rounded-md bg-white/90 dark:bg-slate-900/90 px-2 py-0.5 text-[11px] font-mono text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 shadow-xs">
-                    {p.pages.length} {p.pages.length > 1 ? 'pages' : 'page'}
+                    {p.pages.length} {p.pages.length > 1 ? t('common.pages') : t('common.page')}
                   </div>
 
                   {/* Document Type Badge */}
                   <div className="absolute bottom-2 left-3 rounded bg-white/80 dark:bg-black/60 backdrop-blur px-2 py-0.5 text-[10px] font-medium text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10">
                     {p.documentType === 'image_only'
-                      ? '📸 Scanné (Images)'
+                      ? (isFr ? '📸 Scanné (Images)' : '📸 Scanned (Images)')
                       : p.documentType === 'hybrid'
-                      ? '🔀 Hybride (Texte + Scan)'
-                      : '📄 Texte natif'}
+                      ? (isFr ? '🔀 Hybride (Texte + Scan)' : '🔀 Hybrid (Text + Scan)')
+                      : (isFr ? '📄 Texte natif' : '📄 Native Text')}
                   </div>
                 </div>
 
@@ -460,16 +453,16 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                     <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">{p.metadata.author}</p>
 
                     <p className="mt-3 text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
-                      {p.metadata.description || 'Projet de numérisation OCR'}
+                      {p.metadata.description || (isFr ? 'Projet de numérisation OCR' : 'OCR digitization project')}
                     </p>
                   </div>
 
                   {/* Quality & Progress */}
                   <div className="mt-5 space-y-3">
                     <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
-                      <span>Confiance OCR :</span>
+                      <span>{isFr ? 'Confiance OCR :' : 'OCR Confidence:'}</span>
                       <span className="font-semibold text-slate-900 dark:text-slate-200">
-                        {p.qualityReport.averageConfidence > 0 ? `${p.qualityReport.averageConfidence}%` : 'En attente'}
+                        {p.qualityReport.averageConfidence > 0 ? `${p.qualityReport.averageConfidence}%` : (isFr ? 'En attente' : 'Pending')}
                       </span>
                     </div>
 
@@ -493,7 +486,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                           }}
                           className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition"
                         >
-                          <span>Ouvrir</span>
+                          <span>{isFr ? 'Ouvrir' : 'Open'}</span>
                           <ArrowRight className="h-3 w-3" />
                         </button>
 
@@ -503,16 +496,16 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                             onOpenProjectTab(p.id, 'analyse');
                           }}
                           className="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition"
-                          title="Paramètres d'analyse et prétraitement"
+                          title={isFr ? 'Paramètres d’analyse et prétraitement' : 'Analysis and preprocessing parameters'}
                         >
-                          Analyse
+                          {isFr ? 'Analyse' : 'Analysis'}
                         </button>
                       </div>
 
                       <button
                         onClick={() => setProjectToDelete(p)}
                         className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition"
-                        title="Supprimer le projet"
+                        title={isFr ? 'Supprimer le projet' : 'Delete project'}
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -531,18 +524,29 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
             <div className="flex items-center space-x-3 text-rose-400">
               <AlertTriangle className="h-6 w-6" />
-              <h3 className="text-lg font-bold text-white">Supprimer le projet ?</h3>
+              <h3 className="text-lg font-bold text-white">
+                {isFr ? 'Supprimer le projet ?' : 'Delete Project?'}
+              </h3>
             </div>
             <p className="mt-3 text-sm text-slate-300">
-              Êtes-vous certain de vouloir supprimer définitivement le projet «{' '}
-              <strong>{projectToDelete.metadata.title}</strong> » ? Cette opération est irréversible.
+              {isFr ? (
+                <>
+                  Êtes-vous certain de vouloir supprimer définitivement le projet «{' '}
+                  <strong>{projectToDelete.metadata.title}</strong> » ? Cette opération est irréversible.
+                </>
+              ) : (
+                <>
+                  Are you sure you want to permanently delete project "
+                  <strong>{projectToDelete.metadata.title}</strong>"? This action cannot be undone.
+                </>
+              )}
             </p>
             <div className="mt-6 flex justify-end space-x-3">
               <button
                 onClick={() => setProjectToDelete(null)}
                 className="rounded-xl px-4 py-2 text-xs font-medium text-slate-400 hover:bg-slate-800"
               >
-                Annuler
+                {t('common.cancel')}
               </button>
               <button
                 onClick={() => {
@@ -551,7 +555,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                 }}
                 className="rounded-xl bg-rose-600 px-4 py-2 text-xs font-semibold text-white hover:bg-rose-500"
               >
-                Supprimer définitivement
+                {isFr ? 'Supprimer définitivement' : 'Delete Permanently'}
               </button>
             </div>
           </div>

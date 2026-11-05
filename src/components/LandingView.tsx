@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { PWAInstallButton } from './PWAInstallButton';
 import { BeforeAfterViewer } from './BeforeAfterViewer';
+import { useTranslation } from '../i18n';
 
 interface LandingViewProps {
   onLaunchApp: () => void;
@@ -39,6 +40,9 @@ interface LandingViewProps {
 }
 
 export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
+  const { t, language, toggleLanguage } = useTranslation();
+  const isFr = language === 'fr';
+
   // État des accordéons de la FAQ
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [copiedCurl, setCopiedCurl] = useState(false);
@@ -80,16 +84,29 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
 
           {/* Navigation rapide ancres desktop */}
           <nav className="hidden lg:flex items-center gap-6 text-xs font-medium text-stone-700 dark:text-stone-200">
-            <a href="#pipeline" className="hover:text-amber-700 dark:hover:text-amber-400 transition">Pipeline</a>
-            <a href="#fonctionnalites" className="hover:text-amber-700 dark:hover:text-amber-400 transition">Fonctionnalités</a>
-            <a href="#formats" className="hover:text-amber-700 dark:hover:text-amber-400 transition">Formats d’Export</a>
-            <a href="#demonstration" className="hover:text-amber-700 dark:hover:text-amber-400 transition">Démonstration</a>
-            <a href="#telechargement" className="hover:text-amber-700 dark:hover:text-amber-400 transition">Téléchargement</a>
+            <a href="#pipeline" className="hover:text-amber-700 dark:hover:text-amber-400 transition">{isFr ? 'Pipeline' : 'Pipeline'}</a>
+            <a href="#fonctionnalites" className="hover:text-amber-700 dark:hover:text-amber-400 transition">{isFr ? 'Fonctionnalités' : 'Features'}</a>
+            <a href="#formats" className="hover:text-amber-700 dark:hover:text-amber-400 transition">{isFr ? 'Formats d’Export' : 'Export Formats'}</a>
+            <a href="#demonstration" className="hover:text-amber-700 dark:hover:text-amber-400 transition">{isFr ? 'Démonstration' : 'Demo'}</a>
+            <a href="#telechargement" className="hover:text-amber-700 dark:hover:text-amber-400 transition">{isFr ? 'Téléchargement' : 'Download'}</a>
             <a href="#faq" className="hover:text-amber-700 dark:hover:text-amber-400 transition">FAQ</a>
           </nav>
 
-          {/* Boutons d'action : PWA + Téléchargement + Lancement App */}
+          {/* Boutons d'action : Langue + PWA + Lancement App */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Langue FR / EN */}
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold rounded-lg border border-stone-300 dark:border-stone-700 hover:bg-stone-200/60 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 transition"
+              title={isFr ? 'Switch to English' : 'Passer en français'}
+              aria-label="Switch language"
+            >
+              <span className={language === 'fr' ? 'text-amber-700 dark:text-amber-400 font-extrabold' : 'text-stone-400 font-medium'}>FR</span>
+              <span className="text-stone-300 dark:text-stone-600">/</span>
+              <span className={language === 'en' ? 'text-amber-700 dark:text-amber-400 font-extrabold' : 'text-stone-400 font-medium'}>EN</span>
+            </button>
+
             <PWAInstallButton />
 
             <button
@@ -97,7 +114,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-950 hover:bg-stone-800 dark:hover:bg-white shadow-xs transition"
             >
               <Laptop className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Lancer l'Application</span>
+              <span className="hidden sm:inline">{isFr ? "Lancer l'Application" : "Launch Studio App"}</span>
               <span className="sm:hidden">App</span>
             </button>
           </div>

@@ -6,6 +6,8 @@
 
 ### **Numérisation Locale, Reconnaissance OCR & Reconstruction Éditoriale de Livres Imprimés**
 
+🌐 **Version française** | **[English Version](README.en.md)**
+
 [![Version](https://img.shields.io/badge/version-1.2.0-indigo.svg)](https://github.com/nouhailler/OCRBookor)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Debian%2013%20%7C%20Linux%20Desktop%20%7C%20Web-success.svg)](https://github.com/nouhailler/OCRBookor)

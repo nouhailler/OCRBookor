@@ -20,15 +20,12 @@ import {
   Sun,
   Moon,
   ChevronRight,
-  Package,
-  Compass,
-  FilePlus,
-  RefreshCw,
-  FolderSync,
+  Globe,
 } from 'lucide-react';
 import { ActiveTab } from './Navbar';
 import { Logo } from './Logo';
 import { OCRProject } from '../types/book';
+import { useTranslation } from '../i18n';
 
 interface HamburgerMenuProps {
   isOpen: boolean;
@@ -76,6 +73,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
   onResetBenchmarkCorpus,
   onOpenLanding,
 }) => {
+  const { t, language, toggleLanguage } = useTranslation();
   const [searchFilter, setSearchFilter] = useState('');
 
   if (!isOpen) return null;
@@ -89,39 +87,41 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
     onClose();
   };
 
+  const isFr = language === 'fr';
+
   const categories: MenuCategory[] = [
     {
       id: 'numerisation',
-      name: 'Numérisation & Projets',
+      name: isFr ? 'Numérisation & Projets' : 'Digitization & Projects',
       icon: Library,
       items: [
         {
           id: 'biblio',
-          label: '1. Bibliothèque de Projets',
-          description: 'Gérer, importer et organiser vos livres numérisés',
+          label: isFr ? '1. Bibliothèque de Projets' : '1. Project Library',
+          description: isFr ? 'Gérer, importer et organiser vos livres numérisés' : 'Manage, import, and organize your scanned books',
           tab: 'bibliotheque',
         },
         {
           id: 'corpus',
-          label: 'Charger le Corpus de Test',
-          description: 'Initialiser immédiatement les 3 livres d’essai (Roman, 1759, Fables)',
+          label: isFr ? 'Charger le Corpus de Test' : 'Load Benchmark Corpus',
+          description: isFr ? 'Initialiser immédiatement les 3 livres d’essai (Roman, 1759, Fables)' : 'Initialize the 3 demo sample books right away',
           action: () => {
             onResetBenchmarkCorpus();
             onSelectTab('bibliotheque');
           },
-          badge: 'Démo',
+          badge: isFr ? 'Démo' : 'Demo',
         },
       ],
     },
     {
       id: 'analyse',
-      name: 'Prétraitement & Analyse',
+      name: isFr ? 'Prétraitement & Analyse' : 'Preprocessing & Analysis',
       icon: FileSearch,
       items: [
         {
           id: 'diag',
-          label: '2. Diagnostic PDF & Amélioration Scan',
-          description: 'Redressement (deskew), détection DPI et binarisation d’image',
+          label: isFr ? '2. Diagnostic PDF & Amélioration Scan' : '2. PDF Diagnostics & Scan Enhancement',
+          description: isFr ? 'Redressement (deskew), détection DPI et binarisation d’image' : 'Deskewing, DPI detection, and Otsu binarization',
           tab: 'analyse',
           requiresProject: true,
         },
@@ -129,13 +129,13 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
     },
     {
       id: 'ocr',
-      name: 'Reconnaissance Optique (OCR)',
+      name: isFr ? 'Reconnaissance Optique (OCR)' : 'Optical Recognition (OCR)',
       icon: Cpu,
       items: [
         {
           id: 'recon',
-          label: '3. Reconnaissance par Lots (Tesseract Wasm)',
-          description: 'Extraction du texte, modèles de langue et scores de confiance',
+          label: isFr ? '3. Reconnaissance par Lots (Tesseract / RapidOCR)' : '3. Batch Recognition (Tesseract / RapidOCR)',
+          description: isFr ? 'Extraction du texte, modèles de langue et scores de confiance' : 'Text extraction, language models, and confidence scores',
           tab: 'reconnaissance',
           requiresProject: true,
         },
@@ -143,13 +143,13 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
     },
     {
       id: 'revision',
-      name: 'Révision & Édition',
+      name: isFr ? 'Révision & Édition' : 'Revision & Typography Studio',
       icon: Edit3,
       items: [
         {
           id: 'corr',
-          label: '4. Éditeur de Correction Bi-Fenêtre',
-          description: 'Scan haute résolution vs texte, règles typographiques de l’Imprimerie Nationale',
+          label: isFr ? '4. Éditeur de Correction Bi-Fenêtre' : '4. Dual-Pane Correction Studio',
+          description: isFr ? 'Scan haute résolution vs texte, règles typographiques' : 'Side-by-side scan vs editable text, typographic normalization',
           tab: 'correction',
           requiresProject: true,
         },
@@ -157,13 +157,13 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
     },
     {
       id: 'structure',
-      name: 'Structure Éditoriale',
+      name: isFr ? 'Structure Éditoriale' : 'Editorial Structure & Metadata',
       icon: Layers,
       items: [
         {
           id: 'struct',
-          label: '5. Chapitres & Métadonnées Dublin Core',
-          description: 'Arborescence des titres H1/H2, catalogue des gravures et illustrations',
+          label: isFr ? '5. Chapitres & Métadonnées Dublin Core' : '5. Chapters & Dublin Core Metadata',
+          description: isFr ? 'Arborescence des titres H1/H2, catalogue des gravures' : 'Hierarchical TOC headings, engraving and illustration catalog',
           tab: 'structure',
           requiresProject: true,
         },
@@ -171,13 +171,13 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
     },
     {
       id: 'export',
-      name: 'Exportations & Liseuse',
+      name: isFr ? 'Exportations & Liseuse' : 'Exports & E-Reader',
       icon: Download,
       items: [
         {
           id: 'exp',
-          label: '6. Export Multi-Formats & Liseuse EPUB',
-          description: 'Génération IDPF EPUB 3, Markdown, TXT, HTML 5 et test sur liseuse',
+          label: isFr ? '6. Export Multi-Formats & Liseuse EPUB' : '6. Multi-Format Export & EPUB Reader',
+          description: isFr ? 'Génération IDPF EPUB 3, Markdown, TXT, HTML 5 et test liseuse' : 'Certified EPUB 3 generation, Markdown, HTML 5, and live reader test',
           tab: 'export',
           requiresProject: true,
         },
@@ -185,19 +185,19 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
     },
     {
       id: 'systeme',
-      name: 'Système & Paramètres',
+      name: isFr ? 'Système & Paramètres' : 'System & Settings',
       icon: Settings,
       items: [
         {
           id: 'params',
-          label: 'Paramètres Système & Mises à Jour',
-          description: 'Date de sortie, vérification des versions et moteurs OCR',
+          label: isFr ? 'Paramètres Système & Mises à Jour' : 'System Settings & Updates',
+          description: isFr ? 'Date de sortie, vérification des versions et moteurs OCR' : 'Release date, version check, and OCR service state',
           action: onOpenSystemSettings,
         },
         {
           id: 'deb',
-          label: 'Paquet Linux Debian (.deb)',
-          description: 'Télécharger le binaire natif pour bureau Debian 13 / Ubuntu',
+          label: isFr ? 'Paquet Linux Debian (.deb)' : 'Linux Debian Package (.deb)',
+          description: isFr ? 'Télécharger le binaire natif pour bureau Debian 13 / Ubuntu' : 'Download native standalone binary for Debian 13 / Ubuntu',
           action: () => {
             window.location.href = '/releases/ocrbookor_1.2.0_amd64.deb';
           },
@@ -205,8 +205,8 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
         },
         {
           id: 'landing-pwa',
-          label: 'Site Officiel & Landing Page PWA',
-          description: 'Présentation complète, pipeline, démonstrateur et téléchargement',
+          label: isFr ? 'Site Officiel & Landing Page PWA' : 'Official Site & PWA Landing Page',
+          description: isFr ? 'Présentation complète, pipeline, démonstrateur et téléchargement' : 'Complete overview, pipeline tour, interactive demo, and downloads',
           action: () => {
             onClose();
             onOpenLanding?.();
@@ -217,44 +217,44 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
     },
     {
       id: 'legal',
-      name: 'Légal & Conformité',
+      name: isFr ? 'Légal & Conformité' : 'Legal & Compliance',
       icon: Scale,
       items: [
         {
           id: 'terms',
-          label: 'Mentions Légales & Responsabilité',
-          description: 'Décharge de responsabilité sur les données et engagement hors-ligne',
+          label: isFr ? 'Mentions Légales & Responsabilité' : 'Legal Notice & Privacy',
+          description: isFr ? 'Décharge de responsabilité sur les données et engagement hors-ligne' : 'Offline processing commitment, local data privacy, and disclaimers',
           action: onOpenLegal,
         },
       ],
     },
     {
       id: 'aide',
-      name: 'Documentation & Guides',
+      name: isFr ? 'Documentation & Guides' : 'Documentation & Guides',
       icon: HelpCircle,
       items: [
         {
           id: 'doc-user',
-          label: 'Guide Utilisateur Pas-à-Pas',
-          description: 'Tutoriel complet pour numériser un premier livre',
+          label: isFr ? 'Guide Utilisateur Pas-à-Pas' : 'Step-by-Step User Guide',
+          description: isFr ? 'Tutoriel complet pour numériser un premier livre' : 'Complete walkthrough to digitize your first book',
           action: () => onOpenDocs('USER_GUIDE'),
         },
         {
           id: 'doc-bench',
-          label: 'Banc d’Essai & Benchmarks OCR',
-          description: 'Résultats comparatifs réels sur les corpus A, B et C',
+          label: isFr ? 'Banc d’Essai & Benchmarks OCR' : 'Benchmarking & Accuracy Scores',
+          description: isFr ? 'Résultats comparatifs réels sur les corpus A, B et C' : 'Real benchmark results across historical corpora A, B, and C',
           action: () => onOpenDocs('BENCHMARK'),
         },
         {
           id: 'doc-install',
-          label: 'Installation Linux Debian 13',
-          description: 'Instructions de déploiement et dépendances système',
+          label: isFr ? 'Installation Linux Debian 13' : 'Linux Debian Installation Guide',
+          description: isFr ? 'Instructions de déploiement et dépendances système' : 'Deployment instructions and system dependencies',
           action: () => onOpenDocs('INSTALLATION'),
         },
         {
           id: 'doc-audit',
-          label: 'Matrice d’Audit & Architecture',
-          description: 'Spécifications techniques et conformité IDPF EPUB 3',
+          label: isFr ? 'Matrice d’Audit & Architecture' : 'Audit Matrix & Architecture',
+          description: isFr ? 'Spécifications techniques et conformité IDPF EPUB 3' : 'Technical specifications and EPUB 3 compliance',
           action: () => onOpenDocs('AUDIT_INITIAL'),
         },
       ],
@@ -288,12 +288,24 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
           {/* Header */}
           <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/60 dark:bg-slate-900/80">
             <Logo size="sm" showText={true} version="v1.2" />
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
+              {/* Language Switcher */}
+              <button
+                type="button"
+                onClick={toggleLanguage}
+                className="px-2 py-1 text-xs font-bold rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition"
+                title={t('common.switchLanguage')}
+              >
+                <span className={language === 'fr' ? 'text-indigo-600 dark:text-indigo-400 font-extrabold' : 'text-slate-400 font-normal'}>FR</span>
+                <span className="text-slate-300 dark:text-slate-600 mx-0.5">/</span>
+                <span className={language === 'en' ? 'text-indigo-600 dark:text-indigo-400 font-extrabold' : 'text-slate-400 font-normal'}>EN</span>
+              </button>
+
               <button
                 type="button"
                 onClick={onToggleDarkMode}
                 className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                title={darkMode ? 'Passer en thème clair' : 'Passer en thème sombre'}
+                title={darkMode ? t('nav.lightTheme') : t('nav.darkTheme')}
               >
                 {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
               </button>
@@ -315,7 +327,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
                 type="text"
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
-                placeholder="Rechercher une fonctionnalité..."
+                placeholder={isFr ? 'Rechercher une fonctionnalité...' : 'Search for a feature...'}
                 className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
@@ -326,14 +338,14 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
             <div className="px-4 py-2 bg-indigo-50/70 dark:bg-indigo-950/30 border-b border-indigo-100 dark:border-indigo-900/40 flex items-center justify-between text-xs">
               <div className="truncate">
                 <span className="text-[10px] text-indigo-700 dark:text-indigo-400 font-semibold block uppercase tracking-wider">
-                  Livre en cours de traitement
+                  {isFr ? 'Livre en cours de traitement' : 'Current Book in Progress'}
                 </span>
                 <span className="font-bold text-slate-900 dark:text-white truncate block">
-                  {activeProject.metadata.title || 'Sans titre'}
+                  {activeProject.metadata.title || (isFr ? 'Sans titre' : 'Untitled')}
                 </span>
               </div>
               <span className="text-[11px] font-mono bg-indigo-600 text-white px-2 py-0.5 rounded-full shrink-0">
-                {activeProject.pages.length} p.
+                {activeProject.pages.length} {t('common.pages')}
               </span>
             </div>
           )}
@@ -370,35 +382,43 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
                         >
                           <div className="pr-2 min-w-0">
                             <div className="flex items-center gap-1.5">
-                              <span className={`text-xs font-semibold truncate ${
-                                isCurrent ? 'text-white' : 'text-slate-900 dark:text-slate-100'
-                              }`}>
+                              <span
+                                className={`text-xs font-semibold truncate ${
+                                  isCurrent ? 'text-white' : 'text-slate-900 dark:text-slate-100'
+                                }`}
+                              >
                                 {item.label}
                               </span>
                               {item.badge && (
-                                <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full ${
-                                  isCurrent
-                                    ? 'bg-white/20 text-white'
-                                    : 'bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300'
-                                }`}>
+                                <span
+                                  className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full ${
+                                    isCurrent
+                                      ? 'bg-white/20 text-white'
+                                      : 'bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300'
+                                  }`}
+                                >
                                   {item.badge}
                                 </span>
                               )}
                             </div>
-                            <p className={`text-[11px] truncate mt-0.5 ${
-                              isCurrent ? 'text-indigo-100' : 'text-slate-500 dark:text-slate-400'
-                            }`}>
+                            <p
+                              className={`text-[11px] truncate mt-0.5 ${
+                                isCurrent ? 'text-indigo-100' : 'text-slate-500 dark:text-slate-400'
+                              }`}
+                            >
                               {item.description}
                             </p>
                           </div>
 
-                          <ChevronRight className={`w-4 h-4 shrink-0 transition ${
-                            isCurrent
-                              ? 'text-white'
-                              : isDisabled
-                              ? 'text-slate-300 dark:text-slate-700'
-                              : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 group-hover:translate-x-0.5'
-                          }`} />
+                          <ChevronRight
+                            className={`w-4 h-4 shrink-0 transition ${
+                              isCurrent
+                                ? 'text-white'
+                                : isDisabled
+                                ? 'text-slate-300 dark:text-slate-700'
+                                : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 group-hover:translate-x-0.5'
+                            }`}
+                          />
                         </button>
                       );
                     })}
@@ -418,7 +438,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
               className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
             >
               <Settings className="w-3.5 h-3.5" />
-              <span>Paramètres Système</span>
+              <span>{isFr ? 'Paramètres Système' : 'System Settings'}</span>
             </button>
 
             <button
@@ -428,7 +448,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
               }}
               className="text-[11px] hover:underline"
             >
-              Mentions Légales
+              {isFr ? 'Mentions Légales' : 'Legal Notice'}
             </button>
           </div>
         </div>

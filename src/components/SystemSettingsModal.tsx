@@ -19,6 +19,7 @@ import {
   Package,
 } from 'lucide-react';
 import { ApiClient, OCREnginesStatus } from '../services/apiClient';
+import { useTranslation } from '../i18n';
 
 interface SystemSettingsModalProps {
   isOpen: boolean;
@@ -28,7 +29,8 @@ interface SystemSettingsModalProps {
 }
 
 const APP_VERSION = '1.2.0';
-const RELEASE_DATE = '1er Novembre 2026';
+const RELEASE_DATE_FR = '1er Novembre 2026';
+const RELEASE_DATE_EN = 'November 1, 2026';
 const LAST_CHECK_KEY = 'ocrbookor_last_update_check';
 
 export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
@@ -37,6 +39,9 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
   onOpenLegal,
   onOpenDocs,
 }) => {
+  const { t, language } = useTranslation();
+  const isFr = language === 'fr';
+
   const [lastCheckDate, setLastCheckDate] = useState<string>('');
   const [isCheckingUpdates, setIsCheckingUpdates] = useState<boolean>(false);
   const [updateStatus, setUpdateStatus] = useState<'idle' | 'up-to-date' | 'error'>('idle');
@@ -49,7 +54,7 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
       if (savedDate) {
         setLastCheckDate(savedDate);
       } else {
-        const initial = new Date().toLocaleString('fr-FR', {
+        const initial = new Date().toLocaleString(isFr ? 'fr-FR' : 'en-US', {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
@@ -65,7 +70,6 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
       ApiClient.getOCREngines()
         .then((engines) => setOcrEngines(engines))
         .catch(() => {
-          // If offline or error, report default status
           setOcrEngines({
             tesseract_wasm: { available: true, supported_languages: ['fra', 'fra_old', 'eng', 'deu', 'lat'] },
             tesseract_cli: { available: false, supported_languages: [] },
@@ -75,7 +79,7 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
         })
         .finally(() => setLoadingEngines(false));
     }
-  }, [isOpen]);
+  }, [isOpen, isFr]);
 
   if (!isOpen) return null;
 
@@ -84,12 +88,10 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
     setUpdateStatus('idle');
 
     try {
-      // Check backend health or simulated release API
       await ApiClient.checkHealth().catch(() => null);
-      // Wait for a realistic verification delay
       await new Promise((r) => setTimeout(r, 800));
 
-      const nowFormatted = new Date().toLocaleString('fr-FR', {
+      const nowFormatted = new Date().toLocaleString(isFr ? 'fr-FR' : 'en-US', {
         day: 'numeric',
         month: 'long',
         year: 'numeric',
@@ -119,10 +121,12 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-900 dark:text-white">
-                Paramètres Système & Mises à Jour
+                {isFr ? 'Paramètres Système & Mises à Jour' : 'System Settings & Updates'}
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Informations sur la version, les moteurs et l’environnement hôte
+                {isFr
+                  ? 'Informations sur la version, les moteurs et l’environnement hôte'
+                  : 'Version details, engine status, and host environment'}
               </p>
             </div>
           </div>
@@ -141,12 +145,12 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-                  Version Actuelle
+                  {isFr ? 'Version Actuelle' : 'Current Version'}
                 </span>
                 <span className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
                   OCRBookor v{APP_VERSION}
                   <span className="rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[10px] font-bold px-2 py-0.5">
-                    Version Stable
+                    {isFr ? 'Version Stable' : 'Stable Release'}
                   </span>
                 </span>
               </div>
@@ -156,7 +160,15 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold text-xs text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 transition shadow-sm"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isCheckingUpdates ? 'animate-spin' : ''}`} />
-                <span>{isCheckingUpdates ? 'Vérification...' : 'Vérifier les mises à jour'}</span>
+                <span>
+                  {isCheckingUpdates
+                    ? isFr
+                      ? 'Vérification...'
+                      : 'Checking...'
+                    : isFr
+                    ? 'Vérifier les mises à jour'
+                    : 'Check for Updates'}
+                </span>
               </button>
             </div>
 
@@ -164,16 +176,24 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-indigo-500 shrink-0" />
                 <div>
-                  <span className="text-slate-400 block text-[10px]">Date de sortie :</span>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200">{RELEASE_DATE}</span>
+                  <span className="text-slate-400 block text-[10px]">
+                    {isFr ? 'Date de sortie :' : 'Release date:'}
+                  </span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+                    {isFr ? RELEASE_DATE_FR : RELEASE_DATE_EN}
+                  </span>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-indigo-500 shrink-0" />
                 <div>
-                  <span className="text-slate-400 block text-[10px]">Dernière vérification :</span>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200">{lastCheckDate || 'Jamais vérifié'}</span>
+                  <span className="text-slate-400 block text-[10px]">
+                    {isFr ? 'Dernière vérification :' : 'Last check:'}
+                  </span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+                    {lastCheckDate || (isFr ? 'Jamais vérifié' : 'Never checked')}
+                  </span>
                 </div>
               </div>
             </div>
@@ -183,7 +203,10 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
               <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 flex items-center gap-2 text-emerald-800 dark:text-emerald-300">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span>
-                  <strong>Votre application est parfaitement à jour !</strong> Vous disposez de la version la plus récente (v{APP_VERSION}).
+                  <strong>{isFr ? 'Votre application est parfaitement à jour !' : 'Your software is fully up to date!'}</strong>{' '}
+                  {isFr
+                    ? `Vous disposez de la version la plus récente (v${APP_VERSION}).`
+                    : `You are running the latest release (v${APP_VERSION}).`}
                 </span>
               </div>
             )}
@@ -195,7 +218,7 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
               <div className="flex items-center gap-2">
                 <Package className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                 <h3 className="font-bold text-slate-900 dark:text-white text-xs">
-                  Paquet Linux Desktop (.deb)
+                  {isFr ? 'Paquet Linux Desktop (.deb)' : 'Linux Desktop Package (.deb)'}
                 </h3>
               </div>
               <span className="text-[10px] bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-mono px-2 py-0.5 rounded">
@@ -203,11 +226,13 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
               </span>
             </div>
             <p className="text-slate-600 dark:text-slate-300 text-[11.5px] leading-relaxed">
-              Installez OCRBookor comme application native sur votre bureau Linux Debian 13 avec raccourci d’application et dépendances intégrées.
+              {isFr
+                ? 'Installez OCRBookor comme application native sur votre bureau Linux Debian avec raccourci et service local autonome.'
+                : 'Install OCRBookor as a native desktop application on Debian/Ubuntu with system shortcut and local daemon.'}
             </p>
             <div className="pt-1 flex flex-wrap items-center justify-between gap-2">
               <span className="text-[10px] text-slate-500">
-                Fichier : <code className="font-mono text-indigo-600 dark:text-indigo-400">ocrbookor_1.2.0_amd64.deb</code>
+                {isFr ? 'Fichier :' : 'File:'} <code className="font-mono text-indigo-600 dark:text-indigo-400">ocrbookor_1.2.0_amd64.deb</code>
               </span>
               <div className="flex items-center gap-2">
                 <a
@@ -225,7 +250,7 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-sm transition"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>Télécharger le .deb</span>
+                  <span>{isFr ? 'Télécharger le .deb' : 'Download .deb'}</span>
                 </a>
               </div>
             </div>
@@ -236,53 +261,75 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
             <div className="flex items-center justify-between">
               <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                 <Cpu className="w-4 h-4 text-slate-500" />
-                Diagnostic des Moteurs OCR
+                {isFr ? 'Diagnostic des Moteurs OCR' : 'OCR Engines Diagnostics'}
               </span>
-              <span className="text-[10px] text-slate-400">Détection dynamique</span>
+              <span className="text-[10px] text-slate-400">
+                {isFr ? 'Détection dynamique' : 'Dynamic detection'}
+              </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
               <div className="p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 flex items-center justify-between">
                 <div>
                   <span className="font-semibold text-slate-800 dark:text-slate-200 block">Tesseract WebAssembly</span>
-                  <span className="text-[10px] text-slate-400">Exécution client navigateur</span>
+                  <span className="text-[10px] text-slate-400">
+                    {isFr ? 'Exécution client navigateur' : 'In-browser client execution'}
+                  </span>
                 </div>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800">
-                  Actif (100% Hors-ligne)
+                  {isFr ? 'Actif (100% Hors-ligne)' : 'Active (100% Offline)'}
                 </span>
               </div>
 
               <div className="p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 flex items-center justify-between">
                 <div>
                   <span className="font-semibold text-slate-800 dark:text-slate-200 block">Tesseract CLI Système</span>
-                  <span className="text-[10px] text-slate-400">Binaire hôte local</span>
+                  <span className="text-[10px] text-slate-400">
+                    {isFr ? 'Binaire hôte local' : 'Local system binary'}
+                  </span>
                 </div>
-                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                  ocrEngines?.tesseract?.available
-                    ? 'bg-emerald-100 text-emerald-700 border border-emerald-300'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700'
-                }`}>
-                  {ocrEngines?.tesseract?.available ? 'Installé' : 'Non requis (Wasm actif)'}
+                <span
+                  className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                    ocrEngines?.tesseract?.available
+                      ? 'bg-emerald-100 text-emerald-700 border border-emerald-300'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700'
+                  }`}
+                >
+                  {ocrEngines?.tesseract?.available
+                    ? isFr
+                      ? 'Installé'
+                      : 'Installed'
+                    : isFr
+                    ? 'Non requis (Wasm actif)'
+                    : 'Optional (Wasm ready)'}
                 </span>
               </div>
 
               <div className="p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 flex items-center justify-between">
                 <div>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200 block">PaddleOCR (Optionnel)</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 block">PaddleOCR / RapidOCR</span>
                   <span className="text-[10px] text-slate-400">Deep Learning PP-OCR</span>
                 </div>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700">
-                  {ocrEngines?.paddleocr?.available ? 'Installé' : 'Non détecté'}
+                  {ocrEngines?.paddleocr?.available || ocrEngines?.rapidocr?.available
+                    ? isFr
+                      ? 'Installé'
+                      : 'Installed'
+                    : isFr
+                    ? 'Service local optionnel'
+                    : 'Optional local service'}
                 </span>
               </div>
 
               <div className="p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 flex items-center justify-between">
                 <div>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200 block">RapidOCR (Optionnel)</span>
-                  <span className="text-[10px] text-slate-400">ONNX Runtime</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 block">
+                    {isFr ? 'Stockage Local' : 'Local Storage'}
+                  </span>
+                  <span className="text-[10px] text-slate-400">IndexedDB &amp; SQLite</span>
                 </div>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700">
-                  {ocrEngines?.rapidocr?.available ? 'Installé' : 'Non détecté'}
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800">
+                  {isFr ? 'Opérationnel' : 'Operational'}
                 </span>
               </div>
             </div>
@@ -298,7 +345,7 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
               className="flex items-center gap-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
             >
               <ShieldCheck className="w-4 h-4" />
-              <span>Consulter les Mentions Légales & Responsabilité</span>
+              <span>{isFr ? 'Consulter les Mentions Légales & Responsabilité' : 'View Legal Notice & Disclaimers'}</span>
             </button>
 
             <button
@@ -308,7 +355,7 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
               }}
               className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
             >
-              <span>Voir le Journal des Modifications</span>
+              <span>{isFr ? 'Voir le Journal des Modifications' : 'View Changelog'}</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -320,7 +367,7 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
             onClick={onClose}
             className="px-4 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-semibold text-xs hover:bg-slate-300 dark:hover:bg-slate-700 transition"
           >
-            Fermer
+            {t('common.close')}
           </button>
         </div>
       </div>

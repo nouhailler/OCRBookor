@@ -16,13 +16,14 @@ import {
   Activity,
   Zap,
   Sparkles,
-  FileText
+  FileText,
 } from 'lucide-react';
 import { OCRProject, PageData } from '../types/book';
 import { performPageOCR } from '../services/tesseractService';
 import { calculateQualityMetrics, detectChaptersFromBlocks } from '../services/reconstructionService';
 import { preprocessImage } from '../services/imagePreprocessor';
 import { Tooltip } from './Tooltip';
+import { useTranslation } from '../i18n';
 
 interface RecognitionViewProps {
   project: OCRProject;
@@ -35,11 +36,16 @@ export const RecognitionView: React.FC<RecognitionViewProps> = ({
   onUpdateProject,
   onGoToCorrection,
 }) => {
+  const { t, language } = useTranslation();
+  const isFr = language === 'fr';
+
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currentPageIndex, setCurrentPageIndex] = useState<number>(0);
   const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
-  const [currentStepStatus, setCurrentStepStatus] = useState<string>('Prêt pour la reconnaissance');
+  const [currentStepStatus, setCurrentStepStatus] = useState<string>(
+    isFr ? 'Prêt pour la reconnaissance' : 'Ready for recognition'
+  );
   const [pageProgress, setPageProgress] = useState<number>(0);
 
   const isRunningRef = useRef(isRunning);
@@ -84,7 +90,9 @@ export const RecognitionView: React.FC<RecognitionViewProps> = ({
         continue;
       }
 
-      setCurrentStepStatus(`Prétraitement de la page ${page.pageNumber}...`);
+      setCurrentStepStatus(
+        isFr ? `Prétraitement de la page ${page.pageNumber}...` : `Preprocessing page ${page.pageNumber}...`
+      );
       setPageProgress(0.2);
 
       let imageToRecognize = page.imageUrl || '';
@@ -98,7 +106,9 @@ export const RecognitionView: React.FC<RecognitionViewProps> = ({
         console.warn('Preprocessing skipped:', e);
       }
 
-      setCurrentStepStatus(`Reconnaissance Tesseract page ${page.pageNumber}...`);
+      setCurrentStepStatus(
+        isFr ? `Reconnaissance OCR page ${page.pageNumber}...` : `Running OCR on page ${page.pageNumber}...`
+      );
       setPageProgress(0.5);
 
       const ocrResult = await performPageOCR(
@@ -107,7 +117,7 @@ export const RecognitionView: React.FC<RecognitionViewProps> = ({
         project.metadata.language,
         (progress, status) => {
           setPageProgress(progress);
-          setCurrentStepStatus(`Page ${page.pageNumber}: ${status}`);
+          setCurrentStepStatus(`${isFr ? 'Page' : 'Page'} ${page.pageNumber}: ${status}`);
         }
       );
 
@@ -124,7 +134,7 @@ export const RecognitionView: React.FC<RecognitionViewProps> = ({
         page.quality = ocrResult.quality;
         page.anomalies = ocrResult.anomalies;
         page.ocrProcessed = true;
-        page.ocrEngine = 'Tesseract 5.3 (fra)';
+        page.ocrEngine = 'Tesseract 5.3 (WASM)';
       }
 
       // Intermediate state save
@@ -145,7 +155,9 @@ export const RecognitionView: React.FC<RecognitionViewProps> = ({
     }
 
     setIsRunning(false);
-    setCurrentStepStatus('Reconnaissance terminée pour toutes les pages.');
+    setCurrentStepStatus(
+      isFr ? 'Reconnaissance terminée pour toutes les pages.' : 'OCR recognition completed for all pages.'
+    );
   };
 
   const handlePauseResume = () => {
@@ -155,7 +167,7 @@ export const RecognitionView: React.FC<RecognitionViewProps> = ({
   const handleStop = () => {
     setIsRunning(false);
     setIsPaused(false);
-    setCurrentStepStatus('Traitement interrompu.');
+    setCurrentStepStatus(isFr ? 'Traitement interrompu.' : 'Processing paused/stopped.');
   };
 
   const formatTime = (seconds: number) => {
@@ -174,18 +186,24 @@ export const RecognitionView: React.FC<RecognitionViewProps> = ({
       <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
           <div className="flex items-center space-x-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Écran 3</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+              {isFr ? 'Écran 3' : 'Screen 3'}
+            </span>
             <span className="text-xs text-slate-400">•</span>
             <span className="text-xs text-slate-500 dark:text-slate-400">{project.metadata.title}</span>
           </div>
           <div className="flex items-center gap-2 mt-0.5">
             <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Reconnaissance OCR & Détection Éditoriale
+              {isFr ? 'Reconnaissance OCR & Détection Éditoriale' : 'OCR Recognition & Editorial Detection'}
             </h1>
             <Tooltip
-              title="Pipeline OCR Local"
-              content="Convertit les images numérisées en texte structuré avec calcul des boîtes englobantes et détection automatique des chapitres."
-              tip="L'exécution s'effectue à 100% dans votre navigateur via Tesseract.js WebAssembly."
+              title={isFr ? 'Pipeline OCR Local' : 'Local OCR Pipeline'}
+              content={
+                isFr
+                  ? 'Convertit les images numérisées en texte structuré avec calcul des boîtes englobantes et détection automatique des chapitres.'
+                  : 'Converts scanned images into structured text with bounding boxes and automatic chapter detection.'
+              }
+              tip={isFr ? 'L’exécution s’effectue à 100% dans votre navigateur via WebAssembly.' : 'Runs 100% locally on your machine.'}
             />
           </div>
         </div>
@@ -196,7 +214,7 @@ export const RecognitionView: React.FC<RecognitionViewProps> = ({
               onClick={onGoToCorrection}
               className="flex items-center space-x-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white px-4 py-2.5 text-xs sm:text-sm font-semibold border border-slate-200 dark:border-slate-700 transition shadow-xs"
             >
-              <span>Accéder à la correction</span>
+              <span>{isFr ? 'Accéder à la correction' : 'Proceed to Correction'}</span>
               <ArrowRight className="h-4 w-4" />
             </button>
           )}
@@ -208,13 +226,16 @@ export const RecognitionView: React.FC<RecognitionViewProps> = ({
                 className="flex items-center space-x-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-indigo-600/20 hover:from-indigo-500 hover:to-blue-500 transition"
               >
                 <Play className="h-4 w-4 fill-white" />
-                <span>{processedCount > 0 ? 'Relancer l’OCR' : 'Démarrer l’OCR'}</span>
+                <span>
+                  {processedCount > 0
+                    ? isFr
+                      ? 'Relancer l’OCR'
+                      : 'Re-run OCR'
+                    : isFr
+                    ? 'Démarrer l’OCR'
+                    : 'Start Batch OCR'}
+                </span>
               </button>
-              <Tooltip
-                title="Lancement du traitement par lots"
-                content="Traite séquentiellement toutes les pages du livre avec prétraitement graphique à la volée."
-                placement="bottom"
-              />
             </div>
           ) : (
             <div className="flex items-center space-x-2">
@@ -223,14 +244,14 @@ export const RecognitionView: React.FC<RecognitionViewProps> = ({
                 className="flex items-center space-x-1.5 rounded-xl bg-amber-600 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-amber-500 transition"
               >
                 {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-                <span>{isPaused ? 'Reprendre' : 'Pause'}</span>
+                <span>{isPaused ? (isFr ? 'Reprendre' : 'Resume') : isFr ? 'Pause' : 'Pause'}</span>
               </button>
               <button
                 onClick={handleStop}
                 className="flex items-center space-x-1.5 rounded-xl bg-rose-600 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-rose-500 transition"
               >
                 <RotateCcw className="h-4 w-4" />
-                <span>Interrompre</span>
+                <span>{isFr ? 'Interrompre' : 'Stop'}</span>
               </button>
             </div>
           )}
@@ -251,18 +272,26 @@ export const RecognitionView: React.FC<RecognitionViewProps> = ({
               <Cpu className="h-5 w-5" />
             </div>
             <div>
-              <div className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">Statut du pipeline</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">
+                {isFr ? 'Statut du pipeline' : 'Pipeline Status'}
+              </div>
               <div className="text-base font-bold text-slate-900 dark:text-white mt-0.5">{currentStepStatus}</div>
             </div>
           </div>
 
           <div className="flex items-center space-x-6 text-xs text-slate-600 dark:text-slate-400">
             <div>
-              <span className="block text-slate-400 dark:text-slate-500">Temps écoulé :</span>
-              <span className="text-sm font-mono font-bold text-slate-800 dark:text-slate-200">{formatTime(elapsedSeconds)}</span>
+              <span className="block text-slate-400 dark:text-slate-500">
+                {isFr ? 'Temps écoulé :' : 'Time elapsed:'}
+              </span>
+              <span className="text-sm font-mono font-bold text-slate-800 dark:text-slate-200">
+                {formatTime(elapsedSeconds)}
+              </span>
             </div>
             <div>
-              <span className="block text-slate-400 dark:text-slate-500">Pages traitées :</span>
+              <span className="block text-slate-400 dark:text-slate-500">
+                {isFr ? 'Pages traitées :' : 'Processed pages:'}
+              </span>
               <span className="text-sm font-mono font-bold text-indigo-600 dark:text-indigo-400">
                 {processedCount} / {totalCount} ({progressRatio}%)
               </span>
@@ -273,7 +302,7 @@ export const RecognitionView: React.FC<RecognitionViewProps> = ({
         {/* Global Progress Bar */}
         <div className="mt-5">
           <div className="flex justify-between text-xs text-slate-600 dark:text-slate-400 mb-1.5">
-            <span>Avancement global</span>
+            <span>{isFr ? 'Avancement global' : 'Overall Progress'}</span>
             <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{progressRatio}%</span>
           </div>
           <div className="h-2.5 w-full bg-slate-100 dark:bg-slate-950 rounded-full overflow-hidden border border-slate-200 dark:border-slate-800">
@@ -286,56 +315,58 @@ export const RecognitionView: React.FC<RecognitionViewProps> = ({
       </div>
 
       {/* Pages Progress & Quality Table */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/80 overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-            Détail des pages & Contrôle qualité
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 overflow-hidden shadow-sm">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+            {isFr ? 'Détail des pages & Contrôle qualité' : 'Page Details & Quality Control'}
           </h3>
-          <span className="text-xs text-slate-400">
-            Moteur : <strong className="text-slate-200">Tesseract v5.3 WASM</strong>
+          <span className="text-xs text-slate-500 dark:text-slate-400">
+            {isFr ? 'Moteur :' : 'Engine:'} <strong className="text-slate-700 dark:text-slate-200">Tesseract 5 + RapidOCR</strong>
           </span>
         </div>
 
-        <div className="divide-y divide-slate-800/80 max-h-[500px] overflow-y-auto">
+        <div className="divide-y divide-slate-100 dark:divide-slate-800/80 max-h-[500px] overflow-y-auto">
           {project.pages.map((p, idx) => {
             const isCurrent = isRunning && currentPageIndex === idx;
             return (
               <div
                 key={p.pageNumber}
                 className={`px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 transition ${
-                  isCurrent ? 'bg-indigo-500/10' : 'hover:bg-slate-800/30'
+                  isCurrent ? 'bg-indigo-50/80 dark:bg-indigo-500/10' : 'hover:bg-slate-50 dark:hover:bg-slate-800/30'
                 }`}
               >
                 <div className="flex items-center space-x-4">
-                  <div className="h-10 w-8 bg-slate-950 rounded border border-slate-800 overflow-hidden shrink-0 flex items-center justify-center">
+                  <div className="h-10 w-8 bg-slate-100 dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800 overflow-hidden shrink-0 flex items-center justify-center">
                     {p.imageUrl ? (
                       <img src={p.imageUrl} alt="" className="h-full w-full object-cover" />
                     ) : (
-                      <FileText className="h-3 w-3 text-slate-600" />
+                      <FileText className="h-3 w-3 text-slate-400 dark:text-slate-600" />
                     )}
                   </div>
 
                   <div>
                     <div className="flex items-center space-x-2">
-                      <span className="text-sm font-bold text-white">Page {p.pageNumber}</span>
+                      <span className="text-sm font-bold text-slate-900 dark:text-white">
+                        {t('common.page')} {p.pageNumber}
+                      </span>
                       {p.ocrProcessed ? (
-                        <span className="inline-flex items-center text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-medium">
+                        <span className="inline-flex items-center text-[10px] text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-500/20 font-medium">
                           <CheckCircle2 className="h-3 w-3 mr-1" />
-                          Reconnu ({p.confidence}%)
+                          {isFr ? 'Reconnu' : 'Recognized'} ({p.confidence}%)
                         </span>
                       ) : isCurrent ? (
-                        <span className="inline-flex items-center text-[10px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20 font-medium animate-pulse">
-                          En cours...
+                        <span className="inline-flex items-center text-[10px] text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-500/20 font-medium animate-pulse">
+                          {isFr ? 'En cours...' : 'Processing...'}
                         </span>
                       ) : (
-                        <span className="text-[10px] text-slate-500 bg-slate-800 px-2 py-0.5 rounded">
-                          En attente
+                        <span className="text-[10px] text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
+                          {isFr ? 'En attente' : 'Pending'}
                         </span>
                       )}
                     </div>
 
-                    <p className="text-xs text-slate-400 truncate max-w-lg mt-0.5">
-                      {p.rawText ? p.rawText.slice(0, 80) : 'Aucun texte extrait pour le moment'}
+                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-lg mt-0.5">
+                      {p.rawText ? p.rawText.slice(0, 80) : (isFr ? 'Aucun texte extrait pour le moment' : 'No text extracted yet')}
                     </p>
 
                     {p.anomalies.length > 0 && (
@@ -343,7 +374,7 @@ export const RecognitionView: React.FC<RecognitionViewProps> = ({
                         {p.anomalies.map((ano, aIdx) => (
                           <span
                             key={aIdx}
-                            className="inline-flex items-center text-[10px] text-amber-300 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.2 rounded"
+                            className="inline-flex items-center text-[10px] text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 px-1.5 py-0.2 rounded"
                           >
                             <AlertTriangle className="h-2.5 w-2.5 mr-1" />
                             {ano}
@@ -355,21 +386,32 @@ export const RecognitionView: React.FC<RecognitionViewProps> = ({
                 </div>
 
                 <div className="text-right shrink-0">
-                  <div className="text-xs text-slate-400">
-                    Blocs éditoriaux : <strong className="text-slate-200">{p.blocks.length}</strong>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">
+                    {isFr ? 'Blocs éditoriaux :' : 'Editorial blocks:'}{' '}
+                    <strong className="text-slate-800 dark:text-slate-200">{p.blocks.length}</strong>
                   </div>
                   <div className="text-[11px] text-slate-500 mt-0.5">
-                    Qualité :{' '}
+                    {isFr ? 'Qualité :' : 'Quality:'}{' '}
                     <span
                       className={`font-semibold ${
                         p.quality === 'bonne'
-                          ? 'text-emerald-400'
+                          ? 'text-emerald-600 dark:text-emerald-400'
                           : p.quality === 'moyenne'
-                          ? 'text-amber-400'
-                          : 'text-rose-400'
+                          ? 'text-amber-600 dark:text-amber-400'
+                          : 'text-rose-600 dark:text-rose-400'
                       }`}
                     >
-                      {p.quality}
+                      {p.quality === 'bonne'
+                        ? isFr
+                          ? 'bonne'
+                          : 'good'
+                        : p.quality === 'moyenne'
+                        ? isFr
+                          ? 'moyenne'
+                          : 'average'
+                        : isFr
+                        ? 'à vérifier'
+                        : 'review'}
                     </span>
                   </div>
                 </div>

@@ -16,6 +16,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { Logo } from './Logo';
+import { useTranslation } from '../i18n';
 
 interface OnboardingModalProps {
   isOpen: boolean;
@@ -30,6 +31,9 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   onClose,
   forceReview = false,
 }) => {
+  const { t, language } = useTranslation();
+  const isFr = language === 'fr';
+
   const [acceptedTerms, setAcceptedTerms] = useState(forceReview);
   const [activeTab, setActiveTab] = useState<'presentation' | 'mentions'>('presentation');
 
@@ -58,7 +62,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                   : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
-              Présentation
+              {isFr ? 'Présentation' : 'Overview'}
             </button>
             <button
               type="button"
@@ -70,7 +74,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               }`}
             >
               <Scale className="w-3.5 h-3.5" />
-              Mentions Légales & Responsabilité
+              <span>{isFr ? 'Mentions Légales & Responsabilité' : 'Legal & Disclaimers'}</span>
             </button>
           </div>
         </div>
@@ -84,10 +88,12 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                   <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
                   <div>
                     <h3 className="font-bold text-slate-900 dark:text-white text-base">
-                      Bienvenue dans OCRBookor
+                      {isFr ? 'Bienvenue dans OCRBookor' : 'Welcome to OCRBookor'}
                     </h3>
                     <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
-                      L’outil local de référence pour transformer les livres scannés (PDF) en e-books professionnels conformes au standard <strong>EPUB 3</strong>, <strong>Markdown</strong> et <strong>TXT</strong>.
+                      {isFr
+                        ? 'L’outil local de référence pour transformer les livres scannés (PDF) en e-books professionnels conformes au standard EPUB 3, Markdown et TXT.'
+                        : 'The definitive local tool to transform scanned PDF books into publication-ready digital books compliant with EPUB 3, Markdown, and TXT.'}
                     </p>
                   </div>
                 </div>
@@ -98,40 +104,48 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                 <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-1">
                   <div className="flex items-center gap-1.5 font-semibold text-slate-900 dark:text-white">
                     <Lock className="w-4 h-4 text-emerald-500" />
-                    <span>100% Hors-Ligne & Confidentiel</span>
+                    <span>{isFr ? '100% Hors-Ligne & Confidentiel' : '100% Offline & Private'}</span>
                   </div>
                   <p className="text-slate-500 dark:text-slate-400">
-                    Vos documents, images et livres ne quittent jamais votre ordinateur. Aucun serveur externe ni télémétrie.
+                    {isFr
+                      ? 'Vos documents, images et livres ne quittent jamais votre ordinateur. Aucun serveur externe ni télémétrie.'
+                      : 'Your documents, scans, and books never leave your computer. No third-party servers or telemetry.'}
                   </p>
                 </div>
 
                 <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-1">
                   <div className="flex items-center gap-1.5 font-semibold text-slate-900 dark:text-white">
                     <Cpu className="w-4 h-4 text-indigo-500" />
-                    <span>Moteur OCR WebAssembly</span>
+                    <span>{isFr ? 'Moteur OCR Hybride Local' : 'Local Hybrid OCR Engines'}</span>
                   </div>
                   <p className="text-slate-500 dark:text-slate-400">
-                    Reconnaissance optique haute précision Tesseract v5 intégrée, modèles de langue français et français ancien.
+                    {isFr
+                      ? 'Reconnaissance optique haute précision Tesseract v5 et RapidOCR intégrées.'
+                      : 'High-precision local optical recognition with Tesseract 5 and RapidOCR.'}
                   </p>
                 </div>
 
                 <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-1">
                   <div className="flex items-center gap-1.5 font-semibold text-slate-900 dark:text-white">
                     <BookOpen className="w-4 h-4 text-amber-500" />
-                    <span>Typographie de l’Imprimerie Nationale</span>
+                    <span>{isFr ? 'Typographie & Normalisation' : 'Typography & Normalization'}</span>
                   </div>
                   <p className="text-slate-500 dark:text-slate-400">
-                    Gestion automatique des espaces insécables, guillemets français « », tirets de dialogue et ligatures œ/æ.
+                    {isFr
+                      ? 'Gestion automatique des espaces insécables, guillemets « », césures et ligatures œ/æ.'
+                      : 'Automated dehyphenation, guillemets, punctuation spaces, and typographic ligatures.'}
                   </p>
                 </div>
 
                 <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-1">
                   <div className="flex items-center gap-1.5 font-semibold text-slate-900 dark:text-white">
                     <FileCheck className="w-4 h-4 text-blue-500" />
-                    <span>Export EPUB 3 Strict IDPF</span>
+                    <span>{isFr ? 'Export EPUB 3 Strict IDPF' : 'Strict EPUB 3 IDPF Export'}</span>
                   </div>
                   <p className="text-slate-500 dark:text-slate-400">
-                    Archives validées pour Apple Books, Kobo, Kindle et Calibre avec table des matières et styles calibrés.
+                    {isFr
+                      ? 'Archives validées pour Apple Books, Kobo, Kindle et Calibre avec table des matières et styles calibrés.'
+                      : 'Standards-compliant bundles verified for Kobo, Kindle, Apple Books, and Calibre.'}
                   </p>
                 </div>
               </div>
@@ -141,10 +155,14 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                 <ShieldAlert className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                 <div>
                   <strong className="text-amber-900 dark:text-amber-300 font-semibold block">
-                    Important : Responsabilité relative aux documents importés
+                    {isFr
+                      ? 'Important : Responsabilité relative aux documents importés'
+                      : 'Important: Responsibility regarding imported documents'}
                   </strong>
                   <span className="text-amber-800/90 dark:text-amber-300/80 leading-relaxed">
-                    Avant de commencer, vous devez prendre connaissance de la clause de non-responsabilité juridique concernant les fichiers et données que vous introduisez dans l’application.
+                    {isFr
+                      ? 'Avant de commencer, vous devez prendre connaissance de la clause de non-responsabilité juridique concernant les fichiers et données introduits.'
+                      : 'Before proceeding, please review the legal disclaimers regarding documents and files processed within the application.'}
                   </span>
                 </div>
               </div>
@@ -154,38 +172,50 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               <div className="rounded-xl p-4 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 space-y-2">
                 <div className="flex items-center gap-2 font-bold text-rose-900 dark:text-rose-300 text-sm">
                   <Scale className="w-5 h-5 text-rose-600 dark:text-rose-400" />
-                  <span>DÉCHARGE EXPRESSE DE RESPONSABILITÉ SUR LES DONNÉES FOURNIES</span>
+                  <span>
+                    {isFr
+                      ? 'DÉCHARGE EXPRESSE DE RESPONSABILITÉ SUR LES DONNÉES FOURNIES'
+                      : 'EXPRESS DISCLAIMER OF LIABILITY REGARDING USER DATA'}
+                  </span>
                 </div>
                 <p className="text-rose-800 dark:text-rose-200/90 leading-relaxed">
-                  L’auteur, le mainteneur et les contributeurs du logiciel <strong>OCRBookor</strong> déclinent expressément toute responsabilité, directe ou indirecte, quant à la nature, l’origine, l’exactitude, la licéité, la confidentialité ou les droits de propriété intellectuelle liés aux données, images, fichiers PDF et textes importés, traités ou exportés dans cette application.
+                  {isFr
+                    ? 'L’auteur, le mainteneur et les contributeurs du logiciel OCRBookor déclinent expressément toute responsabilité, directe ou indirecte, quant à la nature, l’origine, l’exactitude, la licéité, la confidentialité ou les droits de propriété intellectuelle liés aux données, images, fichiers PDF et textes importés, traités ou exportés dans cette application.'
+                    : 'The author, maintainers, and contributors of OCRBookor expressly disclaim any and all liability, direct or indirect, regarding the nature, origin, accuracy, legality, confidentiality, or intellectual property rights related to data, scans, PDF files, and texts imported, processed, or exported in this application.'}
                 </p>
               </div>
 
               <div className="space-y-3 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-300 leading-relaxed">
                 <div>
                   <h4 className="font-bold text-slate-900 dark:text-white mb-1">
-                    1. Propriété intellectuelle et Droits d’Auteur
+                    {isFr ? '1. Propriété intellectuelle et Droits d’Auteur' : '1. Intellectual Property & Copyright'}
                   </h4>
                   <p>
-                    L’utilisateur est <strong>seul et entièrement responsable</strong> de s’assurer qu’il détient les droits nécessaires (droits d’auteur, appartenance au domaine public, licence de reproduction ou exception légale pour copie privée) sur tout document ou livre qu’il numérise ou convertit.
+                    {isFr
+                      ? 'L’utilisateur est seul et entièrement responsable de s’assurer qu’il détient les droits nécessaires (domaine public, licence légale ou exception de copie privée) sur tout document qu’il convertit.'
+                      : 'The user is solely and entirely responsible for ensuring they hold all necessary rights (public domain, copyright license, or private copy exceptions) for any book or file processed.'}
                   </p>
                 </div>
 
                 <div>
                   <h4 className="font-bold text-slate-900 dark:text-white mb-1">
-                    2. Protection des Données et Confidentialité
+                    {isFr ? '2. Protection des Données et Confidentialité' : '2. Data Protection & Privacy'}
                   </h4>
                   <p>
-                    L’application fonctionnant intégralement en local (sur votre machine hôte ou navigateur), aucun hébergement ni stockage centralisé n’est effectué par l’éditeur. L’utilisateur assume l’entière responsabilité de la protection des données sensibles ou personnelles pouvant figurer dans ses fichiers.
+                    {isFr
+                      ? 'L’application fonctionnant intégralement en local (sur votre machine hôte ou navigateur), aucun hébergement ni stockage centralisé n’est effectué par l’éditeur.'
+                      : 'As the software operates entirely locally on your host device or browser, no centralized storage or processing is executed by the developers.'}
                   </p>
                 </div>
 
                 <div>
                   <h4 className="font-bold text-slate-900 dark:text-white mb-1">
-                    3. Absence de Garantie de Transcription
+                    {isFr ? '3. Absence de Garantie de Transcription' : '3. No Guarantee of OCR Accuracy'}
                   </h4>
                   <p>
-                    La reconnaissance optique de caractères (OCR) est fournie « en l’état » sans aucune garantie d’infaillibilité. Une relecture humaine reste nécessaire avant toute publication ou diffusion éditoriale.
+                    {isFr
+                      ? 'La reconnaissance optique de caractères (OCR) est fournie « en l’état ». Une relecture humaine reste nécessaire avant toute publication.'
+                      : 'Optical character recognition (OCR) is provided "as is". Human proofreading remains recommended before any commercial or public distribution.'}
                   </p>
                 </div>
               </div>
@@ -202,7 +232,15 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                 className="mt-0.5 h-4 w-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
               />
               <span className="text-xs text-slate-800 dark:text-slate-200 leading-snug">
-                <strong>Je reconnais avoir pris connaissance des mentions légales</strong> et j’accepte expressément la clause déchargeant l’auteur d’OCRBookor de toute responsabilité relative aux fichiers et données que j’introduis ou exporte dans l’application.
+                {isFr ? (
+                  <>
+                    <strong>Je reconnais avoir pris connaissance des mentions légales</strong> et j’accepte expressément la clause déchargeant l’auteur d’OCRBookor de toute responsabilité relative aux fichiers et données que j’introduis ou exporte dans l’application.
+                  </>
+                ) : (
+                  <>
+                    <strong>I acknowledge that I have read the legal notice</strong> and expressly accept the clause releasing the authors of OCRBookor from any liability regarding files and data imported or exported.
+                  </>
+                )}
               </span>
             </label>
           </div>
@@ -216,11 +254,11 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               onClick={onClose}
               className="text-xs font-medium text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 px-3 py-2 rounded-lg"
             >
-              Fermer
+              {t('common.close')}
             </button>
           ) : (
             <span className="text-[11px] text-slate-400">
-              Acceptation requise pour démarrer
+              {isFr ? 'Acceptation requise pour démarrer' : 'Acceptance required to begin'}
             </span>
           )}
 
@@ -231,7 +269,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                 onClick={() => setActiveTab('mentions')}
                 className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline px-3 py-2"
               >
-                Lire les mentions légales →
+                {isFr ? 'Lire les mentions légales →' : 'Read legal notice →'}
               </button>
             )}
 
@@ -245,7 +283,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                   : 'bg-slate-400 dark:bg-slate-700 cursor-not-allowed opacity-60'
               }`}
             >
-              <span>Accepter et Commencer</span>
+              <span>{isFr ? 'Accepter et Commencer' : 'Accept and Begin'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
