@@ -1,4 +1,4 @@
-# OCRBookor v1.2.0
+# OCRBookor v1.3.0
 
 <div align="center">
 
@@ -8,7 +8,7 @@
 
 🌐 **Version française** | **[English Version](README.en.md)**
 
-[![Version](https://img.shields.io/badge/version-1.2.0-indigo.svg)](https://github.com/nouhailler/OCRBookor)
+[![Version](https://img.shields.io/badge/version-1.3.0-indigo.svg)](https://github.com/nouhailler/OCRBookor)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Debian%2013%20%7C%20Linux%20Desktop%20%7C%20Web-success.svg)](https://github.com/nouhailler/OCRBookor)
 [![Offline](https://img.shields.io/badge/privacy-100%25%20Hors--ligne-emerald.svg)](README.md)
@@ -35,14 +35,14 @@
 
 ---
 
-## 🌟 Nouveautés Majeures de la Version 1.2.0
+## 🌟 Nouveautés Majeures de la Version 1.3.0
 
-- 🍔 **Menu Hamburger Catégorisé :** Accès instantané à toutes les fonctionnalités de l'application regroupées en 9 catégories claires (Numérisation, Prétraitement, OCR, Édition, Structure, Export, Système, Légal, Documentation) avec barre de recherche filtrante.
-- ⚙️ **Menu Paramètres Système :** Affiche la date officielle de sortie (**1er Novembre 2026**), la date et l'heure de la dernière vérification, un bouton d'action **« Vérifier les mises à jour »**, le diagnostic dynamique des moteurs OCR et le téléchargement du paquet Debian.
-- 🌓 **Thème Clair & Thème Sombre :** Support complet d'un thème clair lumineux et contrasté, commutable en un clic et mémorisé dans les préférences locales de l'utilisateur.
-- ⚖️ **Onboarding Juridique & Décharge de Responsabilité :** Accueil pédagogique avec mentions légales stipulant expressément que l'auteur décline toute responsabilité quant aux données et documents importés par l'utilisateur (respect de la propriété intellectuelle et droits d'auteur).
-- 💡 **Infobulles Interactives & Guide Novice :** Chaque champ, seuil, bouton et option de prétraitement est accompagné d'une infobulle explicative (`Tooltip`) et d'une bannière de conseils contextuels par écran.
-- 📦 **Paquet Linux Desktop (.deb) :** Fourniture d'une release Debian native (`releases/ocrbookor_1.2.0_amd64.deb`) avec lanceur `/usr/bin/ocrbookor`, raccourci desktop et icône système SVG.
+- 🌐 **Internationalisation Complète (i18n) Français & Anglais :** Application intégralement bilingue avec commutateur instantané `FR / EN` dans la barre supérieure, détection automatique de la langue du navigateur et persistance locale.
+- 📱 **Landing Page PWA Bilingue :** Version anglaise autonome (`/en`) prête pour Cloudflare Pages (`https://decouvrir-ocrbookor.pages.dev/en`) avec mise en cache Service Worker hors-ligne et balises SEO `hreflang`.
+- ⚡ **Installation Express 1-Ligne via `curl` :** Déploiement automatique sans téléchargement préalable (`curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh | sudo bash`).
+- 📚 **Documentation Bilingue Complète :** `README.en.md`, en-tête multilingue du `README.md` et rapport de conformité `docs/INTERNATIONALIZATION_EN_REPORT.md`.
+- 🧪 **Suite de Tests i18n Automatisée :** Vérification de parité stricte à 100% sur l'ensemble des 444 clés de traduction (`npm test`).
+- 📦 **Paquet Linux Desktop (.deb) v1.3.0 :** Fourniture de la release Debian native (`releases/ocrbookor_1.3.0_amd64.deb`) avec lanceur `/usr/bin/ocrbookor`, raccourci desktop et résolution des imports de production.
 
 ---
 
@@ -91,17 +91,17 @@ ocrbookor
 
 ### Option B : Installation Manuelle via Paquet Debian Desktop (.deb)
 
-Le paquet binaire Debian est disponible dans la section **[GitHub Releases v1.2.0](https://github.com/nouhailler/OCRBookor/releases/tag/v1.2.0)** ou directement téléchargeable :
+Le paquet binaire Debian est disponible dans la section **[GitHub Releases v1.3.0](https://github.com/nouhailler/OCRBookor/releases/tag/v1.3.0)** ou directement téléchargeable :
 
-- **Lien direct GitHub (binaire brut) :** [ocrbookor_1.2.0_amd64.deb](https://github.com/nouhailler/OCRBookor/raw/main/releases/ocrbookor_1.2.0_amd64.deb)
-- **Depuis l'application Web :** Menu Hamburger ➔ *Paramètres Système* ➔ Bouton *Télécharger le .deb (v1.2.0)*
+- **Lien direct GitHub (binaire brut) :** [ocrbookor_1.3.0_amd64.deb](https://github.com/nouhailler/OCRBookor/raw/main/releases/ocrbookor_1.3.0_amd64.deb)
+- **Depuis l'application Web :** Menu Hamburger ➔ *Paramètres Système* ➔ Bouton *Télécharger le .deb (v1.3.0)*
 
 ```bash
 # Téléchargement direct en ligne de commande
-wget https://github.com/nouhailler/OCRBookor/raw/main/releases/ocrbookor_1.2.0_amd64.deb
+wget https://github.com/nouhailler/OCRBookor/raw/main/releases/ocrbookor_1.3.0_amd64.deb
 
 # Installation du paquet Debian
-sudo dpkg -i ocrbookor_1.2.0_amd64.deb
+sudo dpkg -i ocrbookor_1.3.0_amd64.deb
 
 # Résolution des dépendances système si nécessaire
 sudo apt-get install -f
@@ -146,9 +146,9 @@ Un workflow GitHub Actions (`.github/workflows/release.yml`) et un script autono
 GITHUB_TOKEN=ghp_votretokency ./scripts/publish-github-release.sh
 
 # Ou via GitHub CLI (gh)
-gh release create v1.2.0 releases/ocrbookor_1.2.0_amd64.deb \
-  --title "OCRBookor v1.2.0 — Release Linux Desktop & Web" \
-  --notes "Release officielle v1.2.0 avec binaire .deb Debian/Ubuntu"
+gh release create v1.3.0 releases/ocrbookor_1.3.0_amd64.deb \
+  --title "OCRBookor v1.3.0 — Release Bilingue (FR/EN) & PWA Landing" \
+  --notes "Release officielle v1.3.0 avec binaire .deb Debian/Ubuntu et support multilingue"
 ```
 
 ---

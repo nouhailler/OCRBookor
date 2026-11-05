@@ -9,7 +9,7 @@ ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 cd "$ROOT_DIR"
 
 APP_NAME="ocrbookor"
-VERSION="1.2.0"
+VERSION="1.3.0"
 ARCH="amd64"
 DEB_PACKAGE_NAME="${APP_NAME}_${VERSION}_${ARCH}"
 BUILD_ROOT="/tmp/build-${APP_NAME}-deb"
@@ -42,7 +42,7 @@ mkdir -p "$RELEASES_DIR"
 echo "→ 3/5 Génération des métadonnées DEBIAN/control..."
 cat << 'EOF' > "$BUILD_ROOT/DEBIAN/control"
 Package: ocrbookor
-Version: 1.2.0
+Version: 1.3.0
 Section: graphics
 Priority: optional
 Architecture: amd64
@@ -75,7 +75,7 @@ mkdir -p "$OCRBOOKOR_DATA_DIR"
 export NODE_ENV=production
 
 echo "================================================================="
-echo "  Démarrage d'OCRBookor v1.2.0 Desktop"
+echo "  Démarrage d'OCRBookor v1.3.0 Desktop"
 echo "  URL locale : http://localhost:3000"
 echo "  Données : $OCRBOOKOR_DATA_DIR"
 echo "================================================================="

@@ -1,4 +1,4 @@
-# OCRBookor v1.2.0
+# OCRBookor v1.3.0
 
 <div align="center">
 
@@ -8,7 +8,7 @@
 
 🌐 **[Version française](README.md)** | **English Version**
 
-[![Version](https://img.shields.io/badge/version-1.2.0-indigo.svg)](https://github.com/nouhailler/OCRBookor)
+[![Version](https://img.shields.io/badge/version-1.3.0-indigo.svg)](https://github.com/nouhailler/OCRBookor)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Debian%2013%20%7C%20Linux%20Desktop%20%7C%20Web-success.svg)](https://github.com/nouhailler/OCRBookor)
 [![Offline](https://img.shields.io/badge/privacy-100%25%20Offline-emerald.svg)](README.en.md)
@@ -36,15 +36,14 @@
 
 ---
 
-## 🌟 Major Highlights in Version 1.2.0
+## 🌟 Major Highlights in Version 1.3.0
 
 - 🌐 **Full Internationalization (i18n):** Complete English and French interfaces with instant language switching (`FR | EN`), persistent preference in `localStorage`, and zero telemetry.
+- 📱 **English PWA Landing Page:** Standalone English version deployed on Cloudflare Pages (`https://decouvrir-ocrbookor.pages.dev/en`) with automatic routing and offline Service Worker caching.
 - ⚡ **1-Line Quick Install Script:** Fast deployment on Ubuntu, Debian, Linux Mint, and derivatives via `curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh | sudo bash`.
-- 📦 **Debian Desktop Binary (.deb):** Native standalone package with desktop shortcut and automated dependency management.
-- 📱 **Progressive Web App (PWA):** One-click desktop or mobile installation with offline Service Worker support.
-- 🍔 **Categorized Menu:** Instant access to all application workflows grouped into 9 categories with dynamic filtering.
-- ⚙️ **System Diagnostics Modal:** Real-time detection of local OCR engines (Tesseract WASM, CLI, RapidOCR) and update verification.
-- 🌓 **Day & Night Themes:** Crisp high-contrast light theme and ergonomic dark theme with instant toggle.
+- 📦 **Debian Desktop Binary (.deb) v1.3.0:** Native standalone package with desktop shortcut, production module fixes, and automated dependency management.
+- 🧪 **Automated Parity Test Suite:** 100% dictionary completeness verified across 444 translation keys (`npm test`).
+- 🍔 **Categorized Menu & Diagnostics:** Instant access to all workflows across 9 categories with dynamic filtering and system diagnostics.
 
 ---
 
@@ -58,10 +57,10 @@ curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh
 
 ### Option 2 — Manual Debian Package (.deb)
 
-Download the official binary from [GitHub Releases](https://github.com/nouhailler/OCRBookor/releases):
+Download the official binary from [GitHub Releases v1.3.0](https://github.com/nouhailler/OCRBookor/releases/tag/v1.3.0):
 
 ```bash
-sudo dpkg -i ocrbookor_1.2.0_amd64.deb
+sudo dpkg -i ocrbookor_1.3.0_amd64.deb
 sudo apt-get install -f  # Fix missing dependencies if any
 ocrbookor                # Launch application
 ```

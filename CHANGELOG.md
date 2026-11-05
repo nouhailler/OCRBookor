@@ -7,6 +7,33 @@ et ce projet adhère à la spécification [Semantic Versioning](https://semver.o
 
 ---
 
+## [1.3.0] - 2026-11-05
+
+### Ajouté
+- **Internationalisation Complète (i18n) Français & Anglais :**
+  - Architecture d'i18n stricte (`src/i18n/`) avec 14 espaces de noms typés et 444 clés bilingues complètes.
+  - Sélecteur de langue dynamique (`FR / EN`) avec détection automatique de la langue du navigateur et persistance dans `localStorage`.
+  - Découplage strict entre la langue de l'interface utilisateur et la langue d'océrisation des livres (Dublin Core / modèles Tesseract).
+  - Traduction intégrale de tous les écrans, guides contextuels, formulaires, modales de diagnostic et avertissements juridiques.
+- **Landing Page PWA en Anglais (Cloudflare Pages) :**
+  - Création de `landing/en.html` et `landing/en/index.html` pour un accès direct via `https://decouvrir-ocrbookor.pages.dev/en`.
+  - Bouton interactif de basculement de langue `FR / EN` dans l'en-tête de la landing page.
+  - Balises de référencement multilingue `hreflang` et mise en cache PWA hors-ligne via `sw.js`.
+- **Installation Express 1-Ligne via `curl` :**
+  - Commande d'installation automatique : `curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh | sudo bash`.
+  - Téléchargement automatique de la dernière version du binaire Debian, résolution des dépendances et configuration du lanceur `/usr/bin/ocrbookor`.
+- **Documentation et Validation Automatisée :**
+  - Création du `README.en.md` et mise en place d'un en-tête bilingue dans `README.md`.
+  - Rédaction du rapport d'audit et de conformité `docs/INTERNATIONALIZATION_EN_REPORT.md`.
+  - Suite de tests de parité i18n automatisée (`npm test` / `scripts/test-i18n.mjs`) vérifiant 100% des clés.
+
+### Modifié & Corrigé
+- **Exécution Autonome du Binaire Debian :**
+  - Résolution de l'import dynamique de Vite en production dans `server.js` pour éviter toute dépendance résiduelle aux outils de dev.
+  - Mise à jour d'esbuild à la version ^0.28.0 résolvant les conflits de dépendances de Vite.
+
+---
+
 ## [1.2.0] - 2026-11-01
 
 ### Ajouté

@@ -87,7 +87,7 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({
             {selectedDoc === 'README_EN' && (
               <div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-                  OCRBookor v1.2.0 — Scanned Book Digitization, OCR &amp; Reconstruction Suite
+                  OCRBookor v1.3.0 — Scanned Book Digitization, OCR &amp; Reconstruction Suite
                 </h2>
                 <p className="text-indigo-600 dark:text-indigo-400 font-medium text-xs mb-4">
                   Full-stack desktop &amp; web application transforming raw scanned PDF books into publication-ready EPUB 3, Markdown, and clean text
@@ -140,7 +140,7 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({
             {selectedDoc === 'README' && (
               <div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-                  OCRBookor v1.2.0 — Convertisseur PDF OCR vers EPUB 3
+                  OCRBookor v1.3.0 — Convertisseur PDF OCR vers EPUB 3
                 </h2>
                 <p className="text-indigo-600 dark:text-indigo-400 font-medium text-xs mb-4">
                   Application locale de numérisation, reconnaissance et reconstruction éditoriale de livres
@@ -234,7 +234,7 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({
                   <p># 1-Line quick install via curl :</p>
                   <p className="text-slate-800 dark:text-slate-300">curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh | sudo bash</p>
                   <p className="pt-2"># Debian / Ubuntu package (.deb) install :</p>
-                  <p className="text-slate-800 dark:text-slate-300">sudo dpkg -i ocrbookor_1.2.0_amd64.deb</p>
+                  <p className="text-slate-800 dark:text-slate-300">sudo dpkg -i ocrbookor_1.3.0_amd64.deb</p>
                 </div>
               </div>
             )}

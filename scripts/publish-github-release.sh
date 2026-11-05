@@ -6,13 +6,13 @@ set -euo pipefail
 
 REPO_OWNER="nouhailler"
 REPO_NAME="OCRBookor"
-TAG_NAME="v1.2.0"
-RELEASE_TITLE="OCRBookor v1.2.0 — Release Officielle Linux Desktop & Web"
-DEB_PATH="releases/ocrbookor_1.2.0_amd64.deb"
-DEB_FILENAME="ocrbookor_1.2.0_amd64.deb"
+TAG_NAME="v1.3.0"
+RELEASE_TITLE="OCRBookor v1.3.0 — Release Bilingue (FR/EN) & PWA Landing"
+DEB_PATH="releases/ocrbookor_1.3.0_amd64.deb"
+DEB_FILENAME="ocrbookor_1.3.0_amd64.deb"
 
 echo "================================================================="
-echo "  OCRBookor - Publication GitHub Release avec binaire .deb"
+echo "  OCRBookor - Publication GitHub Release avec binaire .deb (v1.3.0)"
 echo "================================================================="
 
 if [ ! -f "$DEB_PATH" ]; then
@@ -47,30 +47,34 @@ fi
 echo "→ Vérification / Création de la release $TAG_NAME sur GitHub ($REPO_OWNER/$REPO_NAME)..."
 
 RELEASE_NOTES=$(cat << 'EOF'
-## 🚀 OCRBookor v1.2.0 — Release Officielle Linux Desktop & Web
+## 🚀 OCRBookor v1.3.0 — Internationalisation Complète (FR/EN), PWA Landing & curl Installer
 
-Application locale et souveraine de numérisation, reconnaissance OCR et reconstruction de livres imprimés vers EPUB 3, Markdown, TXT et HTML.
+Suite logicielle locale et souveraine de numérisation, reconnaissance OCR et reconstruction de livres imprimés vers EPUB 3, Markdown, TXT et HTML.
 
 ### 📦 Fichier Binaire Inclus
-- **`ocrbookor_1.2.0_amd64.deb`** : Paquet d'installation natif Linux pour Debian (12 / 13 Trixie), Ubuntu (22.04 / 24.04 LTS), Linux Mint.
+- **`ocrbookor_1.3.0_amd64.deb`** : Paquet d'installation natif Linux pour Debian (12 / 13 Trixie), Ubuntu (22.04 / 24.04 LTS), Linux Mint.
 
-### 🔧 Installation Rapide sur Linux Desktop
+### ⚡ Installation Express en 1 ligne (Recommandée)
+```bash
+curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh | sudo bash
+```
+
+### 🔧 Installation Manuelle sur Linux Desktop
 ```bash
 # Télécharger et installer le paquet .deb
-sudo dpkg -i ocrbookor_1.2.0_amd64.deb
+sudo dpkg -i ocrbookor_1.3.0_amd64.deb
 sudo apt-get install -f
 
 # Lancer OCRBookor
 ocrbookor
 ```
 
-### 🌟 Fonctionnalités v1.2.0
-- 🍔 **Menu Hamburger Catégorisé** (9 catégories avec recherche temps réel).
-- ⚙️ **Paramètres Système** (Date de sortie au 1er Novembre 2026, vérification en direct des mises à jour).
-- 🌓 **Double Thème Clair & Sombre** persistant.
-- ⚖️ **Mentions Légales & Décharge de Responsabilité** intégrées à l'onboarding.
-- 💡 **Infobulles et Guides Novices** sur l'ensemble des écrans et paramètres.
-- 📖 **Export EPUB 3 Strict & Typographie Française** de l'Imprimerie Nationale.
+### 🌟 Nouveautés de la Version v1.3.0
+- 🌐 **Internationalisation Complète (i18n) :** Application intégralement bilingue (Français & Anglais) avec sélecteur `FR / EN` dynamique et persistance locale.
+- 📱 **Landing Page PWA en Anglais :** Version anglaise autonome (`/en`) déployable sur Cloudflare Pages avec routage automatique et mise en cache hors-ligne.
+- 🚀 **Script d'installation `curl` :** Déploiement automatisé sans téléchargement manuel préalable.
+- 📚 **Documentation Bilingue :** `README.en.md`, en-tête multilingue du `README.md` et rapport `docs/INTERNATIONALIZATION_EN_REPORT.md`.
+- 🧪 **Suite de tests i18n automatisée :** Validation de parité à 100% (444 clés vérifiées).
 EOF
 )
 

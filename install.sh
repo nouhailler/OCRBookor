@@ -6,7 +6,7 @@
 set -euo pipefail
 
 REPO="nouhailler/OCRBookor"
-DEFAULT_VERSION="1.2.0"
+DEFAULT_VERSION="1.3.0"
 DEB_NAME="ocrbookor_${DEFAULT_VERSION}_amd64.deb"
 TEMP_DEB="/tmp/${DEB_NAME}"
 

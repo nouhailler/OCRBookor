@@ -199,7 +199,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
           label: isFr ? 'Paquet Linux Debian (.deb)' : 'Linux Debian Package (.deb)',
           description: isFr ? 'Télécharger le binaire natif pour bureau Debian 13 / Ubuntu' : 'Download native standalone binary for Debian 13 / Ubuntu',
           action: () => {
-            window.location.href = '/releases/ocrbookor_1.2.0_amd64.deb';
+            window.location.href = '/releases/ocrbookor_1.3.0_amd64.deb';
           },
           badge: 'Desktop',
         },

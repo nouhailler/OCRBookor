@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Tag name for the release (e.g. v1.2.0)'
+        description: 'Tag name for the release (e.g. v1.3.0)'
         required: true
-        default: 'v1.2.0'
+        default: 'v1.3.0'
 
 permissions:
   contents: write
@@ -64,31 +64,35 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.event.inputs.tag_name || (github.ref_type == 'tag' && github.ref_name) || 'v1.2.0' }}
-          name: OCRBookor ${{ github.event.inputs.tag_name || (github.ref_type == 'tag' && github.ref_name) || 'v1.2.0' }}
+          tag_name: ${{ github.event.inputs.tag_name || (github.ref_type == 'tag' && github.ref_name) || 'v1.3.0' }}
+          name: OCRBookor ${{ github.event.inputs.tag_name || (github.ref_type == 'tag' && github.ref_name) || 'v1.3.0' }}
           body: |
-            ## 🚀 OCRBookor v1.2.0 — Release Officielle Linux Desktop & Web
+            ## 🚀 OCRBookor v1.3.0 — Release Bilingue (FR/EN) & PWA Landing
 
             Application locale de numérisation, reconnaissance OCR et reconstruction éditoriale de livres imprimés vers EPUB 3, Markdown, TXT et HTML.
 
             ### 📦 Fichiers téléchargeables
-            - **`ocrbookor_1.2.0_amd64.deb`** : Paquet d'installation natif Debian / Ubuntu x86_64.
+            - **`ocrbookor_1.3.0_amd64.deb`** : Paquet d'installation natif Debian / Ubuntu x86_64.
             - **`SHA256SUMS.txt`** : Empreintes cryptographiques de vérification d'intégrité.
 
-            ### 🔧 Installation sur Linux (Debian 12/13, Ubuntu 22.04/24.04, Linux Mint)
+            ### ⚡ Installation Express en 1 ligne
             ```bash
-            sudo dpkg -i ocrbookor_1.2.0_amd64.deb
+            curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh | sudo bash
+            ```
+
+            ### 🔧 Installation Manuelle sur Linux Desktop
+            ```bash
+            sudo dpkg -i ocrbookor_1.3.0_amd64.deb
             sudo apt-get install -f
             ocrbookor
             ```
 
-            ### 🌟 Nouveautés v1.2.0
-            - 🍔 **Menu Hamburger Catégorisé** (9 catégories avec recherche en temps réel).
-            - ⚙️ **Paramètres Système** (date de sortie 1er Novembre 2026, vérificateur de mises à jour en direct).
-            - 🌓 **Thème Clair & Thème Sombre** (sélection instantanée et persistante).
-            - ⚖️ **Onboarding Juridique & Décharge de Responsabilité** (protection de l'auteur sur les données importées).
-            - 💡 **Infobulles Interactives & Guides Novices** sur chaque écran et champ.
-            - 🎯 **Conformité EPUB 3 Strict & Typographie Française**.
+            ### 🌟 Nouveautés v1.3.0
+            - 🌐 **Internationalisation Complète (i18n) :** Interface intégrale en français et anglais avec sélecteur instantané.
+            - 📱 **Landing Page PWA Bilingue :** Version anglaise autonome (`/en`) sur Cloudflare Pages avec support hors-ligne.
+            - 🚀 **Script d'installation `curl` :** Automatisation du déploiement binaire sur Debian / Ubuntu.
+            - 📚 **Documentation Bilingue :** `README.en.md` et rapport `docs/INTERNATIONALIZATION_EN_REPORT.md`.
+            - 🧪 **Suite de tests i18n automatisée :** Parité 100% (444 clés vérifiées).
           files: |
             releases/*.deb
             releases/SHA256SUMS.txt

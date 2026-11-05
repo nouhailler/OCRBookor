@@ -28,9 +28,9 @@ interface SystemSettingsModalProps {
   onOpenDocs: (docKey: string) => void;
 }
 
-const APP_VERSION = '1.2.0';
-const RELEASE_DATE_FR = '1er Novembre 2026';
-const RELEASE_DATE_EN = 'November 1, 2026';
+const APP_VERSION = '1.3.0';
+const RELEASE_DATE_FR = '5 Novembre 2026';
+const RELEASE_DATE_EN = 'November 5, 2026';
 const LAST_CHECK_KEY = 'ocrbookor_last_update_check';
 
 export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
@@ -232,7 +232,7 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
             </p>
             <div className="pt-1 flex flex-wrap items-center justify-between gap-2">
               <span className="text-[10px] text-slate-500">
-                {isFr ? 'Fichier :' : 'File:'} <code className="font-mono text-indigo-600 dark:text-indigo-400">ocrbookor_1.2.0_amd64.deb</code>
+                {isFr ? 'Fichier :' : 'File:'} <code className="font-mono text-indigo-600 dark:text-indigo-400">ocrbookor_1.3.0_amd64.deb</code>
               </span>
               <div className="flex items-center gap-2">
                 <a
@@ -245,8 +245,8 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
                   <span>GitHub Releases</span>
                 </a>
                 <a
-                  href="/releases/ocrbookor_1.2.0_amd64.deb"
-                  download="ocrbookor_1.2.0_amd64.deb"
+                  href="/releases/ocrbookor_1.3.0_amd64.deb"
+                  download="ocrbookor_1.3.0_amd64.deb"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-sm transition"
                 >
                   <Download className="w-3.5 h-3.5" />

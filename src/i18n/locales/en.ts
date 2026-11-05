@@ -83,7 +83,7 @@ export const en: Translations = {
     guideToggle: 'Contextual step guide',
   },
   landing: {
-    heroBadge: 'Open-source software suite • v1.2.0 Desktop & PWA',
+    heroBadge: 'Open-source software suite • v1.3.0 Desktop & PWA',
     heroTitlePart1: 'Give a digital second life',
     heroTitlePart2: 'to your scanned books',
     heroSubtitle: 'OCRBookor turns raw scanned PDFs into structured, high-accuracy digital books, fully compliant with EPUB 3 standards and ready for e-readers or distribution.',

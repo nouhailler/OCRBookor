@@ -70,7 +70,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
               <span className="font-serif text-lg font-bold tracking-tight text-stone-950 dark:text-white flex items-center gap-1.5">
                 OCRBookor
                 <span className="text-[10px] font-sans font-semibold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
-                  v1.2.0
+                  v1.3.0
                 </span>
               </span>
               <span className="text-[10px] text-stone-600 dark:text-stone-300 -mt-0.5 font-medium tracking-wide">
@@ -165,7 +165,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                   className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold bg-amber-700 text-white hover:bg-amber-800 shadow-md hover:shadow-lg transition-all"
                 >
                   <Download className="w-4 h-4" />
-                  {isFr ? 'Télécharger OCRBookor (v1.2.0)' : 'Download OCRBookor (v1.2.0)'}
+                  {isFr ? 'Télécharger OCRBookor (v1.3.0)' : 'Download OCRBookor (v1.3.0)'}
                 </a>
 
                 <a
@@ -189,7 +189,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
               <div className="pt-4 border-t border-stone-200/80 dark:border-stone-800/80 grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
                 <div>
                   <span className="block text-stone-600 dark:text-stone-300 font-medium">{isFr ? 'Version Stable' : 'Stable Version'}</span>
-                  <span className="font-semibold text-stone-800 dark:text-stone-200">{isFr ? 'v1.2.0 (1er Nov. 2026)' : 'v1.2.0 (Nov. 1, 2026)'}</span>
+                  <span className="font-semibold text-stone-800 dark:text-stone-200">{isFr ? 'v1.3.0 (5 Nov. 2026)' : 'v1.3.0 (Nov. 5, 2026)'}</span>
                 </div>
                 <div>
                   <span className="block text-stone-600 dark:text-stone-300 font-medium">{isFr ? 'Paquet Linux Officiel' : 'Official Linux Package'}</span>
@@ -870,7 +870,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                 <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
                   {isFr ? 'Téléchargement Manuel (.deb)' : 'Manual Download (.deb)'}
                 </span>
-                <span className="text-xs font-mono text-stone-600 dark:text-stone-300">v1.2.0 • 2.1 Mo</span>
+                <span className="text-xs font-mono text-stone-600 dark:text-stone-300">v1.3.0 • 2.1 Mo</span>
               </div>
 
               <h3 className="font-serif text-xl font-bold text-stone-900 dark:text-stone-100">
@@ -885,14 +885,14 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
 
               <div className="p-3 bg-stone-900 text-stone-200 rounded-lg text-xs font-mono space-y-1">
                 <div className="text-stone-500">{isFr ? '# Téléchargement & installation' : '# Download & install'}</div>
-                <div>sudo dpkg -i ocrbookor_1.2.0_amd64.deb</div>
+                <div>sudo dpkg -i ocrbookor_1.3.0_amd64.deb</div>
                 <div>sudo apt-get install -f</div>
                 <div>ocrbookor</div>
               </div>
 
               <div className="pt-2 flex flex-col sm:flex-row gap-3">
                 <a
-                  href="https://github.com/nouhailler/OCRBookor/releases/tag/v1.2.0"
+                  href="https://github.com/nouhailler/OCRBookor/releases/tag/v1.3.0"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold bg-amber-700 text-white hover:bg-amber-800 transition"
@@ -902,7 +902,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                 </a>
 
                 <a
-                  href="https://github.com/nouhailler/OCRBookor/raw/main/releases/ocrbookor_1.2.0_amd64.deb"
+                  href="https://github.com/nouhailler/OCRBookor/raw/main/releases/ocrbookor_1.3.0_amd64.deb"
                   className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition"
                 >
                   {isFr ? 'Lien direct binaire' : 'Direct binary link'}
@@ -1031,9 +1031,9 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
               {openFaq === 2 && (
                 <div className="px-4 pb-5 pt-1 sm:px-5 text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed border-t border-stone-100 dark:border-stone-800/60">
                   {isFr ? (
-                    <><strong>Non.</strong> OCRBookor v1.2.0 est conçu pour les textes imprimés (typographie au plomb ancienne ou impressions modernes). La reconnaissance de manuscrits, de partitions musicales ou de formules mathématiques complexes n'est pas prise en charge dans cette version.</>
+                    <><strong>Non.</strong> OCRBookor v1.3.0 est conçu pour les textes imprimés (typographie au plomb ancienne ou impressions modernes). La reconnaissance de manuscrits, de partitions musicales ou de formules mathématiques complexes n'est pas prise en charge dans cette version.</>
                   ) : (
-                    <><strong>No.</strong> OCRBookor v1.2.0 is designed for printed text (lead movable type or modern print). Recognition of manuscripts, musical scores, or complex mathematical formulas is not supported in this version.</>
+                    <><strong>No.</strong> OCRBookor v1.3.0 is designed for printed text (lead movable type or modern print). Recognition of manuscripts, musical scores, or complex mathematical formulas is not supported in this version.</>
                   )}
                 </div>
               )}
@@ -1097,7 +1097,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
               <div className="flex items-center gap-3">
                 <img src="/logo.svg" alt="OCRBookor" className="w-8 h-8" />
                 <span className="font-serif text-lg font-bold text-white tracking-tight">OCRBookor</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-800 text-stone-300">v1.2.0</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-800 text-stone-300">v1.3.0</span>
               </div>
               <p className="text-xs text-stone-400 leading-relaxed max-w-md">
                 {isFr

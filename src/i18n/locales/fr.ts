@@ -83,7 +83,7 @@ export const fr: Translations = {
     guideToggle: 'Guide contextuel d’étape',
   },
   landing: {
-    heroBadge: 'Suite logicielle open-source • v1.2.0 Desktop & PWA',
+    heroBadge: 'Suite logicielle open-source • v1.3.0 Desktop & PWA',
     heroTitlePart1: 'Donnez une seconde vie numérique',
     heroTitlePart2: 'à vos livres scannés',
     heroSubtitle: 'OCRBookor transforme vos scans PDF bruts en véritables livres numériques structurés, océrisés avec précision, conformes EPUB 3 et prêts pour liseuses ou diffusion.',
