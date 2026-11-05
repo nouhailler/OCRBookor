@@ -41,6 +41,8 @@ copyRecursive(sourceDir, outputDir);
 // 3. Vérification des fichiers clés pour Cloudflare Pages & PWA
 const requiredFiles = [
   'index.html',
+  'en.html',
+  'en/index.html',
   'manifest.webmanifest',
   'sw.js',
   '_headers',

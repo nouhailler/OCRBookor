@@ -10,7 +10,6 @@ import {
   Sparkles,
   CheckCircle2,
   AlertCircle,
-  HelpCircle,
   ChevronDown,
   ChevronUp,
   Terminal,
@@ -24,9 +23,7 @@ import {
   Type,
   Maximize2,
   HardDrive,
-  Eye,
   GitBranch,
-  Search,
   BookMarked,
   Copy
 } from 'lucide-react';
@@ -40,7 +37,7 @@ interface LandingViewProps {
 }
 
 export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
-  const { t, language, toggleLanguage } = useTranslation();
+  const { language, toggleLanguage } = useTranslation();
   const isFr = language === 'fr';
 
   // État des accordéons de la FAQ
@@ -77,14 +74,14 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                 </span>
               </span>
               <span className="text-[10px] text-stone-600 dark:text-stone-300 -mt-0.5 font-medium tracking-wide">
-                Numérisation &amp; Reconstruction EPUB 3
+                {isFr ? 'Numérisation & Reconstruction EPUB 3' : 'Digitization & EPUB 3 Reconstruction'}
               </span>
             </div>
           </a>
 
           {/* Navigation rapide ancres desktop */}
           <nav className="hidden lg:flex items-center gap-6 text-xs font-medium text-stone-700 dark:text-stone-200">
-            <a href="#pipeline" className="hover:text-amber-700 dark:hover:text-amber-400 transition">{isFr ? 'Pipeline' : 'Pipeline'}</a>
+            <a href="#pipeline" className="hover:text-amber-700 dark:hover:text-amber-400 transition">Pipeline</a>
             <a href="#fonctionnalites" className="hover:text-amber-700 dark:hover:text-amber-400 transition">{isFr ? 'Fonctionnalités' : 'Features'}</a>
             <a href="#formats" className="hover:text-amber-700 dark:hover:text-amber-400 transition">{isFr ? 'Formats d’Export' : 'Export Formats'}</a>
             <a href="#demonstration" className="hover:text-amber-700 dark:hover:text-amber-400 transition">{isFr ? 'Démonstration' : 'Demo'}</a>
@@ -136,11 +133,11 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                  100% Hors-Ligne &amp; Souverain
+                  {isFr ? '100% Hors-Ligne & Souverain' : '100% Offline & Sovereign'}
                 </span>
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
                   <FileCheck className="w-3.5 h-3.5 text-amber-600" />
-                  IDPF EPUB 3.3 Strict
+                  {isFr ? 'IDPF EPUB 3.3 Strict' : 'Strict IDPF EPUB 3.3'}
                 </span>
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-stone-200/80 text-stone-700 dark:bg-stone-800 dark:text-stone-300">
                   Linux Desktop (.deb) &amp; Web
@@ -149,12 +146,14 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
 
               {/* Titre Principal Éditorial */}
               <h1 className="font-serif text-3xl sm:text-5xl lg:text-5xl font-bold tracking-tight text-stone-950 dark:text-white leading-[1.15]">
-                Du livre scanné au document numérique structuré
+                {isFr ? 'Du livre scanné au document numérique structuré' : 'From scanned books to structured digital documents'}
               </h1>
 
               {/* Paragraphe d'introduction honnête & vérifié */}
               <p className="text-base sm:text-lg text-stone-600 dark:text-stone-300 leading-relaxed max-w-2xl">
-                OCRBookor vous accompagne dans la transformation de livres numérisés en PDF en documents numériques reconnus, reconstruits et exploitables. Découvrez une suite logicielle conçue pour faciliter le traitement et la valorisation des livres scannés, sans dépendance au cloud.
+                {isFr
+                  ? "OCRBookor vous accompagne dans la transformation de livres numérisés en PDF en documents numériques reconnus, reconstruits et exploitables. Découvrez une suite logicielle conçue pour faciliter le traitement et la valorisation des livres scannés, sans dépendance au cloud."
+                  : "OCRBookor guides you through transforming scanned PDF books into recognized, reconstructed, and fully exploitable digital documents. Experience a software suite crafted to process and preserve heritage printed books without cloud dependencies."}
               </p>
 
               {/* Actions principales */}
@@ -166,14 +165,14 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                   className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold bg-amber-700 text-white hover:bg-amber-800 shadow-md hover:shadow-lg transition-all"
                 >
                   <Download className="w-4 h-4" />
-                  Télécharger OCRBookor (v1.2.0)
+                  {isFr ? 'Télécharger OCRBookor (v1.2.0)' : 'Download OCRBookor (v1.2.0)'}
                 </a>
 
                 <a
                   href="#pipeline"
                   className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-medium border border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800/60 transition"
                 >
-                  Découvrir le fonctionnement
+                  {isFr ? 'Découvrir le fonctionnement' : 'Explore Workflow'}
                   <ArrowRight className="w-4 h-4 text-stone-400" />
                 </a>
 
@@ -182,23 +181,23 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                   className="inline-flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium text-stone-700 dark:text-stone-300 hover:text-amber-700 dark:hover:text-amber-400 hover:bg-stone-100/50 dark:hover:bg-stone-800/40 transition"
                 >
                   <Laptop className="w-4 h-4 text-stone-400" />
-                  Tester l'application Web
+                  {isFr ? "Tester l'application Web" : 'Test Web Application'}
                 </button>
               </div>
 
               {/* Métadonnées de version & prérequis vérifiés */}
               <div className="pt-4 border-t border-stone-200/80 dark:border-stone-800/80 grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
                 <div>
-                  <span className="block text-stone-600 dark:text-stone-300 font-medium">Version Stable</span>
-                  <span className="font-semibold text-stone-800 dark:text-stone-200">v1.2.0 (1er Nov. 2026)</span>
+                  <span className="block text-stone-600 dark:text-stone-300 font-medium">{isFr ? 'Version Stable' : 'Stable Version'}</span>
+                  <span className="font-semibold text-stone-800 dark:text-stone-200">{isFr ? 'v1.2.0 (1er Nov. 2026)' : 'v1.2.0 (Nov. 1, 2026)'}</span>
                 </div>
                 <div>
-                  <span className="block text-stone-600 dark:text-stone-300 font-medium">Paquet Linux Officiel</span>
+                  <span className="block text-stone-600 dark:text-stone-300 font-medium">{isFr ? 'Paquet Linux Officiel' : 'Official Linux Package'}</span>
                   <span className="font-semibold text-stone-800 dark:text-stone-200">Debian / Ubuntu (.deb)</span>
                 </div>
                 <div>
-                  <span className="block text-stone-600 dark:text-stone-300 font-medium">Licence</span>
-                  <span className="font-semibold text-stone-800 dark:text-stone-200">Apache 2.0 / Libre</span>
+                  <span className="block text-stone-600 dark:text-stone-300 font-medium">{isFr ? 'Licence' : 'License'}</span>
+                  <span className="font-semibold text-stone-800 dark:text-stone-200">{isFr ? 'Apache 2.0 / Libre' : 'Apache 2.0 / Open Source'}</span>
                 </div>
               </div>
 
@@ -209,24 +208,24 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
               <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-stone-300/80 dark:border-stone-800 bg-stone-900 group">
                 <img
                   src="/docs/images/screenshot.jpg"
-                  alt="Capture authentique d'OCRBookor : Éditeur Bi-Fenêtre avec scan de Buffon et reconnaissance Tesseract"
+                  alt="Authentic screenshot of OCRBookor"
                   className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-[1.01]"
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-stone-950/80 via-transparent to-transparent pointer-events-none" />
                 <div className="absolute bottom-3 left-3 right-3 p-3 rounded-lg bg-stone-950/80 backdrop-blur-xs border border-stone-800 text-[11px] text-stone-300 flex items-center justify-between">
                   <div>
-                    <span className="font-bold text-white block">Écran 4 : Éditeur Bi-Fenêtre Synchronisé</span>
-                    <span className="text-stone-400">Scan historique vs texte océrisé avec indices de certitude</span>
+                    <span className="font-bold text-white block">{isFr ? 'Écran 4 : Éditeur Bi-Fenêtre Synchronisé' : 'Screen 4: Synchronized Dual-Pane Editor'}</span>
+                    <span className="text-stone-400">{isFr ? 'Scan historique vs texte océrisé avec indices de certitude' : 'Historical scan vs OCR text with confidence ratings'}</span>
                   </div>
                   <span className="px-2 py-0.5 rounded bg-emerald-900/60 text-emerald-300 font-mono text-[10px] border border-emerald-700">
-                    Confiance 98.7%
+                    {isFr ? 'Confiance 98.7%' : '98.7% Confidence'}
                   </span>
                 </div>
               </div>
 
               {/* Note de véracité documentaire */}
               <p className="mt-2 text-center text-[11px] text-stone-600 dark:text-stone-300 italic">
-                Capture réelle du logiciel en situation de relecture sur une édition de 1778.
+                {isFr ? 'Capture réelle du logiciel en situation de relecture sur une édition de 1778.' : 'Actual screenshot of the software during proofreading of a 1778 edition.'}
               </p>
             </div>
 
@@ -243,13 +242,15 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
           
           <div className="text-center max-w-3xl mx-auto space-y-3">
             <span className="text-xs font-serif font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">
-              Le constat documentaire
+              {isFr ? 'Le constat documentaire' : 'Documentary Assessment'}
             </span>
             <h2 className="font-serif text-2xl sm:text-4xl font-bold text-stone-950 dark:text-white">
-              Pourquoi un PDF scanné ne suffit pas
+              {isFr ? 'Pourquoi un PDF scanné ne suffit pas' : 'Why a scanned PDF is not enough'}
             </h2>
             <p className="text-sm sm:text-base text-stone-600 dark:text-stone-400 leading-relaxed">
-              La numérisation brute d’un ouvrage produit le plus souvent un fichier PDF contenant uniquement des photographies de pages. Sans traitement adapté, ces documents posent des limites majeures.
+              {isFr
+                ? 'La numérisation brute d’un ouvrage produit le plus souvent un fichier PDF contenant uniquement des photographies de pages. Sans traitement adapté, ces documents posent des limites majeures.'
+                : 'Raw scanning of a book usually produces a PDF containing only page photographs. Without proper processing, these documents present major limitations.'}
             </p>
           </div>
 
@@ -260,10 +261,12 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                 1
               </div>
               <h3 className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100">
-                Texte inerte &amp; recherche impossible
+                {isFr ? 'Texte inerte & recherche impossible' : 'Inert text & impossible search'}
               </h3>
               <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
-                Le texte ne peut pas être sélectionné, copié ou indexé. Les synthèses vocales et liseuses électroniques ne peuvent pas le lire, et les moteurs de recherche restent aveugles face aux images brutes.
+                {isFr
+                  ? 'Le texte ne peut pas être sélectionné, copié ou indexé. Les synthèses vocales et liseuses électroniques ne peuvent pas le lire, et les moteurs de recherche restent aveugles face aux images brutes.'
+                  : 'Text cannot be selected, copied, or indexed. Text-to-speech and e-readers cannot read it, and search engines remain blind to raw images.'}
               </p>
             </div>
 
@@ -272,10 +275,12 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                 2
               </div>
               <h3 className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100">
-                Défauts physiques &amp; inclinaison
+                {isFr ? 'Défauts physiques & inclinaison' : 'Physical flaws & skew'}
               </h3>
               <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
-                Les pages scannées souffrent souvent d'inclinaison (*skew*), de courbure de reliure, de taches d'encre ou d'un contraste affaibli par le jaunissement du papier d'époque.
+                {isFr
+                  ? "Les pages scannées souffrent souvent d'inclinaison (skew), de courbure de reliure, de taches d'encre ou d'un contraste affaibli par le jaunissement du papier d'époque."
+                  : "Scanned pages often suffer from rotation skew, binding curve distortion, ink smudges, or contrast degraded by yellowed aged paper."}
               </p>
             </div>
 
@@ -284,10 +289,12 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                 3
               </div>
               <h3 className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100">
-                Césures brisées &amp; typographie dégradée
+                {isFr ? 'Césures brisées & typographie dégradée' : 'Broken hyphens & degraded typography'}
               </h3>
               <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
-                Une extraction brute découpe les mots en fin de ligne (ex. « dé- » / « veloppement ») et ignore les règles typographiques françaises (espaces insécables devant la ponctuation double, guillemets cadratins, ligatures).
+                {isFr
+                  ? "Une extraction brute découpe les mots en fin de ligne (ex. « dé- » / « veloppement ») et ignore les règles typographiques françaises (espaces insécables devant la ponctuation double, guillemets cadratins, ligatures)."
+                  : "Raw extraction breaks words at line ends (e.g., 'trans-' / 'formation') and ignores typographic rules (non-breaking spaces, quotation marks, ligatures)."}
               </p>
             </div>
 
@@ -296,10 +303,12 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                 ✓
               </div>
               <h3 className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100">
-                La réponse d'OCRBookor
+                {isFr ? "La réponse d'OCRBookor" : 'The OCRBookor solution'}
               </h3>
               <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
-                OCRBookor applique un pipeline rigoureux : analyse de la résolution DPI, redressement automatique, binarisation Otsu, détection des césures, correction bi-fenêtre et structuration en EPUB 3 et Markdown.
+                {isFr
+                  ? 'OCRBookor applique un pipeline rigoureux : analyse de la résolution DPI, redressement automatique, binarisation Otsu, détection des césures, correction bi-fenêtre et structuration en EPUB 3 et Markdown.'
+                  : 'OCRBookor applies a rigorous pipeline: DPI resolution analysis, automatic deskewing, Otsu binarization, dehyphenation, dual-pane correction, and structuring into EPUB 3 and Markdown.'}
               </p>
             </div>
 
@@ -309,8 +318,10 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
           <div className="mt-8 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/70 dark:border-amber-900/50 flex items-start gap-3 text-xs text-amber-900 dark:text-amber-200">
             <AlertCircle className="w-5 h-5 shrink-0 text-amber-700 dark:text-amber-400 mt-0.5" />
             <div>
-              <span className="font-bold">Périmètre technique vérifié : </span>
-              OCRBookor est optimisé pour les <strong>textes imprimés</strong> (caractères au plomb ou impression moderne). Il ne prend pas en charge les écritures manuscrites cursives ni les formules mathématiques complexes. La qualité du texte final dépend de la résolution du scan source et requiert une étape de vérification humaine que le logiciel facilite grâce à son éditeur bi-fenêtre.
+              <span className="font-bold">{isFr ? 'Périmètre technique vérifié : ' : 'Verified technical scope: '}</span>
+              {isFr
+                ? "OCRBookor est optimisé pour les textes imprimés (caractères au plomb ou impression moderne). Il ne prend pas en charge les écritures manuscrites cursives ni les formules mathématiques complexes. La qualité du texte final dépend de la résolution du scan source et requiert une étape de vérification humaine que le logiciel facilite grâce à son éditeur bi-fenêtre."
+                : "OCRBookor is optimized for printed books (movable type or modern print). It does not handle cursive handwriting or complex mathematical formulas. Final text quality depends on source scan resolution and benefits from human verification, made seamless by the dual-pane editor."}
             </div>
           </div>
 
@@ -325,13 +336,15 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
           
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
             <span className="text-xs font-serif font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">
-              Méthodologie Documentaire
+              {isFr ? 'Méthodologie Documentaire' : 'Documentary Methodology'}
             </span>
             <h2 className="font-serif text-2xl sm:text-4xl font-bold text-stone-950 dark:text-white">
-              Comment fonctionne OCRBookor ?
+              {isFr ? 'Comment fonctionne OCRBookor ?' : 'How does OCRBookor work?'}
             </h2>
             <p className="text-sm sm:text-base text-stone-600 dark:text-stone-400 leading-relaxed">
-              Un pipeline complet articulé autour de 5 étapes vérifiables dans le code source de l’application.
+              {isFr
+                ? "Un pipeline complet articulé autour de 5 étapes vérifiables dans le code source de l’application."
+                : 'A complete pipeline structured around 5 verifiable steps in the application source code.'}
             </p>
           </div>
 
@@ -343,10 +356,10 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
               <span className="text-xs font-mono font-bold text-amber-700 dark:text-amber-400">01 / 05</span>
               <h3 className="font-serif text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
                 <HardDrive className="w-4 h-4 text-stone-500" />
-                Importer
+                {isFr ? 'Importer' : 'Import'}
               </h3>
               <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                Glisser-déposer de livres scannés au format PDF. Détection du nombre de pages et analyse du flux d'images.
+                {isFr ? "Glisser-déposer de livres scannés au format PDF. Détection du nombre de pages et analyse du flux d'images." : 'Drag and drop scanned PDF books. Page count detection and image stream inspection.'}
               </p>
             </div>
 
@@ -355,10 +368,10 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
               <span className="text-xs font-mono font-bold text-amber-700 dark:text-amber-400">02 / 05</span>
               <h3 className="font-serif text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
                 <Sliders className="w-4 h-4 text-stone-500" />
-                Analyser
+                {isFr ? 'Analyser' : 'Analyze'}
               </h3>
               <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                Calcul de la résolution réelle (DPI), redressement d'angle (Deskew) et binarisation adaptative par méthode d'Otsu.
+                {isFr ? "Calcul de la résolution réelle (DPI), redressement d'angle (Deskew) et binarisation adaptative par méthode d'Otsu." : 'Real DPI resolution calculation, angle deskewing, and adaptive Otsu binarization.'}
               </p>
             </div>
 
@@ -367,10 +380,10 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
               <span className="text-xs font-mono font-bold text-amber-700 dark:text-amber-400">03 / 05</span>
               <h3 className="font-serif text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
                 <Cpu className="w-4 h-4 text-stone-500" />
-                Reconnaître
+                {isFr ? 'Reconnaître' : 'Recognize'}
               </h3>
               <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                Moteur Tesseract v5 en WebAssembly ou CLI. Calcul de la confiance au mot près et extraction des coordonnées spatiales.
+                {isFr ? "Moteur Tesseract v5 en WebAssembly ou CLI. Calcul de la confiance au mot près et extraction des coordonnées spatiales." : 'Tesseract v5 engine in WebAssembly or native CLI. Word-level confidence calculation and bounding box extraction.'}
               </p>
             </div>
 
@@ -379,10 +392,10 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
               <span className="text-xs font-mono font-bold text-amber-700 dark:text-amber-400">04 / 05</span>
               <h3 className="font-serif text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
                 <Type className="w-4 h-4 text-stone-500" />
-                Reconstruire
+                {isFr ? 'Reconstruire' : 'Reconstruct'}
               </h3>
               <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                Recollage des césures de bout de ligne, règles typographiques françaises (espaces insécables, guillemets, ligatures).
+                {isFr ? "Recollage des césures de bout de ligne, règles typographiques françaises (espaces insécables, guillemets, ligatures)." : 'Rejoining line-wrap hyphenated words, publishing typography rules (non-breaking spaces, guillemets, ligatures).'}
               </p>
             </div>
 
@@ -391,10 +404,10 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
               <span className="text-xs font-mono font-bold text-amber-700 dark:text-amber-400">05 / 05</span>
               <h3 className="font-serif text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
                 <BookOpen className="w-4 h-4 text-stone-500" />
-                Exporter
+                {isFr ? 'Exporter' : 'Export'}
               </h3>
               <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                Génération d'EPUB 3 conforme W3C/IDPF, Markdown avec métadonnées Dublin Core, HTML5 autonome et texte brut UTF-8.
+                {isFr ? "Génération d'EPUB 3 conforme W3C/IDPF, Markdown avec métadonnées Dublin Core, HTML5 autonome et texte brut UTF-8." : 'Generation of W3C/IDPF compliant EPUB 3, Markdown with Dublin Core metadata, standalone HTML5, and UTF-8 plain text.'}
               </p>
             </div>
 
@@ -416,13 +429,13 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
           
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
             <span className="text-xs font-serif font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">
-              Capacités Vérifiées
+              {isFr ? 'Capacités Vérifiées' : 'Verified Capabilities'}
             </span>
             <h2 className="font-serif text-2xl sm:text-4xl font-bold text-stone-950 dark:text-white">
-              Une suite logicielle complète &amp; spécialisée
+              {isFr ? 'Une suite logicielle complète & spécialisée' : 'A complete & specialized software suite'}
             </h2>
             <p className="text-sm sm:text-base text-stone-600 dark:text-stone-400 leading-relaxed">
-              Toutes les fonctionnalités ci-dessous sont implémentées et testées dans le dépôt officiel.
+              {isFr ? 'Toutes les fonctionnalités ci-dessous sont implémentées et testées dans le dépôt officiel.' : 'All features below are implemented and tested in the official repository.'}
             </p>
           </div>
 
@@ -434,10 +447,10 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <h3 className="font-serif text-base font-bold text-stone-900 dark:text-stone-100">
-                100% Souverain &amp; Hors-Ligne
+                {isFr ? '100% Souverain & Hors-Ligne' : '100% Sovereign & Offline'}
               </h3>
               <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                Aucun document n'est transmis à un serveur distant. Vos livres, archives privées ou documents patrimoniaux restent strictement sur votre machine.
+                {isFr ? "Aucun document n'est transmis à un serveur distant. Vos livres, archives privées ou documents patrimoniaux restent strictement sur votre machine." : 'No document is ever transmitted to a remote server. Your books, private archives, and heritage documents remain strictly on your machine.'}
               </p>
             </div>
 
@@ -447,10 +460,10 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                 <Layers className="w-5 h-5" />
               </div>
               <h3 className="font-serif text-base font-bold text-stone-900 dark:text-stone-100">
-                Éditeur Bi-Fenêtre Synchronisé
+                {isFr ? 'Éditeur Bi-Fenêtre Synchronisé' : 'Synchronized Dual-Pane Editor'}
               </h3>
               <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                Le scan haute résolution avec zoom et calque de coordonnées à gauche fait face au texte éditable à droite, avec surlignage des mots à faible confiance.
+                {isFr ? "Le scan haute résolution avec zoom et calque de coordonnées à gauche fait face au texte éditable à droite, avec surlignage des mots à faible confiance." : 'High-resolution zoomable scan with coordinate overlay on the left faces the editable text pane on the right, highlighting low-confidence words.'}
               </p>
             </div>
 
@@ -460,10 +473,14 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                 <Type className="w-5 h-5" />
               </div>
               <h3 className="font-serif text-base font-bold text-stone-900 dark:text-stone-100">
-                Normes Imprimerie Nationale
+                {isFr ? 'Normes Imprimerie Nationale' : 'Editorial Typography Standards'}
               </h3>
               <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                Application automatique des espaces insécables devant <code>! ? ; : % €</code>, des guillemets français <code>« »</code> et des ligatures <code>œ</code> et <code>æ</code>.
+                {isFr ? (
+                  <>Application automatique des espaces insécables devant <code>! ? ; : % €</code>, des guillemets français <code>« »</code> et des ligatures <code>œ</code> et <code>æ</code>.</>
+                ) : (
+                  <>Automatic non-breaking spaces before <code>! ? ; : % €</code>, French guillemets <code>« »</code>, and ligatures <code>œ</code> and <code>æ</code>.</>
+                )}
               </p>
             </div>
 
@@ -473,10 +490,10 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                 <Sparkles className="w-5 h-5" />
               </div>
               <h3 className="font-serif text-base font-bold text-stone-900 dark:text-stone-100">
-                Dé-césure Intelligente
+                {isFr ? 'Dé-césure Intelligente' : 'Smart Dehyphenation'}
               </h3>
               <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                Ressoude les mots coupés en fin de ligne tout en préservant les mots composés légitimes grâce à un dictionnaire lexical de contrôle.
+                {isFr ? 'Ressoude les mots coupés en fin de ligne tout en préservant les mots composés légitimes grâce à un dictionnaire lexical de contrôle.' : 'Rejoins words split at line ends while preserving legitimate compound words using a control lexical dictionary.'}
               </p>
             </div>
 
@@ -486,10 +503,10 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                 <Maximize2 className="w-5 h-5" />
               </div>
               <h3 className="font-serif text-base font-bold text-stone-900 dark:text-stone-100">
-                Gravures &amp; Illustrations
+                {isFr ? 'Gravures & Illustrations' : 'Engravings & Illustrations'}
               </h3>
               <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                Extraction des planches et illustrations avec gestionnaire de légendes et intégration propre dans le livre numérique final.
+                {isFr ? "Extraction des planches et illustrations avec gestionnaire de légendes et intégration propre dans le livre numérique final." : 'Extraction of plates and illustrations with caption management and clean integration into the final digital book.'}
               </p>
             </div>
 
@@ -499,10 +516,10 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                 <BookMarked className="w-5 h-5" />
               </div>
               <h3 className="font-serif text-base font-bold text-stone-900 dark:text-stone-100">
-                Structure &amp; Dublin Core
+                {isFr ? 'Structure & Dublin Core' : 'Structure & Dublin Core'}
               </h3>
               <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                Organisation en chapitres (H1, H2, H3) et saisie des métadonnées normalisées (Titre, Auteur, Année, Identifiant UUID, Éditeur).
+                {isFr ? 'Organisation en chapitres (H1, H2, H3) et saisie des métadonnées normalisées (Titre, Auteur, Année, Identifiant UUID, Éditeur).' : 'Organization into chapters (H1, H2, H3) and standard metadata entry (Title, Author, Year, UUID Identifier, Publisher).'}
               </p>
             </div>
 
@@ -519,13 +536,13 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
           
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
             <span className="text-xs font-serif font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">
-              Diffusion &amp; Archivage
+              {isFr ? 'Diffusion & Archivage' : 'Distribution & Archiving'}
             </span>
             <h2 className="font-serif text-2xl sm:text-4xl font-bold text-stone-950 dark:text-white">
-              Les documents obtenus avec OCRBookor
+              {isFr ? 'Les documents obtenus avec OCRBookor' : 'Documents produced with OCRBookor'}
             </h2>
             <p className="text-sm sm:text-base text-stone-600 dark:text-stone-400 leading-relaxed">
-              Des livrables standardisés, prêts pour la lecture sur liseuse, l'édition dans Obsidian ou l'indexation de recherche.
+              {isFr ? "Des livrables standardisés, prêts pour la lecture sur liseuse, l'édition dans Obsidian ou l'indexation de recherche." : 'Standardized deliverables ready for e-reader reading, editing in Obsidian, or search indexing.'}
             </p>
           </div>
 
@@ -534,14 +551,18 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
             {/* Format 1 : EPUB 3 */}
             <div className="p-6 rounded-2xl bg-white dark:bg-stone-900 border-2 border-amber-600/30 dark:border-amber-500/30 shadow-md space-y-3 relative overflow-hidden">
               <div className="absolute top-3 right-3 px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 text-[10px] font-bold uppercase">
-                Recommandé
+                {isFr ? 'Recommandé' : 'Recommended'}
               </div>
               <FileCheck className="w-8 h-8 text-amber-700 dark:text-amber-400" />
               <h3 className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100">
                 EPUB 3.3 Strict
               </h3>
               <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                Archive conforme IDPF avec <code>mimetype</code> non compressé, <code>content.opf</code>, navigation <code>nav.xhtml</code> et feuille de style typographique. Compatible Kobo, Tolino, Calibre et Apple Books.
+                {isFr ? (
+                  <>Archive conforme IDPF avec <code>mimetype</code> non compressé, <code>content.opf</code>, navigation <code>nav.xhtml</code> et feuille de style typographique. Compatible Kobo, Tolino, Calibre et Apple Books.</>
+                ) : (
+                  <>IDPF-compliant archive with uncompressed <code>mimetype</code>, <code>content.opf</code>, <code>nav.xhtml</code> navigation, and typographic stylesheet. Compatible with Kobo, Tolino, Calibre, and Apple Books.</>
+                )}
               </p>
             </div>
 
@@ -552,7 +573,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                 Markdown (.md)
               </h3>
               <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                Fichier textuel enrichi d’un frontmatter YAML Dublin Core. Idéal pour intégration dans Obsidian, Logseq, Zotero, Notion ou un dépôt Git.
+                {isFr ? 'Fichier textuel enrichi d’un frontmatter YAML Dublin Core. Idéal pour intégration dans Obsidian, Logseq, Zotero, Notion ou un dépôt Git.' : 'Text file enriched with Dublin Core YAML frontmatter. Ideal for Obsidian, Logseq, Zotero, Notion, or Git repositories.'}
               </p>
             </div>
 
@@ -560,10 +581,10 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
             <div className="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-3">
               <Globe className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
               <h3 className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100">
-                HTML 5 Autonome
+                {isFr ? 'HTML 5 Autonome' : 'HTML 5 Ready'}
               </h3>
               <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                Page web autonome auto-suffisante avec mise en page responsive, polices à empattements et styles typographiques pour consultation immédiate.
+                {isFr ? 'Page web autonome auto-suffisante avec mise en page responsive, polices à empattements et styles typographiques pour consultation immédiate.' : 'Self-contained standalone web page with responsive layout, serif fonts, and typographic styles for instant consultation.'}
               </p>
             </div>
 
@@ -571,17 +592,21 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
             <div className="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-3">
               <FileText className="w-8 h-8 text-stone-600 dark:text-stone-400" />
               <h3 className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100">
-                Texte Brut UTF-8 (.txt)
+                {isFr ? 'Texte Brut UTF-8 (.txt)' : 'Plain Text (.txt)'}
               </h3>
               <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                Encodage UTF-8 universel avec paragraphes régularisés, idéal pour l'analyse lexicale, les modèles de langage ou l'archivage pérenne.
+                {isFr ? "Encodage UTF-8 universel avec paragraphes régularisés, idéal pour l'analyse lexicale, les modèles de langage ou l'archivage pérenne." : 'Universal UTF-8 encoding with normalized paragraphs, ideal for text analysis, language models, or long-term archiving.'}
               </p>
             </div>
 
           </div>
 
           <div className="mt-8 text-center text-xs text-stone-600 dark:text-stone-300">
-            * OCRBookor produit également un fichier <strong>book.json</strong> pour sauvegarder l'intégralité du projet (coordonnées des mots, calques OCR et corrections) pour reprise ultérieure.
+            {isFr ? (
+              <>* OCRBookor produit également un fichier <strong>book.json</strong> pour sauvegarder l'intégralité du projet (coordonnées des mots, calques OCR et corrections) pour reprise ultérieure.</>
+            ) : (
+              <>* OCRBookor also generates a <strong>book.json</strong> file to save the full project state (word coordinates, OCR layers, and corrections) for later resumption.</>
+            )}
           </div>
 
         </div>
@@ -595,13 +620,13 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
           
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
             <span className="text-xs font-serif font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">
-              Cas d’Usage Réels
+              {isFr ? 'Cas d’Usage Réels' : 'Real-World Use Cases'}
             </span>
             <h2 className="font-serif text-2xl sm:text-4xl font-bold text-stone-950 dark:text-white">
-              À qui s’adresse OCRBookor ?
+              {isFr ? 'À qui s’adresse OCRBookor ?' : 'Who is OCRBookor for?'}
             </h2>
             <p className="text-sm sm:text-base text-stone-600 dark:text-stone-400 leading-relaxed">
-              Une conception pensée pour les professionnels et passionnés du texte écrit.
+              {isFr ? 'Une conception pensée pour les professionnels et passionnés du texte écrit.' : 'Designed for professionals and enthusiasts of printed heritage.'}
             </p>
           </div>
 
@@ -609,28 +634,28 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
             
             <div className="p-6 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-3">
               <h3 className="font-serif text-base font-bold text-stone-900 dark:text-stone-100">
-                Chercheurs &amp; Historiens
+                {isFr ? 'Chercheurs & Historiens' : 'Researchers & Historians'}
               </h3>
               <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                Traitement de sources primaires numérisées, archives et traités anciens avec extraction plein texte vérifiable et citation facilitée dans les travaux académiques.
+                {isFr ? 'Traitement de sources primaires numérisées, archives et traités anciens avec extraction plein texte vérifiable et citation facilitée dans les travaux académiques.' : 'Processing digitized primary sources, archives, and historical treatises with verifiable full-text extraction and easier academic citation.'}
               </p>
             </div>
 
             <div className="p-6 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-3">
               <h3 className="font-serif text-base font-bold text-stone-900 dark:text-stone-100">
-                Bibliophiles &amp; Collectionneurs
+                {isFr ? 'Bibliophiles & Collectionneurs' : 'Bibliophiles & Collectors'}
               </h3>
               <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                Transformation de scans d'ouvrages rares ou épuisés du domaine public en livres numériques confortables à lire sur liseuse électronique.
+                {isFr ? "Transformation de scans d'ouvrages rares ou épuisés du domaine public en livres numériques confortables à lire sur liseuse électronique." : 'Transforming scans of rare or out-of-print public domain books into comfortable e-books on electronic readers.'}
               </p>
             </div>
 
             <div className="p-6 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-3">
               <h3 className="font-serif text-base font-bold text-stone-900 dark:text-stone-100">
-                Archivistes &amp; Documentalistes
+                {isFr ? 'Archivistes & Documentalistes' : 'Archivists & Document Librarians'}
               </h3>
               <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                Numérisation et océrisation souveraine sans abonnement cloud, sans dépendance réseau et avec préservation des métadonnées bibliographiques.
+                {isFr ? 'Numérisation et océrisation souveraine sans abonnement cloud, sans dépendance réseau et avec préservation des métadonnées bibliographiques.' : 'Sovereign digitization and OCR without cloud subscriptions, without network dependencies, and preserving bibliographic metadata.'}
               </p>
             </div>
 
@@ -647,13 +672,13 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
           
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
             <span className="text-xs font-serif font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">
-              Engagements &amp; Rigueur
+              {isFr ? 'Engagements & Rigueur' : 'Commitments & Rigor'}
             </span>
             <h2 className="font-serif text-2xl sm:text-4xl font-bold text-stone-950 dark:text-white">
-              Pourquoi choisir OCRBookor ?
+              {isFr ? 'Pourquoi choisir OCRBookor ?' : 'Why choose OCRBookor?'}
             </h2>
             <p className="text-sm sm:text-base text-stone-600 dark:text-stone-400 leading-relaxed">
-              Une suite documentaire construite sur des bases techniques éprouvées et transparentes.
+              {isFr ? 'Une suite documentaire construite sur des bases techniques éprouvées et transparentes.' : 'A documentary suite built on proven, transparent technical foundations.'}
             </p>
           </div>
 
@@ -663,10 +688,10 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
               <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
               <div>
                 <h3 className="font-bold text-sm text-stone-900 dark:text-stone-100">
-                  Indépendance totale vis-à-vis des services cloud
+                  {isFr ? 'Indépendance totale vis-à-vis des services cloud' : 'Complete independence from cloud services'}
                 </h3>
                 <p className="text-xs text-stone-600 dark:text-stone-400 mt-1">
-                  Tous les calculs (redressement, seuillage, OCR, dé-césure, export) s'exécutent sur votre propre matériel. Aucune création de compte, aucun quota de pages, aucun coût d'API.
+                  {isFr ? "Tous les calculs (redressement, seuillage, OCR, dé-césure, export) s'exécutent sur votre propre matériel. Aucune création de compte, aucun quota de pages, aucun coût d'API." : 'All computations (deskewing, thresholding, OCR, dehyphenation, export) run strictly on your own hardware. No account creation, no page quotas, no API costs.'}
                 </p>
               </div>
             </div>
@@ -675,10 +700,10 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
               <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
               <div>
                 <h3 className="font-bold text-sm text-stone-900 dark:text-stone-100">
-                  Respect des règles d'édition françaises
+                  {isFr ? "Respect des règles d'édition françaises" : 'Respect for publication typography rules'}
                 </h3>
                 <p className="text-xs text-stone-600 dark:text-stone-400 mt-1">
-                  Contrairement aux outils OCR génériques internationaux, OCRBookor intègre les finesses de la typographie française pour éviter les lignes orphelines et les signes de ponctuation mal placés.
+                  {isFr ? "Contrairement aux outils OCR génériques internationaux, OCRBookor intègre les finesses de la typographie française pour éviter les lignes orphelines et les signes de ponctuation mal placés." : 'Unlike generic OCR tools, OCRBookor respects editorial typography subtleties to avoid orphan lines, broken quotes, and misplaced punctuation.'}
                 </p>
               </div>
             </div>
@@ -687,10 +712,10 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
               <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
               <div>
                 <h3 className="font-bold text-sm text-stone-900 dark:text-stone-100">
-                  Transparence scientifique des métriques
+                  {isFr ? 'Transparence scientifique des métriques' : 'Scientific transparency of metrics'}
                 </h3>
                 <p className="text-xs text-stone-600 dark:text-stone-400 mt-1">
-                  Le logiciel refuse d'inventer des taux de précision fictifs : les métriques CER (Character Error Rate) et WER (Word Error Rate) ne sont calculées que si vous fournissez une transcription de référence certifiée.
+                  {isFr ? "Le logiciel refuse d'inventer des taux de précision fictifs : les métriques CER (Character Error Rate) et WER (Word Error Rate) ne sont calculées que si vous fournissez une transcription de référence certifiée." : 'The software refuses to invent fictitious accuracy rates: CER (Character Error Rate) and WER (Word Error Rate) metrics are only computed when a certified reference ground truth is provided.'}
                 </p>
               </div>
             </div>
@@ -699,10 +724,10 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
               <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
               <div>
                 <h3 className="font-bold text-sm text-stone-900 dark:text-stone-100">
-                  Code ouvert &amp; suite de tests automatisée
+                  {isFr ? 'Code ouvert & suite de tests automatisée' : 'Open-source code & automated test suite'}
                 </h3>
                 <p className="text-xs text-stone-600 dark:text-stone-400 mt-1">
-                  20 tests unitaires et d'intégration bout-en-bout valident l'arborescence des fichiers EPUB, la fidélité des distances de Levenshtein et l'intégrité de la base de données SQLite locale.
+                  {isFr ? "20 tests unitaires et d'intégration bout-en-bout valident l'arborescence des fichiers EPUB, la fidélité des distances de Levenshtein et l'intégrité de la base de données SQLite locale." : '20 unit and end-to-end integration tests validate EPUB archive structure, Levenshtein distance precision, and local SQLite database integrity.'}
                 </p>
               </div>
             </div>
@@ -720,41 +745,47 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
           
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-10">
             <span className="text-xs font-serif font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">
-              Aperçu en situation
+              {isFr ? 'Aperçu en situation' : 'Real-World Preview'}
             </span>
             <h2 className="font-serif text-2xl sm:text-4xl font-bold text-stone-950 dark:text-white">
-              L'interface d'OCRBookor en action
+              {isFr ? "L'interface d'OCRBookor en action" : 'OCRBookor interface in action'}
             </h2>
             <p className="text-sm sm:text-base text-stone-600 dark:text-stone-400 leading-relaxed">
-              Découvrez l'écran de correction bi-fenêtre sur le corpus de test réel « Buffon — L'Histoire Naturelle (1778) ».
+              {isFr ? "Découvrez l'écran de correction bi-fenêtre sur le corpus de test réel « Buffon — L'Histoire Naturelle (1778) »." : "Explore the dual-pane correction screen on the real test corpus 'Buffon — L\'Histoire Naturelle (1778)'."}
             </p>
           </div>
 
           <div className="rounded-2xl overflow-hidden border border-stone-300 dark:border-stone-800 shadow-2xl bg-stone-900">
             <img
               src="/docs/images/screenshot.jpg"
-              alt="Capture d'écran authentique de l'interface d'OCRBookor"
+              alt="Authentic screenshot of OCRBookor"
               className="w-full h-auto"
             />
           </div>
 
           <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
             <div className="p-4 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800">
-              <span className="font-bold text-stone-900 dark:text-stone-100 block mb-1">Navigation par page &amp; laser OCR</span>
+              <span className="font-bold text-stone-900 dark:text-stone-100 block mb-1">
+                {isFr ? 'Navigation par page & laser OCR' : 'Page navigation & OCR laser'}
+              </span>
               <p className="text-stone-600 dark:text-stone-400">
-                La ligne lumineuse indique la ligne en cours de traitement pendant l'océrisation et facilite le repérage visuel lors de la relecture.
+                {isFr ? "La ligne lumineuse indique la ligne en cours de traitement pendant l'océrisation et facilite le repérage visuel lors de la relecture." : 'The laser line indicates the line currently being processed during OCR and eases visual focus during proofreading.'}
               </p>
             </div>
             <div className="p-4 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800">
-              <span className="font-bold text-stone-900 dark:text-stone-100 block mb-1">Indices de confiance colorés</span>
+              <span className="font-bold text-stone-900 dark:text-stone-100 block mb-1">
+                {isFr ? 'Indices de confiance colorés' : 'Color-coded confidence ratings'}
+              </span>
               <p className="text-stone-600 dark:text-stone-400">
-                Chaque mot incertain est surligné (vert &gt;90%, orange 60-90%, rouge &lt;60%) pour cibler immédiatement les zones à vérifier.
+                {isFr ? 'Chaque mot incertain est surligné (vert >90%, orange 60-90%, rouge <60%) pour cibler immédiatement les zones à vérifier.' : 'Each uncertain word is highlighted (green >90%, amber 60-90%, red <60%) to immediately pinpoint spots to review.'}
               </p>
             </div>
             <div className="p-4 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800">
-              <span className="font-bold text-stone-900 dark:text-stone-100 block mb-1">Palette de caractères spéciaux</span>
+              <span className="font-bold text-stone-900 dark:text-stone-100 block mb-1">
+                {isFr ? 'Palette de caractères spéciaux' : 'Special character palette'}
+              </span>
               <p className="text-stone-600 dark:text-stone-400">
-                Boutons d'insertion rapide pour les caractères rares ou accentués : <code>à è î ô ù ç œ æ</code>.
+                {isFr ? 'Boutons d\'insertion rapide pour les caractères rares ou accentués : à è î ô ù ç œ æ.' : 'Quick insertion buttons for accented and rare characters: à è î ô ù ç œ æ.'}
               </p>
             </div>
           </div>
@@ -770,13 +801,13 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
           
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
             <span className="text-xs font-serif font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">
-              Distribution &amp; Binaires
+              {isFr ? 'Distribution & Binaires' : 'Distribution & Binaries'}
             </span>
             <h2 className="font-serif text-2xl sm:text-4xl font-bold text-stone-950 dark:text-white">
-              Commencez à transformer vos livres scannés
+              {isFr ? 'Commencez à transformer vos livres scannés' : 'Start transforming your scanned books'}
             </h2>
             <p className="text-sm sm:text-base text-stone-600 dark:text-stone-400 leading-relaxed">
-              Installez OCRBookor en une seule ligne de commande ou téléchargez directement le paquet Debian officiel.
+              {isFr ? 'Installez OCRBookor en une seule ligne de commande ou téléchargez directement le paquet Debian officiel.' : 'Install OCRBookor with a single command line or download the official Debian package directly.'}
             </p>
           </div>
 
@@ -785,17 +816,19 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-3">
               <div className="flex items-center gap-2">
                 <span className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase bg-amber-700 text-white tracking-wider">
-                  Méthode Express Recommandée
+                  {isFr ? 'Méthode Express Recommandée' : 'Recommended Express Method'}
                 </span>
                 <span className="text-xs font-semibold text-stone-800 dark:text-stone-200">
-                  Installation directe via curl (toujours à jour)
+                  {isFr ? 'Installation directe via curl (toujours à jour)' : 'Direct installation via curl (always up to date)'}
                 </span>
               </div>
               <span className="text-[11px] text-stone-500 font-mono">Debian 12/13, Ubuntu 22.04/24.04, Linux Mint</span>
             </div>
 
             <p className="text-xs text-stone-600 dark:text-stone-400 mb-3 leading-relaxed">
-              Cette commande télécharge automatiquement la dernière version du binaire, l'installe proprement avec <code>dpkg</code>, résout toutes les dépendances et configure l'exécutable <code>/usr/bin/ocrbookor</code> :
+              {isFr
+                ? <>Cette commande télécharge automatiquement la dernière version du binaire, l'installe proprement avec <code>dpkg</code>, résout toutes les dépendances et configure l'exécutable <code>/usr/bin/ocrbookor</code> :</>
+                : <>This command automatically downloads the latest release binary, cleanly installs it via <code>dpkg</code>, resolves all dependencies, and sets up the <code>/usr/bin/ocrbookor</code> executable:</>}
             </p>
 
             <div className="relative flex items-center bg-stone-950 text-stone-100 p-3.5 rounded-xl font-mono text-xs overflow-x-auto border border-stone-800">
@@ -811,21 +844,21 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                 {copiedCurl ? (
                   <>
                     <Check className="w-3.5 h-3.5 text-emerald-300" />
-                    <span>Copié !</span>
+                    <span>{isFr ? 'Copié !' : 'Copied!'}</span>
                   </>
                 ) : (
                   <>
                     <Copy className="w-3.5 h-3.5 text-stone-300" />
-                    <span>Copier</span>
+                    <span>{isFr ? 'Copier' : 'Copy'}</span>
                   </>
                 )}
               </button>
             </div>
 
             <div className="mt-3 flex flex-wrap items-center gap-4 text-[11px] text-stone-500 dark:text-stone-400">
-              <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-500" /> Aucun téléchargement manuel</span>
-              <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-500" /> Résolution automatique des dépendances</span>
-              <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-500" /> Exécutable <code>/usr/bin/ocrbookor</code> prêt</span>
+              <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-500" /> {isFr ? 'Aucun téléchargement manuel' : 'No manual download required'}</span>
+              <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-500" /> {isFr ? 'Résolution automatique des dépendances' : 'Automatic dependency resolution'}</span>
+              <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-500" /> {isFr ? <>Exécutable <code>/usr/bin/ocrbookor</code> prêt</> : <>Ready <code>/usr/bin/ocrbookor</code> system launcher</>}</span>
             </div>
           </div>
 
@@ -835,21 +868,23 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
             <div className="p-6 sm:p-8 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
               <div className="flex items-center justify-between">
                 <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-                  Téléchargement Manuel (.deb)
+                  {isFr ? 'Téléchargement Manuel (.deb)' : 'Manual Download (.deb)'}
                 </span>
                 <span className="text-xs font-mono text-stone-600 dark:text-stone-300">v1.2.0 • 2.1 Mo</span>
               </div>
 
               <h3 className="font-serif text-xl font-bold text-stone-900 dark:text-stone-100">
-                Paquet Linux Debian / Ubuntu (.deb)
+                {isFr ? 'Paquet Linux Debian / Ubuntu (.deb)' : 'Linux Debian / Ubuntu Package (.deb)'}
               </h3>
 
               <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                Compatible Debian 12/13, Ubuntu 22.04/24.04 LTS, Linux Mint. Installe le lanceur <code>/usr/bin/ocrbookor</code> et le raccourci dans le menu des applications.
+                {isFr
+                  ? <>Compatible Debian 12/13, Ubuntu 22.04/24.04 LTS, Linux Mint. Installe le lanceur <code>/usr/bin/ocrbookor</code> et le raccourci dans le menu des applications.</>
+                  : <>Compatible with Debian 12/13, Ubuntu 22.04/24.04 LTS, Linux Mint. Installs the <code>/usr/bin/ocrbookor</code> launcher and application menu shortcut.</>}
               </p>
 
               <div className="p-3 bg-stone-900 text-stone-200 rounded-lg text-xs font-mono space-y-1">
-                <div className="text-stone-500"># Téléchargement &amp; installation</div>
+                <div className="text-stone-500">{isFr ? '# Téléchargement & installation' : '# Download & install'}</div>
                 <div>sudo dpkg -i ocrbookor_1.2.0_amd64.deb</div>
                 <div>sudo apt-get install -f</div>
                 <div>ocrbookor</div>
@@ -863,14 +898,14 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                   className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold bg-amber-700 text-white hover:bg-amber-800 transition"
                 >
                   <Download className="w-4 h-4" />
-                  Télécharger le .deb sur GitHub Releases
+                  {isFr ? 'Télécharger le .deb sur GitHub Releases' : 'Download .deb on GitHub Releases'}
                 </a>
 
                 <a
                   href="https://github.com/nouhailler/OCRBookor/raw/main/releases/ocrbookor_1.2.0_amd64.deb"
                   className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition"
                 >
-                  Lien direct binaire
+                  {isFr ? 'Lien direct binaire' : 'Direct binary link'}
                 </a>
               </div>
             </div>
@@ -879,21 +914,23 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
             <div className="p-6 sm:p-8 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-md space-y-4">
               <div className="flex items-center justify-between">
                 <span className="px-3 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300">
-                  Code Source Libre
+                  {isFr ? 'Code Source Libre' : 'Open Source Code'}
                 </span>
                 <span className="text-xs font-mono text-stone-600 dark:text-stone-300">Apache 2.0 / MIT</span>
               </div>
 
               <h3 className="font-serif text-xl font-bold text-stone-900 dark:text-stone-100">
-                Dépôt GitHub &amp; Version Web
+                {isFr ? 'Dépôt GitHub & Version Web' : 'GitHub Repository & Web Version'}
               </h3>
 
               <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                Clonez le dépôt pour exécuter l'application localement dans Node.js ou explorez la suite de tests automatisée.
+                {isFr
+                  ? "Clonez le dépôt pour exécuter l'application localement dans Node.js ou explorez la suite de tests automatisée."
+                  : 'Clone the repository to run the app locally with Node.js or explore the automated test suite.'}
               </p>
 
               <div className="p-3 bg-stone-900 text-stone-200 rounded-lg text-xs font-mono space-y-1">
-                <div className="text-stone-500"># Cloner et lancer localement</div>
+                <div className="text-stone-500">{isFr ? '# Cloner et lancer localement' : '# Clone and run locally'}</div>
                 <div>git clone https://github.com/nouhailler/OCRBookor.git</div>
                 <div>cd OCRBookor &amp;&amp; npm install</div>
                 <div>npm run dev</div>
@@ -907,14 +944,14 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                   className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold border border-stone-900 dark:border-white text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition"
                 >
                   <GitBranch className="w-4 h-4" />
-                  Consulter le dépôt GitHub
+                  {isFr ? 'Consulter le dépôt GitHub' : 'View GitHub Repository'}
                 </a>
 
                 <button
                   onClick={onLaunchApp}
                   className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-200 hover:bg-stone-200 dark:hover:bg-stone-700 transition"
                 >
-                  Tester dans le navigateur
+                  {isFr ? 'Tester dans le navigateur' : 'Test in browser'}
                 </button>
               </div>
             </div>
@@ -932,13 +969,13 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
           
           <div className="text-center max-w-2xl mx-auto space-y-3 mb-12">
             <span className="text-xs font-serif font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">
-              Foire Aux Questions
+              {isFr ? 'Foire Aux Questions' : 'Frequently Asked Questions'}
             </span>
             <h2 className="font-serif text-2xl sm:text-4xl font-bold text-stone-950 dark:text-white">
-              Questions fréquentes
+              {isFr ? 'Questions fréquentes' : 'Frequently Asked Questions'}
             </h2>
             <p className="text-sm sm:text-base text-stone-600 dark:text-stone-400 leading-relaxed">
-              Des réponses claires et sans promesse abusive, fondées sur les capacités réelles du logiciel.
+              {isFr ? 'Des réponses claires et sans promesse abusive, fondées sur les capacités réelles du logiciel.' : 'Clear and honest answers based on the real capabilities of the software.'}
             </p>
           </div>
 
@@ -950,12 +987,14 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                 onClick={() => toggleFaq(0)}
                 className="w-full p-4 sm:p-5 text-left font-serif font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100 flex items-center justify-between gap-4 focus:outline-hidden"
               >
-                <span>Qu'est-ce qu'OCRBookor exactement ?</span>
+                <span>{isFr ? "Qu'est-ce qu'OCRBookor exactement ?" : 'What exactly is OCRBookor?'}</span>
                 {openFaq === 0 ? <ChevronUp className="w-4 h-4 text-amber-700 shrink-0" /> : <ChevronDown className="w-4 h-4 text-stone-400 shrink-0" />}
               </button>
               {openFaq === 0 && (
                 <div className="px-4 pb-5 pt-1 sm:px-5 text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed border-t border-stone-100 dark:border-stone-800/60">
-                  OCRBookor est une suite logicielle documentaire autonome permettant d'importer des livres numérisés au format PDF, de les prétraiter (calcul DPI, redressement, binarisation Otsu), de reconnaître leur texte via le moteur Tesseract v5 (100% hors-ligne), de réconcilier les coquilles et césures dans un éditeur bi-fenêtre et de produire des livres numériques au format standard EPUB 3, Markdown, HTML et TXT.
+                  {isFr
+                    ? "OCRBookor est une suite logicielle documentaire autonome permettant d'importer des livres numérisés au format PDF, de les prétraiter (calcul DPI, redressement, binarisation Otsu), de reconnaître leur texte via le moteur Tesseract v5 (100% hors-ligne), de réconcilier les coquilles et césures dans un éditeur bi-fenêtre et de produire des livres numériques au format standard EPUB 3, Markdown, HTML et TXT."
+                    : 'OCRBookor is an autonomous document software suite that enables importing scanned PDF books, preprocessing them (DPI calculation, deskewing, Otsu binarization), recognizing text via Tesseract v5 (100% offline), reconciling typos and hyphens in a dual-pane editor, and producing standard EPUB 3, Markdown, HTML, and TXT e-books.'}
                 </div>
               )}
             </div>
@@ -966,12 +1005,16 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                 onClick={() => toggleFaq(1)}
                 className="w-full p-4 sm:p-5 text-left font-serif font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100 flex items-center justify-between gap-4 focus:outline-hidden"
               >
-                <span>Mes livres et documents sont-ils envoyés sur internet ?</span>
+                <span>{isFr ? 'Mes livres et documents sont-ils envoyés sur internet ?' : 'Are my books and documents sent to the internet?'}</span>
                 {openFaq === 1 ? <ChevronUp className="w-4 h-4 text-amber-700 shrink-0" /> : <ChevronDown className="w-4 h-4 text-stone-400 shrink-0" />}
               </button>
               {openFaq === 1 && (
                 <div className="px-4 pb-5 pt-1 sm:px-5 text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed border-t border-stone-100 dark:border-stone-800/60">
-                  <strong>Non, jamais.</strong> OCRBookor fonctionne de manière 100% locale et hors-ligne. Le traitement de l'image, la reconnaissance optique et la génération des fichiers EPUB sont exécutés directement sur votre processeur local (via WebAssembly dans l'application web ou nativement via le paquet Linux).
+                  {isFr ? (
+                    <><strong>Non, jamais.</strong> OCRBookor fonctionne de manière 100% locale et hors-ligne. Le traitement de l'image, la reconnaissance optique et la génération des fichiers EPUB sont exécutés directement sur votre processeur local (via WebAssembly dans l'application web ou nativement via le paquet Linux).</>
+                  ) : (
+                    <><strong>No, never.</strong> OCRBookor operates 100% locally and offline. Image processing, optical recognition, and EPUB generation run directly on your local CPU (via WebAssembly in the web app or natively via the Linux package).</>
+                  )}
                 </div>
               )}
             </div>
@@ -982,12 +1025,16 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                 onClick={() => toggleFaq(2)}
                 className="w-full p-4 sm:p-5 text-left font-serif font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100 flex items-center justify-between gap-4 focus:outline-hidden"
               >
-                <span>Le logiciel peut-il reconnaître l'écriture manuscrite ?</span>
+                <span>{isFr ? "Le logiciel peut-il reconnaître l'écriture manuscrite ?" : 'Can the software recognize handwriting?'}</span>
                 {openFaq === 2 ? <ChevronUp className="w-4 h-4 text-amber-700 shrink-0" /> : <ChevronDown className="w-4 h-4 text-stone-400 shrink-0" />}
               </button>
               {openFaq === 2 && (
                 <div className="px-4 pb-5 pt-1 sm:px-5 text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed border-t border-stone-100 dark:border-stone-800/60">
-                  <strong>Non.</strong> OCRBookor v1.2.0 est conçu pour les textes imprimés (typographie au plomb ancienne ou impressions modernes). La reconnaissance de manuscrits, de partitions musicales ou de formules mathématiques complexes n'est pas prise en charge dans cette version.
+                  {isFr ? (
+                    <><strong>Non.</strong> OCRBookor v1.2.0 est conçu pour les textes imprimés (typographie au plomb ancienne ou impressions modernes). La reconnaissance de manuscrits, de partitions musicales ou de formules mathématiques complexes n'est pas prise en charge dans cette version.</>
+                  ) : (
+                    <><strong>No.</strong> OCRBookor v1.2.0 is designed for printed text (lead movable type or modern print). Recognition of manuscripts, musical scores, or complex mathematical formulas is not supported in this version.</>
+                  )}
                 </div>
               )}
             </div>
@@ -998,12 +1045,16 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                 onClick={() => toggleFaq(3)}
                 className="w-full p-4 sm:p-5 text-left font-serif font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100 flex items-center justify-between gap-4 focus:outline-hidden"
               >
-                <span>Comment installer la landing page comme Progressive Web App (PWA) ?</span>
+                <span>{isFr ? 'Comment installer la landing page comme Progressive Web App (PWA) ?' : 'How do I install the landing page as a Progressive Web App (PWA)?'}</span>
                 {openFaq === 3 ? <ChevronUp className="w-4 h-4 text-amber-700 shrink-0" /> : <ChevronDown className="w-4 h-4 text-stone-400 shrink-0" />}
               </button>
               {openFaq === 3 && (
                 <div className="px-4 pb-5 pt-1 sm:px-5 text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed border-t border-stone-100 dark:border-stone-800/60">
-                  Cliquez sur le bouton <strong>« Installer la PWA »</strong> présent dans la barre supérieure (sur Chrome, Edge ou Android). Sur iOS (iPhone/iPad), touchez le bouton de partage de Safari puis « Sur l'écran d'accueil ». La landing page sera alors accessible même sans connexion internet grâce au Service Worker dédié.
+                  {isFr ? (
+                    <>Cliquez sur le bouton <strong>« Installer la PWA »</strong> présent dans la barre supérieure (sur Chrome, Edge ou Android). Sur iOS (iPhone/iPad), touchez le bouton de partage de Safari puis « Sur l'écran d'accueil ». La landing page sera alors accessible même sans connexion internet grâce au Service Worker dédié.</>
+                  ) : (
+                    <>Click the <strong>"Install PWA"</strong> button in the top bar (on Chrome, Edge, or Android). On iOS (iPhone/iPad), tap Safari's share button then 'Add to Home Screen'. The landing page will then be accessible even without an internet connection thanks to its dedicated Service Worker.</>
+                  )}
                 </div>
               )}
             </div>
@@ -1014,12 +1065,16 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                 onClick={() => toggleFaq(4)}
                 className="w-full p-4 sm:p-5 text-left font-serif font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100 flex items-center justify-between gap-4 focus:outline-hidden"
               >
-                <span>Faut-il nécessairement relire le texte après l'OCR ?</span>
+                <span>{isFr ? "Faut-il nécessairement relire le texte après l'OCR ?" : 'Is proofreading required after OCR?'}</span>
                 {openFaq === 4 ? <ChevronUp className="w-4 h-4 text-amber-700 shrink-0" /> : <ChevronDown className="w-4 h-4 text-stone-400 shrink-0" />}
               </button>
               {openFaq === 4 && (
                 <div className="px-4 pb-5 pt-1 sm:px-5 text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed border-t border-stone-100 dark:border-stone-800/60">
-                  <strong>Oui, pour un document de qualité éditoriale.</strong> Même si l'OCR atteint plus de 98% de confiance sur un scan propre, des anomalies ponctuelles (lettres anciennes comme le « s » long confondu avec un « f », taches d'encre) peuvent survenir. L'éditeur bi-fenêtre d'OCRBookor est spécifiquement pensé pour rendre cette relecture rapide et fluide.
+                  {isFr ? (
+                    <><strong>Oui, pour un document de qualité éditoriale.</strong> Même si l'OCR atteint plus de 98% de confiance sur un scan propre, des anomalies ponctuelles (lettres anciennes comme le « s » long confondu avec un « f », taches d'encre) peuvent survenir. L'éditeur bi-fenêtre d'OCRBookor est spécifiquement pensé pour rendre cette relecture rapide et fluide.</>
+                  ) : (
+                    <><strong>Yes, for publication-grade documents.</strong> Even if OCR achieves over 98% confidence on clean scans, occasional anomalies (archaic glyphs like the long 's' confused with 'f', ink blots) can occur. The OCRBookor dual-pane editor is specifically designed to make this proofreading rapid and seamless.</>
+                  )}
                 </div>
               )}
             </div>
@@ -1045,17 +1100,19 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-800 text-stone-300">v1.2.0</span>
               </div>
               <p className="text-xs text-stone-400 leading-relaxed max-w-md">
-                Suite logicielle locale et souveraine dédiée à la numérisation, à la reconnaissance optique de caractères (OCR) et à la reconstruction éditoriale de livres scannés au standard EPUB 3 et Markdown.
+                {isFr
+                  ? 'Suite logicielle locale et souveraine dédiée à la numérisation, à la reconnaissance optique de caractères (OCR) et à la reconstruction éditoriale de livres scannés au standard EPUB 3 et Markdown.'
+                  : 'Local, sovereign software suite dedicated to digitization, optical character recognition (OCR), and editorial reconstruction of scanned books into standard EPUB 3 and Markdown.'}
               </p>
               <div className="text-[11px] text-stone-500">
-                Auteur &amp; Maintenance : Patrick Nouhailler
+                {isFr ? 'Auteur & Maintenance : Patrick Nouhailler' : 'Author & Maintainer: Patrick Nouhailler'}
               </div>
             </div>
 
             {/* Col 2 : Liens du projet */}
             <div className="space-y-2">
               <h4 className="font-serif text-xs font-bold uppercase tracking-wider text-stone-200">
-                Ressources Officielles
+                {isFr ? 'Ressources Officielles' : 'Official Resources'}
               </h4>
               <ul className="space-y-1.5 text-xs text-stone-400">
                 <li>
@@ -1065,7 +1122,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                     rel="noopener noreferrer"
                     className="hover:text-amber-400 transition flex items-center gap-1"
                   >
-                    Dépôt GitHub principal <ExternalLink className="w-3 h-3 text-stone-600" />
+                    {isFr ? 'Dépôt GitHub principal' : 'Main GitHub Repository'} <ExternalLink className="w-3 h-3 text-stone-600" />
                   </a>
                 </li>
                 <li>
@@ -1075,7 +1132,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                     rel="noopener noreferrer"
                     className="hover:text-amber-400 transition flex items-center gap-1"
                   >
-                    Releases &amp; Binaires .deb <ExternalLink className="w-3 h-3 text-stone-600" />
+                    {isFr ? 'Releases & Binaires .deb' : 'Releases & .deb Binaries'} <ExternalLink className="w-3 h-3 text-stone-600" />
                   </a>
                 </li>
                 <li>
@@ -1085,7 +1142,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                     rel="noopener noreferrer"
                     className="hover:text-amber-400 transition flex items-center gap-1"
                   >
-                    Manuel Utilisateur (USER_GUIDE) <ExternalLink className="w-3 h-3 text-stone-600" />
+                    {isFr ? 'Manuel Utilisateur (USER_GUIDE)' : 'User Guide (USER_GUIDE)'} <ExternalLink className="w-3 h-3 text-stone-600" />
                   </a>
                 </li>
                 <li>
@@ -1095,7 +1152,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                     rel="noopener noreferrer"
                     className="hover:text-amber-400 transition flex items-center gap-1"
                   >
-                    Architecture Technique <ExternalLink className="w-3 h-3 text-stone-600" />
+                    {isFr ? 'Architecture Technique' : 'Technical Architecture'} <ExternalLink className="w-3 h-3 text-stone-600" />
                   </a>
                 </li>
               </ul>
@@ -1104,10 +1161,12 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
             {/* Col 3 : Déploiement & Format */}
             <div className="space-y-2">
               <h4 className="font-serif text-xs font-bold uppercase tracking-wider text-stone-200">
-                Hébergement &amp; PWA
+                {isFr ? 'Hébergement & PWA' : 'Hosting & PWA'}
               </h4>
               <p className="text-xs text-stone-400 leading-relaxed">
-                Cette landing page est conçue pour être hébergée statiquement sur <strong>Cloudflare Pages</strong> et installable en <strong>PWA</strong> via un Service Worker local.
+                {isFr
+                  ? <>Cette landing page est conçue pour être hébergée statiquement sur <strong>Cloudflare Pages</strong> et installable en <strong>PWA</strong> via un Service Worker local.</>
+                  : <>This landing page is designed for static hosting on <strong>Cloudflare Pages</strong> and installable as a <strong>PWA</strong> via a local Service Worker.</>}
               </p>
               <div className="pt-2">
                 <button
@@ -1115,7 +1174,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-stone-800 text-stone-200 hover:bg-stone-700 transition"
                 >
                   <Laptop className="w-3.5 h-3.5" />
-                  Accéder à l'application OCRBookor
+                  {isFr ? "Accéder à l'application OCRBookor" : 'Open OCRBookor Studio'}
                 </button>
               </div>
             </div>
@@ -1125,10 +1184,12 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
           {/* Décharge légale & Copyright */}
           <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-stone-500">
             <div>
-              © 2026 OCRBookor — Logiciel libre sous licence Apache 2.0. Décharge légale : L'auteur décline toute responsabilité quant aux contenus et données importés par les utilisateurs.
+              {isFr
+                ? "© 2026 OCRBookor — Logiciel libre sous licence Apache 2.0. Décharge légale : L'auteur décline toute responsabilité quant aux contenus et données importés par les utilisateurs."
+                : '© 2026 OCRBookor — Open source software under Apache 2.0 license. Legal disclaimer: The author disclaims all liability regarding content and data imported by users.'}
             </div>
             <div className="flex items-center gap-4 text-stone-400">
-              <a href="#hero" className="hover:text-stone-200 transition">Haut de page ↑</a>
+              <a href="#hero" className="hover:text-stone-200 transition">{isFr ? 'Haut de page ↑' : 'Back to top ↑'}</a>
             </div>
           </div>
 

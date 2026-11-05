@@ -10,6 +10,11 @@
   <meta name="author" content="Patrick Nouhailler" />
   <meta name="keywords" content="OCR, Livre scanné, EPUB 3, Numérisation, Tesseract, Typographie française, Markdown, Dé-césure, Patrimoine écrit" />
 
+  <!-- Liens Alternatifs Multilingues -->
+  <link rel="alternate" hreflang="fr" href="/" />
+  <link rel="alternate" hreflang="en" href="/en" />
+  <link rel="alternate" hreflang="x-default" href="/" />
+
   <!-- Open Graph / Réseaux Sociaux -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="OCRBookor — Du livre scanné au document numérique structuré" />
@@ -107,6 +112,20 @@
 
       <!-- Boutons d'Action & Thème -->
       <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Bouton Langue FR / EN -->
+        <a
+          href="/en"
+          id="lang-toggle-btn"
+          onclick="localStorage.setItem('ocrbookor_lang', 'en');"
+          class="px-2.5 py-1.5 text-xs font-bold rounded-lg border border-stone-300 dark:border-stone-700 hover:bg-stone-200/60 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 transition flex items-center gap-1"
+          title="Switch to English version"
+          aria-label="Switch to English version"
+        >
+          <span class="text-amber-700 dark:text-amber-400 font-extrabold">FR</span>
+          <span class="text-stone-300 dark:text-stone-600">/</span>
+          <span class="text-stone-400 font-medium">EN</span>
+        </a>
+
         <!-- Bouton PWA -->
         <button id="pwa-install-btn" class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-700 hover:bg-amber-800 text-white shadow-xs transition">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>

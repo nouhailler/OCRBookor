@@ -6,6 +6,8 @@ const CACHE_NAME = 'ocrbookor-landing-v1.2.0';
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
+  '/en',
+  '/en.html',
   '/manifest.webmanifest',
   '/manifest.json',
   '/favicon.svg',
@@ -14,6 +16,7 @@ const PRECACHE_ASSETS = [
   '/pwa-512x512.png',
   '/pwa-maskable-512x512.png',
   '/apple-touch-icon.png',
+  '/images/screenshot.jpg',
   '/docs/images/screenshot.jpg'
 ];
 
@@ -63,7 +66,11 @@ self.addEventListener('fetch', (event) => {
           }
           return response;
         })
-        .catch(() => caches.match(event.request).then((res) => res || caches.match('/index.html')))
+        .catch(() => caches.match(event.request).then((res) => {
+          if (res) return res;
+          if (event.request.url.includes('/en')) return caches.match('/en.html');
+          return caches.match('/index.html');
+        }))
     );
     return;
   }
