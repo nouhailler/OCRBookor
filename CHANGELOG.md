@@ -22,6 +22,12 @@ et ce projet adhère à la spécification [Semantic Versioning](https://semver.o
 - **Installation Express 1-Ligne via `curl` :**
   - Commande d'installation automatique : `curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh | sudo bash`.
   - Téléchargement automatique de la dernière version du binaire Debian, résolution des dépendances et configuration du lanceur `/usr/bin/ocrbookor`.
+- **Support Complet de l’Environnement Windows (x64) :**
+  - **Installateur Windows (.exe) Inno Setup :** Script `scripts/windows/ocrbookor-installer.iss` compilant `ocrbookor_1.3.0_setup_x64.exe` avec assistant d'installation bilingue, raccourci Bureau, menu Démarrer et désinstallateur propre.
+  - **Archive Portable Zéro-Installation (.zip) :** Script `scripts/build-windows.mjs` produisant `ocrbookor_1.3.0_win_x64.zip` prêt à l'emploi avec lanceurs Windows (`ocrbookor.cmd` et `install-dependencies.cmd`).
+  - **Installation Automatisée en 1 Ligne (PowerShell) :** Commande `irm https://raw.githubusercontent.com/nouhailler/OCRBookor/main/scripts/windows/install-windows.ps1 | iex` automatisant le téléchargement et la création du raccourci Bureau.
+  - **Passerelle Python Multi-Plateforme :** Détection automatique dynamique de l'interpréteur Python (`python.exe`, `py.exe`, `python3`), résolution des chemins Windows (`%LOCALAPPDATA%\OCRBookor`), encodage UTF-8 forcé et support des chemins d'installation standards de Tesseract sous Windows.
+  - **Workflow GitHub Actions Multi-OS :** Pipeline de release GitHub (`.github/workflows/release.yml`) avec jobs `ubuntu-latest` et `windows-latest` publiant simultanément les paquets `.deb`, `.exe` et `.zip` avec sommes SHA256 unifiées.
 - **Documentation et Validation Automatisée :**
   - Création du `README.en.md` et mise en place d'un en-tête bilingue dans `README.md`.
   - Rédaction du rapport d'audit et de conformité `docs/INTERNATIONALIZATION_EN_REPORT.md`.

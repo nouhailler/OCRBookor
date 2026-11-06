@@ -4,7 +4,7 @@
  */
 
 import express, { Request, Response } from 'express';
-import { execFile } from 'child_process';
+import { execFile, spawnSync } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -21,8 +21,23 @@ const isProduction = process.env.NODE_ENV === 'production';
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
-// Base data directories
-const DATA_DIR = path.resolve(process.env.OCRBOOKOR_DATA_DIR || 'data');
+// Cross-platform data directory resolution
+function resolveDataDir(): string {
+  if (process.env.OCRBOOKOR_DATA_DIR) {
+    return path.resolve(process.env.OCRBOOKOR_DATA_DIR);
+  }
+  if (process.platform === 'win32') {
+    const base =
+      process.env.LOCALAPPDATA ||
+      process.env.APPDATA ||
+      path.join(process.env.USERPROFILE || 'C:\\', 'AppData', 'Local');
+    return path.join(base, 'OCRBookor');
+  }
+  const home = process.env.HOME || process.env.USERPROFILE || '.';
+  return path.join(home, '.local', 'share', 'ocrbookor');
+}
+
+const DATA_DIR = resolveDataDir();
 const PROJECTS_DIR = path.join(DATA_DIR, 'projects');
 const UPLOADS_DIR = path.join(DATA_DIR, 'uploads');
 
@@ -47,25 +62,134 @@ const upload = multer({
   limits: { fileSize: 250 * 1024 * 1024 }, // 250 MB
 });
 
-const APP_ROOT = fs.existsSync('/opt/ocrbookor/backend') ? '/opt/ocrbookor' : process.cwd();
+// Detect application root where backend/ is located
+const candidateAppRoots = [
+  process.env.OCRBOOKOR_APP_ROOT,
+  fs.existsSync(path.join(__dirname, 'backend')) ? __dirname : null,
+  fs.existsSync(path.join(process.cwd(), 'backend')) ? process.cwd() : null,
+  fs.existsSync('/opt/ocrbookor/backend') ? '/opt/ocrbookor' : null,
+].filter(Boolean) as string[];
+const APP_ROOT = candidateAppRoots[0] || process.cwd();
+
+/**
+ * Robust Cross-Platform Python CLI detection (Windows / Linux / macOS)
+ */
+interface PythonCommand {
+  bin: string;
+  prefixArgs: string[];
+}
+
+let cachedPythonCommand: PythonCommand | null = null;
+
+function resolvePythonCommand(): PythonCommand {
+  if (cachedPythonCommand) {
+    return cachedPythonCommand;
+  }
+
+  // 1. Explicit environment variable override
+  const envBin = process.env.PYTHON_BIN || process.env.OCRBOOKOR_PYTHON;
+  if (envBin) {
+    cachedPythonCommand = { bin: envBin, prefixArgs: [] };
+    return cachedPythonCommand;
+  }
+
+  const isWin = process.platform === 'win32';
+  const candidates: Array<{ bin: string; prefixArgs: string[] }> = [];
+
+  if (isWin) {
+    // 1. Python in PATH
+    candidates.push({ bin: 'python', prefixArgs: [] });
+    // 2. Python Launcher on Windows (py -3)
+    candidates.push({ bin: 'py', prefixArgs: ['-3'] });
+    // 3. python3 alias
+    candidates.push({ bin: 'python3', prefixArgs: [] });
+
+    // 4. Bundled Python or Virtual Environments in app root
+    candidates.push({ bin: path.join(APP_ROOT, 'python', 'python.exe'), prefixArgs: [] });
+    candidates.push({ bin: path.join(APP_ROOT, 'venv', 'Scripts', 'python.exe'), prefixArgs: [] });
+
+    // 5. Standard Windows installation paths
+    const localApp = process.env.LOCALAPPDATA || '';
+    const userProf = process.env.USERPROFILE || '';
+    const winPaths = [
+      path.join(localApp, 'Programs', 'Python', 'Python312', 'python.exe'),
+      path.join(localApp, 'Programs', 'Python', 'Python311', 'python.exe'),
+      path.join(localApp, 'Programs', 'Python', 'Python310', 'python.exe'),
+      path.join(userProf, 'AppData', 'Local', 'Programs', 'Python', 'Python312', 'python.exe'),
+      path.join(userProf, 'AppData', 'Local', 'Programs', 'Python', 'Python311', 'python.exe'),
+      path.join(userProf, 'AppData', 'Local', 'Programs', 'Python', 'Python310', 'python.exe'),
+      'C:\\Python312\\python.exe',
+      'C:\\Python311\\python.exe',
+      'C:\\Python310\\python.exe',
+    ];
+    for (const p of winPaths) {
+      if (fs.existsSync(p)) {
+        candidates.push({ bin: p, prefixArgs: [] });
+      }
+    }
+  } else {
+    candidates.push({ bin: 'python3', prefixArgs: [] });
+    candidates.push({ bin: 'python', prefixArgs: [] });
+    candidates.push({ bin: '/usr/bin/python3', prefixArgs: [] });
+    candidates.push({ bin: '/usr/local/bin/python3', prefixArgs: [] });
+  }
+
+  // Probe candidates with a quick --version check
+  for (const candidate of candidates) {
+    try {
+      const res = spawnSync(candidate.bin, [...candidate.prefixArgs, '--version'], {
+        encoding: 'utf-8',
+        timeout: 3000,
+        windowsHide: true,
+      });
+      if (res.status === 0 && !res.error) {
+        cachedPythonCommand = candidate;
+        console.log(`[OCRBookor] Backend Python detecté : ${candidate.bin} ${candidate.prefixArgs.join(' ')}`);
+        return candidate;
+      }
+    } catch {
+      // Continue search
+    }
+  }
+
+  // Fallback default
+  cachedPythonCommand = isWin ? { bin: 'python', prefixArgs: [] } : { bin: 'python3', prefixArgs: [] };
+  return cachedPythonCommand;
+}
 
 /**
  * Execute Python CLI command helper
  */
 function runPythonCli(args: string[]): Promise<any> {
+  const pyCmd = resolvePythonCommand();
+  const fullArgs = [...pyCmd.prefixArgs, '-m', 'backend.api.cli', ...args];
+
   return new Promise((resolve, reject) => {
-    execFile('python3', ['-m', 'backend.api.cli', ...args], { cwd: APP_ROOT, maxBuffer: 10 * 1024 * 1024 }, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Python CLI error: ${stderr || error.message}`);
-        return reject(new Error(stderr || error.message));
+    execFile(
+      pyCmd.bin,
+      fullArgs,
+      {
+        cwd: APP_ROOT,
+        maxBuffer: 10 * 1024 * 1024,
+        env: {
+          ...process.env,
+          OCRBOOKOR_DATA_DIR: DATA_DIR,
+          PYTHONIOENCODING: 'utf-8',
+        },
+      },
+      (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Python CLI error: ${stderr || error.message}`);
+          return reject(new Error(stderr || error.message));
+        }
+        try {
+          const parsed = JSON.parse(stdout.trim());
+          resolve(parsed);
+        } catch {
+          resolve({ raw: stdout.trim() });
+        }
       }
-      try {
-        const parsed = JSON.parse(stdout.trim());
-        resolve(parsed);
-      } catch {
-        resolve({ raw: stdout.trim() });
-      }
-    });
+    );
   });
 }
 
@@ -240,14 +364,15 @@ app.get('/api/projects/:id/source/pdf', (req: Request, res: Response) => {
   res.sendFile(filePath);
 });
 
-// 9. Download Debian package release (.deb)
+// 9. Download release package assets (.deb, .exe, .zip, .txt)
 app.get('/releases/:filename', (req: Request, res: Response) => {
   const releasesDir = path.resolve('releases');
-  const filePath = path.join(releasesDir, req.params.filename);
+  const sanitizedFilename = path.basename(req.params.filename);
+  const filePath = path.join(releasesDir, sanitizedFilename);
   if (!fs.existsSync(filePath)) {
     return res.status(404).send('Paquet release introuvable');
   }
-  res.download(filePath, req.params.filename);
+  res.download(filePath, sanitizedFilename);
 });
 
 // ==========================================
@@ -265,6 +390,7 @@ async function startServer() {
     const candidateDirs = [
       path.resolve('dist'),
       path.join(__dirname, 'dist'),
+      path.join(APP_ROOT, 'dist'),
       '/opt/ocrbookor/dist',
     ];
     const distPath = candidateDirs.find((d) => fs.existsSync(path.join(d, 'index.html'))) || path.resolve('dist');

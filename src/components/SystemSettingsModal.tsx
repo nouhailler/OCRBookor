@@ -17,6 +17,8 @@ import {
   ExternalLink,
   ShieldCheck,
   Package,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { ApiClient, OCREnginesStatus } from '../services/apiClient';
 import { useTranslation } from '../i18n';
@@ -47,6 +49,16 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
   const [updateStatus, setUpdateStatus] = useState<'idle' | 'up-to-date' | 'error'>('idle');
   const [ocrEngines, setOcrEngines] = useState<OCREnginesStatus | null>(null);
   const [loadingEngines, setLoadingEngines] = useState<boolean>(false);
+  const [downloadPlatform, setDownloadPlatform] = useState<'linux' | 'windows'>(() =>
+    typeof navigator !== 'undefined' && /Win/i.test(navigator.userAgent) ? 'windows' : 'linux'
+  );
+  const [copiedCmd, setCopiedCmd] = useState<string | null>(null);
+
+  const handleCopyCommand = (cmd: string) => {
+    navigator.clipboard?.writeText(cmd);
+    setCopiedCmd(cmd);
+    setTimeout(() => setCopiedCmd(null), 2500);
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -212,48 +224,140 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
             )}
           </div>
 
-          {/* Linux Desktop .deb Release card */}
-          <div className="p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/40 bg-gradient-to-br from-indigo-50/50 to-purple-50/30 dark:from-indigo-950/20 dark:to-purple-950/10 space-y-2">
+          {/* Multi-Platform Desktop Releases card (Windows & Linux) */}
+          <div className="p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/40 bg-gradient-to-br from-indigo-50/50 to-purple-50/30 dark:from-indigo-950/20 dark:to-purple-950/10 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Package className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                 <h3 className="font-bold text-slate-900 dark:text-white text-xs">
-                  {isFr ? 'Paquet Linux Desktop (.deb)' : 'Linux Desktop Package (.deb)'}
+                  {isFr ? 'Application Desktop Locale (v1.3.0)' : 'Native Desktop Application (v1.3.0)'}
                 </h3>
               </div>
-              <span className="text-[10px] bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-mono px-2 py-0.5 rounded">
-                Debian / Ubuntu amd64
-              </span>
-            </div>
-            <p className="text-slate-600 dark:text-slate-300 text-[11.5px] leading-relaxed">
-              {isFr
-                ? 'Installez OCRBookor comme application native sur votre bureau Linux Debian avec raccourci et service local autonome.'
-                : 'Install OCRBookor as a native desktop application on Debian/Ubuntu with system shortcut and local daemon.'}
-            </p>
-            <div className="pt-1 flex flex-wrap items-center justify-between gap-2">
-              <span className="text-[10px] text-slate-500">
-                {isFr ? 'Fichier :' : 'File:'} <code className="font-mono text-indigo-600 dark:text-indigo-400">ocrbookor_1.3.0_amd64.deb</code>
-              </span>
-              <div className="flex items-center gap-2">
-                <a
-                  href="https://github.com/nouhailler/OCRBookor/releases"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+              {/* Platform selector pill */}
+              <div className="flex items-center bg-slate-200/80 dark:bg-slate-800 p-0.5 rounded-lg text-[10px]">
+                <button
+                  type="button"
+                  onClick={() => setDownloadPlatform('windows')}
+                  className={`px-2 py-0.5 rounded-md font-medium transition ${
+                    downloadPlatform === 'windows'
+                      ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-xs font-bold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  }`}
                 >
-                  <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-                  <span>GitHub Releases</span>
-                </a>
-                <a
-                  href="/releases/ocrbookor_1.3.0_amd64.deb"
-                  download="ocrbookor_1.3.0_amd64.deb"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-sm transition"
+                  🪟 Windows (x64)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDownloadPlatform('linux')}
+                  className={`px-2 py-0.5 rounded-md font-medium transition ${
+                    downloadPlatform === 'linux'
+                      ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-xs font-bold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  }`}
                 >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>{isFr ? 'Télécharger le .deb' : 'Download .deb'}</span>
-                </a>
+                  🐧 Linux (.deb)
+                </button>
               </div>
             </div>
+
+            {downloadPlatform === 'windows' ? (
+              <div className="space-y-2">
+                <p className="text-slate-600 dark:text-slate-300 text-[11.5px] leading-relaxed">
+                  {isFr
+                    ? 'Installez OCRBookor sur Windows 10/11 avec raccourci sur le Bureau et menu Démarrer, ou utilisez l’archive portable sans installation.'
+                    : 'Install OCRBookor on Windows 10/11 with Desktop & Start Menu shortcuts, or use the zero-install portable archive.'}
+                </p>
+
+                {/* Express PowerShell 1-liner */}
+                <div className="p-2 rounded bg-slate-900 text-slate-200 font-mono text-[10px] flex items-center justify-between gap-2">
+                  <span className="truncate">irm https://raw.githubusercontent.com/nouhailler/OCRBookor/main/scripts/windows/install-windows.ps1 | iex</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyCommand('irm https://raw.githubusercontent.com/nouhailler/OCRBookor/main/scripts/windows/install-windows.ps1 | iex')}
+                    className="shrink-0 text-slate-400 hover:text-white transition flex items-center gap-1"
+                    title={isFr ? 'Copier la commande PowerShell' : 'Copy PowerShell command'}
+                  >
+                    {copiedCmd ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                    <span>{copiedCmd ? (isFr ? 'Copié' : 'Copied') : (isFr ? 'Copier' : 'Copy')}</span>
+                  </button>
+                </div>
+
+                <div className="pt-1 flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 text-[10px] text-slate-500">
+                    <span>{isFr ? 'Fichiers :' : 'Files:'}</span>
+                    <code className="font-mono text-indigo-600 dark:text-indigo-400">setup_x64.exe</code>
+                    <span>•</span>
+                    <code className="font-mono text-indigo-600 dark:text-indigo-400">win_x64.zip</code>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href="/releases/ocrbookor_1.3.0_win_x64.zip"
+                      download="ocrbookor_1.3.0_win_x64.zip"
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+                    >
+                      <Download className="w-3.5 h-3.5 text-slate-500" />
+                      <span>{isFr ? 'Portable (.zip)' : 'Portable (.zip)'}</span>
+                    </a>
+                    <a
+                      href="https://github.com/nouhailler/OCRBookor/releases"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-sm transition"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>{isFr ? 'Installateur .exe' : 'Installer .exe'}</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-slate-600 dark:text-slate-300 text-[11.5px] leading-relaxed">
+                  {isFr
+                    ? 'Installez OCRBookor comme application native sur Debian 12/13 ou Ubuntu 22.04/24.04 avec raccourci système et service local autonome.'
+                    : 'Install OCRBookor as a native desktop application on Debian/Ubuntu with system shortcut and local daemon.'}
+                </p>
+
+                {/* Express curl 1-liner */}
+                <div className="p-2 rounded bg-slate-900 text-slate-200 font-mono text-[10px] flex items-center justify-between gap-2">
+                  <span className="truncate">curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh | sudo bash</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyCommand('curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh | sudo bash')}
+                    className="shrink-0 text-slate-400 hover:text-white transition flex items-center gap-1"
+                    title={isFr ? 'Copier la commande curl' : 'Copy curl command'}
+                  >
+                    {copiedCmd ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                    <span>{copiedCmd ? (isFr ? 'Copié' : 'Copied') : (isFr ? 'Copier' : 'Copy')}</span>
+                  </button>
+                </div>
+
+                <div className="pt-1 flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-[10px] text-slate-500">
+                    {isFr ? 'Fichier :' : 'File:'} <code className="font-mono text-indigo-600 dark:text-indigo-400">ocrbookor_1.3.0_amd64.deb</code>
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href="https://github.com/nouhailler/OCRBookor/releases"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                      <span>GitHub</span>
+                    </a>
+                    <a
+                      href="/releases/ocrbookor_1.3.0_amd64.deb"
+                      download="ocrbookor_1.3.0_amd64.deb"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-sm transition"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>{isFr ? 'Télécharger le .deb' : 'Download .deb'}</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* OCR Engines & System diagnostic */}

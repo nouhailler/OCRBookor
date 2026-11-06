@@ -49,33 +49,60 @@
 
 ## 🚀 Quickstart & Installation
 
-### Option 1 — 1-Line Command (Debian / Ubuntu / Mint)
+### 🪟 Windows Desktop (Windows 10 / 11 64-bit)
 
+OCRBookor supports native Windows execution through three easy options:
+
+#### 1. Express 1-Line PowerShell Installation
+Open Windows PowerShell and run:
+```powershell
+irm https://raw.githubusercontent.com/nouhailler/OCRBookor/main/scripts/windows/install-windows.ps1 | iex
+```
+*Automatically downloads the package, installs required Python packages, and creates an `OCRBookor` Desktop shortcut.*
+
+#### 2. Inno Setup Official Installer (.exe)
+1. Download **`ocrbookor_1.3.0_setup_x64.exe`** from [GitHub Releases](https://github.com/nouhailler/OCRBookor/releases).
+2. Run the installer wizard (desktop icon, Start menu shortcut, clean uninstaller).
+3. The app automatically starts and opens at `http://localhost:3000`.
+
+#### 3. Portable Zero-Install Archive (.zip)
+1. Download **`ocrbookor_1.3.0_win_x64.zip`** and extract it anywhere.
+2. (First run) Double-click `install-dependencies.cmd` to install Python modules.
+3. Double-click `ocrbookor.cmd` to launch the server and browser.
+
+*Prerequisites: [Node.js (18+)](https://nodejs.org) and [Python (3.10+)](https://www.python.org) with "Add python.exe to PATH" checked.*
+
+---
+
+### 🐧 Linux Desktop (Debian 12/13, Ubuntu 22.04/24.04 LTS, Mint)
+
+#### 1. 1-Line Terminal Command (curl)
 ```bash
 curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh | sudo bash
 ```
 
-### Option 2 — Manual Debian Package (.deb)
-
-Download the official binary from [GitHub Releases v1.3.0](https://github.com/nouhailler/OCRBookor/releases/tag/v1.3.0):
-
+#### 2. Manual Debian Package (.deb)
 ```bash
+wget https://github.com/nouhailler/OCRBookor/raw/main/releases/ocrbookor_1.3.0_amd64.deb
 sudo dpkg -i ocrbookor_1.3.0_amd64.deb
-sudo apt-get install -f  # Fix missing dependencies if any
-ocrbookor                # Launch application
+sudo apt-get install -f
+ocrbookor
 ```
 
-### Option 3 — From Source (Development / Custom Build)
+---
+
+### 💻 Cross-Platform Web / Local Development
 
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone https://github.com/nouhailler/OCRBookor.git
 cd OCRBookor
 
-# Install dependencies
+# 2. Install Node.js & Python dependencies
 npm install
+pip install -r requirements.txt
 
-# Start development server
+# 3. Start full-stack Express + Vite development server
 npm run dev
 ```
 

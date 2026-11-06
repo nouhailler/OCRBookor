@@ -43,11 +43,19 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
   // État des accordéons de la FAQ
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [copiedCurl, setCopiedCurl] = useState(false);
+  const [copiedPowerShell, setCopiedPowerShell] = useState(false);
+  const [installTab, setInstallTab] = useState<'windows' | 'linux'>('windows');
 
   const handleCopyCurl = () => {
     navigator.clipboard.writeText('curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh | sudo bash');
     setCopiedCurl(true);
     setTimeout(() => setCopiedCurl(false), 2500);
+  };
+
+  const handleCopyPowerShell = () => {
+    navigator.clipboard.writeText('irm https://raw.githubusercontent.com/nouhailler/OCRBookor/main/scripts/windows/install-windows.ps1 | iex');
+    setCopiedPowerShell(true);
+    setTimeout(() => setCopiedPowerShell(false), 2500);
   };
 
   const toggleFaq = (index: number) => {
@@ -192,8 +200,8 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
                   <span className="font-semibold text-stone-800 dark:text-stone-200">{isFr ? 'v1.3.0 (5 Nov. 2026)' : 'v1.3.0 (Nov. 5, 2026)'}</span>
                 </div>
                 <div>
-                  <span className="block text-stone-600 dark:text-stone-300 font-medium">{isFr ? 'Paquet Linux Officiel' : 'Official Linux Package'}</span>
-                  <span className="font-semibold text-stone-800 dark:text-stone-200">Debian / Ubuntu (.deb)</span>
+                  <span className="block text-stone-600 dark:text-stone-300 font-medium">{isFr ? 'Plateformes Supportées' : 'Supported Platforms'}</span>
+                  <span className="font-semibold text-stone-800 dark:text-stone-200">Windows (.exe) &amp; Linux (.deb)</span>
                 </div>
                 <div>
                   <span className="block text-stone-600 dark:text-stone-300 font-medium">{isFr ? 'Licence' : 'License'}</span>
@@ -811,147 +819,256 @@ export const LandingView: React.FC<LandingViewProps> = ({ onLaunchApp }) => {
             </p>
           </div>
 
-          {/* Méthode Express Recommandée : 1 ligne via curl */}
+          {/* Méthode Express Recommandée : 1 ligne via PowerShell (Windows) ou curl (Linux) */}
           <div className="mb-8 p-6 sm:p-8 rounded-2xl bg-linear-to-br from-amber-900/10 via-amber-800/5 to-transparent border-2 border-amber-600/80 dark:border-amber-500 shadow-lg">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
               <div className="flex items-center gap-2">
                 <span className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase bg-amber-700 text-white tracking-wider">
                   {isFr ? 'Méthode Express Recommandée' : 'Recommended Express Method'}
                 </span>
                 <span className="text-xs font-semibold text-stone-800 dark:text-stone-200">
-                  {isFr ? 'Installation directe via curl (toujours à jour)' : 'Direct installation via curl (always up to date)'}
+                  {isFr ? 'Installation automatique en 1 ligne (toujours à jour)' : 'Automated 1-line installation (always up to date)'}
                 </span>
               </div>
-              <span className="text-[11px] text-stone-500 font-mono">Debian 12/13, Ubuntu 22.04/24.04, Linux Mint</span>
+              {/* Tab selector */}
+              <div className="flex items-center bg-stone-200 dark:bg-stone-800 p-1 rounded-lg text-xs">
+                <button
+                  type="button"
+                  onClick={() => setInstallTab('windows')}
+                  className={`px-3 py-1 rounded-md font-medium transition ${
+                    installTab === 'windows'
+                      ? 'bg-white dark:bg-stone-700 text-amber-700 dark:text-amber-400 font-bold shadow-xs'
+                      : 'text-stone-600 dark:text-stone-400 hover:text-stone-900'
+                  }`}
+                >
+                  🪟 Windows (PowerShell)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setInstallTab('linux')}
+                  className={`px-3 py-1 rounded-md font-medium transition ${
+                    installTab === 'linux'
+                      ? 'bg-white dark:bg-stone-700 text-amber-700 dark:text-amber-400 font-bold shadow-xs'
+                      : 'text-stone-600 dark:text-stone-400 hover:text-stone-900'
+                  }`}
+                >
+                  🐧 Linux (Terminal)
+                </button>
+              </div>
             </div>
 
-            <p className="text-xs text-stone-600 dark:text-stone-400 mb-3 leading-relaxed">
-              {isFr
-                ? <>Cette commande télécharge automatiquement la dernière version du binaire, l'installe proprement avec <code>dpkg</code>, résout toutes les dépendances et configure l'exécutable <code>/usr/bin/ocrbookor</code> :</>
-                : <>This command automatically downloads the latest release binary, cleanly installs it via <code>dpkg</code>, resolves all dependencies, and sets up the <code>/usr/bin/ocrbookor</code> executable:</>}
-            </p>
+            {installTab === 'windows' ? (
+              <>
+                <p className="text-xs text-stone-600 dark:text-stone-400 mb-3 leading-relaxed">
+                  {isFr
+                    ? <>Ouvrez <strong>PowerShell</strong> et collez cette commande pour télécharger automatiquement OCRBookor, installer les modules Python nécessaires et créer un raccourci Bureau :</>
+                    : <>Open <strong>PowerShell</strong> and paste this command to automatically download OCRBookor, install required Python modules, and generate a Desktop shortcut:</>}
+                </p>
 
-            <div className="relative flex items-center bg-stone-950 text-stone-100 p-3.5 rounded-xl font-mono text-xs overflow-x-auto border border-stone-800">
-              <span className="select-none text-amber-500 mr-2 font-bold">$</span>
-              <code className="text-emerald-400 flex-1 whitespace-nowrap">curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh | sudo bash</code>
-              <button
-                onClick={handleCopyCurl}
-                className={`ml-3 px-3 py-1.5 rounded-lg text-xs font-semibold transition shrink-0 flex items-center gap-1.5 border border-stone-700 ${
-                  copiedCurl ? 'bg-emerald-700 text-white' : 'bg-stone-800 hover:bg-stone-700 text-white'
-                }`}
-                title="Copier la commande"
-              >
-                {copiedCurl ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-300" />
-                    <span>{isFr ? 'Copié !' : 'Copied!'}</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5 text-stone-300" />
-                    <span>{isFr ? 'Copier' : 'Copy'}</span>
-                  </>
-                )}
-              </button>
-            </div>
+                <div className="relative flex items-center bg-stone-950 text-stone-100 p-3.5 rounded-xl font-mono text-xs overflow-x-auto border border-stone-800">
+                  <span className="select-none text-sky-400 mr-2 font-bold">&gt;</span>
+                  <code className="text-sky-300 flex-1 whitespace-nowrap">irm https://raw.githubusercontent.com/nouhailler/OCRBookor/main/scripts/windows/install-windows.ps1 | iex</code>
+                  <button
+                    onClick={handleCopyPowerShell}
+                    className={`ml-3 px-3 py-1.5 rounded-lg text-xs font-semibold transition shrink-0 flex items-center gap-1.5 border border-stone-700 ${
+                      copiedPowerShell ? 'bg-emerald-700 text-white' : 'bg-stone-800 hover:bg-stone-700 text-white'
+                    }`}
+                    title={isFr ? 'Copier la commande PowerShell' : 'Copy PowerShell command'}
+                  >
+                    {copiedPowerShell ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-300" />
+                        <span>{isFr ? 'Copié !' : 'Copied!'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5 text-stone-300" />
+                        <span>{isFr ? 'Copier' : 'Copy'}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-xs text-stone-600 dark:text-stone-400 mb-3 leading-relaxed">
+                  {isFr
+                    ? <>Cette commande télécharge automatiquement la dernière version du binaire, l'installe avec <code>dpkg</code>, résout toutes les dépendances et configure l'exécutable <code>/usr/bin/ocrbookor</code> :</>
+                    : <>This command automatically downloads the latest release binary, cleanly installs it via <code>dpkg</code>, resolves all dependencies, and sets up the <code>/usr/bin/ocrbookor</code> executable:</>}
+                </p>
+
+                <div className="relative flex items-center bg-stone-950 text-stone-100 p-3.5 rounded-xl font-mono text-xs overflow-x-auto border border-stone-800">
+                  <span className="select-none text-amber-500 mr-2 font-bold">$</span>
+                  <code className="text-emerald-400 flex-1 whitespace-nowrap">curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh | sudo bash</code>
+                  <button
+                    onClick={handleCopyCurl}
+                    className={`ml-3 px-3 py-1.5 rounded-lg text-xs font-semibold transition shrink-0 flex items-center gap-1.5 border border-stone-700 ${
+                      copiedCurl ? 'bg-emerald-700 text-white' : 'bg-stone-800 hover:bg-stone-700 text-white'
+                    }`}
+                    title={isFr ? 'Copier la commande curl' : 'Copy curl command'}
+                  >
+                    {copiedCurl ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-300" />
+                        <span>{isFr ? 'Copié !' : 'Copied!'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5 text-stone-300" />
+                        <span>{isFr ? 'Copier' : 'Copy'}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
 
             <div className="mt-3 flex flex-wrap items-center gap-4 text-[11px] text-stone-500 dark:text-stone-400">
               <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-500" /> {isFr ? 'Aucun téléchargement manuel' : 'No manual download required'}</span>
-              <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-500" /> {isFr ? 'Résolution automatique des dépendances' : 'Automatic dependency resolution'}</span>
-              <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-500" /> {isFr ? <>Exécutable <code>/usr/bin/ocrbookor</code> prêt</> : <>Ready <code>/usr/bin/ocrbookor</code> system launcher</>}</span>
+              <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-500" /> {isFr ? 'Vérification et installation des dépendances' : 'Automatic dependency resolution'}</span>
+              <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-500" /> {isFr ? 'Lancement direct sur http://localhost:3000' : 'Direct start at http://localhost:3000'}</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            {/* Carte Linux Desktop .deb */}
-            <div className="p-6 sm:p-8 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-                  {isFr ? 'Téléchargement Manuel (.deb)' : 'Manual Download (.deb)'}
-                </span>
-                <span className="text-xs font-mono text-stone-600 dark:text-stone-300">v1.3.0 • 2.1 Mo</span>
+            {/* Carte Windows Desktop */}
+            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-4 flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300">
+                    Windows 10 / 11 (x64)
+                  </span>
+                  <span className="text-xs font-mono text-stone-500">v1.3.0</span>
+                </div>
+
+                <h3 className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100">
+                  {isFr ? 'Installateur Windows (.exe) & Portable' : 'Windows Installer (.exe) & Portable'}
+                </h3>
+
+                <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
+                  {isFr
+                    ? 'Assistant officiel Inno Setup avec raccourci sur le Bureau et désinstallateur, ou archive ZIP portable autonome.'
+                    : 'Official Inno Setup installer with Desktop shortcut and uninstaller, or standalone portable ZIP archive.'}
+                </p>
+
+                <div className="p-2.5 bg-stone-900 text-stone-200 rounded-lg text-xs font-mono space-y-0.5">
+                  <div className="text-stone-500">{isFr ? '# Exécution portable' : '# Portable run'}</div>
+                  <div>ocrbookor.cmd</div>
+                </div>
               </div>
 
-              <h3 className="font-serif text-xl font-bold text-stone-900 dark:text-stone-100">
-                {isFr ? 'Paquet Linux Debian / Ubuntu (.deb)' : 'Linux Debian / Ubuntu Package (.deb)'}
-              </h3>
-
-              <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                {isFr
-                  ? <>Compatible Debian 12/13, Ubuntu 22.04/24.04 LTS, Linux Mint. Installe le lanceur <code>/usr/bin/ocrbookor</code> et le raccourci dans le menu des applications.</>
-                  : <>Compatible with Debian 12/13, Ubuntu 22.04/24.04 LTS, Linux Mint. Installs the <code>/usr/bin/ocrbookor</code> launcher and application menu shortcut.</>}
-              </p>
-
-              <div className="p-3 bg-stone-900 text-stone-200 rounded-lg text-xs font-mono space-y-1">
-                <div className="text-stone-500">{isFr ? '# Téléchargement & installation' : '# Download & install'}</div>
-                <div>sudo dpkg -i ocrbookor_1.3.0_amd64.deb</div>
-                <div>sudo apt-get install -f</div>
-                <div>ocrbookor</div>
-              </div>
-
-              <div className="pt-2 flex flex-col sm:flex-row gap-3">
+              <div className="pt-2 flex flex-col sm:flex-row gap-2">
                 <a
-                  href="https://github.com/nouhailler/OCRBookor/releases/tag/v1.3.0"
+                  href="https://github.com/nouhailler/OCRBookor/releases"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold bg-amber-700 text-white hover:bg-amber-800 transition"
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold bg-sky-700 text-white hover:bg-sky-800 transition"
                 >
-                  <Download className="w-4 h-4" />
-                  {isFr ? 'Télécharger le .deb sur GitHub Releases' : 'Download .deb on GitHub Releases'}
+                  <Download className="w-3.5 h-3.5" />
+                  <span>{isFr ? 'Installateur .exe' : 'Installer .exe'}</span>
                 </a>
 
                 <a
-                  href="https://github.com/nouhailler/OCRBookor/raw/main/releases/ocrbookor_1.3.0_amd64.deb"
+                  href="/releases/ocrbookor_1.3.0_win_x64.zip"
+                  download="ocrbookor_1.3.0_win_x64.zip"
                   className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition"
                 >
-                  {isFr ? 'Lien direct binaire' : 'Direct binary link'}
+                  <Download className="w-3.5 h-3.5" />
+                  <span>{isFr ? 'Portable (.zip)' : 'Portable (.zip)'}</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Carte Linux Desktop .deb */}
+            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-4 flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                    Debian / Ubuntu (amd64)
+                  </span>
+                  <span className="text-xs font-mono text-stone-500">v1.3.0 • 2.1 Mo</span>
+                </div>
+
+                <h3 className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100">
+                  {isFr ? 'Paquet Linux Debian (.deb)' : 'Linux Debian Package (.deb)'}
+                </h3>
+
+                <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
+                  {isFr
+                    ? <>Compatible Debian 12/13, Ubuntu 22.04/24.04 LTS, Linux Mint. Installe le lanceur <code>/usr/bin/ocrbookor</code> et le raccourci applicatif.</>
+                    : <>Compatible with Debian 12/13, Ubuntu 22.04/24.04 LTS, Linux Mint. Installs <code>/usr/bin/ocrbookor</code> launcher and desktop shortcut.</>}
+                </p>
+
+                <div className="p-2.5 bg-stone-900 text-stone-200 rounded-lg text-xs font-mono space-y-0.5">
+                  <div className="text-stone-500">{isFr ? '# Installation Debian' : '# Debian install'}</div>
+                  <div>sudo dpkg -i ocrbookor_1.3.0_amd64.deb</div>
+                </div>
+              </div>
+
+              <div className="pt-2 flex flex-col sm:flex-row gap-2">
+                <a
+                  href="/releases/ocrbookor_1.3.0_amd64.deb"
+                  download="ocrbookor_1.3.0_amd64.deb"
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold bg-amber-700 text-white hover:bg-amber-800 transition"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>{isFr ? 'Télécharger .deb' : 'Download .deb'}</span>
+                </a>
+
+                <a
+                  href="https://github.com/nouhailler/OCRBookor/releases"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition"
+                >
+                  <span>Releases</span>
                 </a>
               </div>
             </div>
 
             {/* Carte Dépôt Source & Web */}
-            <div className="p-6 sm:p-8 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-md space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="px-3 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300">
-                  {isFr ? 'Code Source Libre' : 'Open Source Code'}
-                </span>
-                <span className="text-xs font-mono text-stone-600 dark:text-stone-300">Apache 2.0 / MIT</span>
+            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-md space-y-4 flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300">
+                    {isFr ? 'Code Source Libre' : 'Open Source Code'}
+                  </span>
+                  <span className="text-xs font-mono text-stone-500">Apache 2.0</span>
+                </div>
+
+                <h3 className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100">
+                  {isFr ? 'Dépôt GitHub & Web' : 'GitHub Repository & Web'}
+                </h3>
+
+                <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
+                  {isFr
+                    ? "Clonez le dépôt GitHub pour développer ou tester directement dans votre navigateur."
+                    : 'Clone the repository for development or test directly in your browser.'}
+                </p>
+
+                <div className="p-2.5 bg-stone-900 text-stone-200 rounded-lg text-xs font-mono space-y-0.5">
+                  <div className="text-stone-500">{isFr ? '# Cloner & lancer' : '# Clone & run'}</div>
+                  <div>git clone https://github.com/nouhailler/OCRBookor.git</div>
+                </div>
               </div>
 
-              <h3 className="font-serif text-xl font-bold text-stone-900 dark:text-stone-100">
-                {isFr ? 'Dépôt GitHub & Version Web' : 'GitHub Repository & Web Version'}
-              </h3>
-
-              <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                {isFr
-                  ? "Clonez le dépôt pour exécuter l'application localement dans Node.js ou explorez la suite de tests automatisée."
-                  : 'Clone the repository to run the app locally with Node.js or explore the automated test suite.'}
-              </p>
-
-              <div className="p-3 bg-stone-900 text-stone-200 rounded-lg text-xs font-mono space-y-1">
-                <div className="text-stone-500">{isFr ? '# Cloner et lancer localement' : '# Clone and run locally'}</div>
-                <div>git clone https://github.com/nouhailler/OCRBookor.git</div>
-                <div>cd OCRBookor &amp;&amp; npm install</div>
-                <div>npm run dev</div>
-              </div>
-
-              <div className="pt-2 flex flex-col sm:flex-row gap-3">
+              <div className="pt-2 flex flex-col sm:flex-row gap-2">
                 <a
                   href="https://github.com/nouhailler/OCRBookor"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold border border-stone-900 dark:border-white text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition"
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold border border-stone-900 dark:border-white text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition"
                 >
-                  <GitBranch className="w-4 h-4" />
-                  {isFr ? 'Consulter le dépôt GitHub' : 'View GitHub Repository'}
+                  <GitBranch className="w-3.5 h-3.5" />
+                  <span>GitHub</span>
                 </a>
 
                 <button
                   onClick={onLaunchApp}
                   className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-200 hover:bg-stone-200 dark:hover:bg-stone-700 transition"
                 >
-                  {isFr ? 'Tester dans le navigateur' : 'Test in browser'}
+                  {isFr ? 'Tester en Web' : 'Test in Web'}
                 </button>
               </div>
             </div>

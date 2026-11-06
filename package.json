@@ -12,7 +12,9 @@
     "lint": "tsc --noEmit",
     "test": "tsx scripts/test-i18n.mjs",
     "test:i18n": "tsx scripts/test-i18n.mjs",
-    "build:landing": "node scripts/build-landing.mjs"
+    "build:landing": "node scripts/build-landing.mjs",
+    "build:windows": "node scripts/build-windows.mjs",
+    "build:server": "esbuild server.ts --bundle --platform=node --target=node18 --format=esm --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\" --outfile=server.js --external:vite"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

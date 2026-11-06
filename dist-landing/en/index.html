@@ -435,79 +435,146 @@
           </p>
         </div>
 
-        <!-- Method 1: Automatic 1-line installation via curl (Recommended) -->
+        <!-- Recommended Express Method: 1-line via PowerShell (Windows) or curl (Linux) -->
         <div class="mb-8 p-6 rounded-2xl bg-linear-to-br from-amber-900/10 via-amber-800/5 to-transparent border-2 border-amber-600/80 dark:border-amber-500 shadow-md">
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-3">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3">
             <div class="flex items-center gap-2">
               <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase bg-amber-700 text-white tracking-wider">
                 Recommended Express Method
               </span>
               <span class="text-xs font-semibold text-stone-800 dark:text-stone-200">
-                Direct installation via curl (always up to date)
+                Automated 1-line installation (always up to date)
               </span>
             </div>
-            <span class="text-[11px] text-stone-500 font-mono">Debian 12/13, Ubuntu 22.04/24.04, Linux Mint</span>
+            <!-- OS Selector -->
+            <div class="flex items-center bg-stone-200 dark:bg-stone-800 p-1 rounded-lg text-xs">
+              <button
+                id="tab-btn-win"
+                type="button"
+                onclick="switchInstallTab('win')"
+                class="px-3 py-1 rounded-md font-bold bg-white dark:bg-stone-700 text-amber-700 dark:text-amber-400 shadow-xs transition"
+              >
+                🪟 Windows (PowerShell)
+              </button>
+              <button
+                id="tab-btn-linux"
+                type="button"
+                onclick="switchInstallTab('linux')"
+                class="px-3 py-1 rounded-md font-medium text-stone-600 dark:text-stone-400 hover:text-stone-900 transition"
+              >
+                🐧 Linux (Terminal)
+              </button>
+            </div>
           </div>
 
-          <p class="text-xs text-stone-600 dark:text-stone-400 mb-3">
-            This command automatically downloads the latest release binary, cleanly installs it via <code>dpkg</code>, resolves all system dependencies, and sets up the <code>/usr/bin/ocrbookor</code> executable:
-          </p>
+          <!-- Windows PowerShell Command -->
+          <div id="install-win-box">
+            <p class="text-xs text-stone-600 dark:text-stone-400 mb-3">
+              Open <strong>PowerShell</strong> and paste this command to automatically download OCRBookor, install Python dependencies, and set up a Desktop shortcut:
+            </p>
 
-          <div class="relative flex items-center bg-stone-950 text-stone-100 p-3.5 rounded-xl font-mono text-xs overflow-x-auto border border-stone-800">
-            <span class="select-none text-amber-500 mr-2 font-bold">$</span>
-            <code id="curl-cmd" class="text-emerald-400 flex-1 whitespace-nowrap">curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh | sudo bash</code>
-            <button
-              id="copy-curl-btn"
-              onclick="copyCurlCommand()"
-              class="ml-3 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-stone-800 hover:bg-stone-700 text-white transition shrink-0 flex items-center gap-1 border border-stone-700"
-              title="Copy command"
-            >
-              <svg class="w-3.5 h-3.5 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-              <span id="copy-curl-text">Copy</span>
-            </button>
+            <div class="relative flex items-center bg-stone-950 text-stone-100 p-3.5 rounded-xl font-mono text-xs overflow-x-auto border border-stone-800">
+              <span class="select-none text-sky-400 mr-2 font-bold">&gt;</span>
+              <code id="ps-cmd" class="text-sky-300 flex-1 whitespace-nowrap">irm https://raw.githubusercontent.com/nouhailler/OCRBookor/main/scripts/windows/install-windows.ps1 | iex</code>
+              <button
+                id="copy-ps-btn"
+                onclick="copyPowershellCommand()"
+                class="ml-3 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-stone-800 hover:bg-stone-700 text-white transition shrink-0 flex items-center gap-1 border border-stone-700"
+                title="Copy PowerShell command"
+              >
+                <svg class="w-3.5 h-3.5 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <span id="copy-ps-text">Copy</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Linux curl Command -->
+          <div id="install-linux-box" class="hidden">
+            <p class="text-xs text-stone-600 dark:text-stone-400 mb-3">
+              This command automatically downloads the latest release binary, cleanly installs it via <code>dpkg</code>, resolves all dependencies, and sets up <code>/usr/bin/ocrbookor</code>:
+            </p>
+
+            <div class="relative flex items-center bg-stone-950 text-stone-100 p-3.5 rounded-xl font-mono text-xs overflow-x-auto border border-stone-800">
+              <span class="select-none text-amber-500 mr-2 font-bold">$</span>
+              <code id="curl-cmd" class="text-emerald-400 flex-1 whitespace-nowrap">curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh | sudo bash</code>
+              <button
+                id="copy-curl-btn"
+                onclick="copyCurlCommand()"
+                class="ml-3 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-stone-800 hover:bg-stone-700 text-white transition shrink-0 flex items-center gap-1 border border-stone-700"
+                title="Copy curl command"
+              >
+                <svg class="w-3.5 h-3.5 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <span id="copy-curl-text">Copy</span>
+              </button>
+            </div>
           </div>
 
           <div class="mt-3 flex items-center gap-4 text-[11px] text-stone-500 dark:text-stone-400">
             <span>✓ No manual download required</span>
             <span>✓ Automatic package resolution</span>
-            <span>✓ Ready-to-use <code>ocrbookor</code> system launcher</span>
+            <span>✓ 100% Autonomous local processing</span>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-3">
-            <div class="flex justify-between items-center text-xs">
-              <span class="font-bold text-amber-700">Manual Download (.deb)</span>
-              <span class="font-mono text-stone-500">v1.3.0 • 2.1 MB</span>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Windows Card -->
+          <div class="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-3 flex flex-col justify-between">
+            <div class="space-y-3">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-bold text-sky-700 dark:text-sky-400">Windows 10 / 11 (x64)</span>
+                <span class="font-mono text-stone-500">v1.3.0</span>
+              </div>
+              <h3 class="font-editorial text-lg font-bold">Installer .exe &amp; Portable .zip</h3>
+              <p class="text-xs text-stone-600 dark:text-stone-400">Setup wizard with Desktop shortcut and uninstaller, or zero-install portable archive.</p>
+              <div class="p-2.5 bg-stone-900 text-stone-200 rounded font-mono text-[11px] space-y-0.5">
+                <div>ocrbookor.cmd</div>
+              </div>
             </div>
-            <h3 class="font-editorial text-lg font-bold">Standalone Debian Package</h3>
-            <p class="text-xs text-stone-600 dark:text-stone-400">For offline installation or local binary package archiving.</p>
-            <div class="p-3 bg-stone-900 text-stone-200 rounded font-mono text-[11px] space-y-1">
-              <div>sudo dpkg -i ocrbookor_1.3.0_amd64.deb</div>
-              <div>sudo apt-get install -f</div>
-              <div>ocrbookor</div>
-            </div>
-            <div class="pt-2 flex gap-3">
-              <a href="https://github.com/nouhailler/OCRBookor/releases/tag/v1.3.0" target="_blank" rel="noopener noreferrer" class="px-4 py-2 rounded-lg text-xs font-bold bg-amber-700 text-white hover:bg-amber-800 transition">
-                GitHub Releases
+            <div class="pt-2 flex flex-wrap gap-2">
+              <a href="https://github.com/nouhailler/OCRBookor/releases" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-lg text-xs font-bold bg-sky-700 text-white hover:bg-sky-800 transition">
+                Installer .exe
               </a>
-              <a href="https://github.com/nouhailler/OCRBookor/raw/main/releases/ocrbookor_1.3.0_amd64.deb" class="px-3 py-2 rounded-lg text-xs border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-100 transition">
-                Download .deb
+              <a href="/releases/ocrbookor_1.3.0_win_x64.zip" download="ocrbookor_1.3.0_win_x64.zip" class="px-3 py-2 rounded-lg text-xs border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-100 transition">
+                Portable (.zip)
               </a>
             </div>
           </div>
 
-          <div class="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-3">
-            <div class="flex justify-between items-center text-xs">
-              <span class="font-bold text-stone-700 dark:text-stone-300">Open Source Code</span>
-              <span class="font-mono text-stone-500">Apache 2.0</span>
+          <!-- Linux Debian Card -->
+          <div class="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-3 flex flex-col justify-between">
+            <div class="space-y-3">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-bold text-amber-700">Debian / Ubuntu amd64</span>
+                <span class="font-mono text-stone-500">v1.3.0 • 2.1 MB</span>
+              </div>
+              <h3 class="font-editorial text-lg font-bold">Standalone Debian Package</h3>
+              <p class="text-xs text-stone-600 dark:text-stone-400">For offline installation or local binary package archiving on Debian 12/13 and Ubuntu.</p>
+              <div class="p-2.5 bg-stone-900 text-stone-200 rounded font-mono text-[11px] space-y-0.5">
+                <div>sudo dpkg -i ocrbookor_1.3.0_amd64.deb</div>
+              </div>
             </div>
-            <h3 class="font-editorial text-lg font-bold">GitHub Repository &amp; Node.js Execution</h3>
-            <p class="text-xs text-stone-600 dark:text-stone-400">Clone the repository to run the local Express + Vite server.</p>
-            <div class="p-3 bg-stone-900 text-stone-200 rounded font-mono text-[11px] space-y-1">
-              <div>git clone https://github.com/nouhailler/OCRBookor.git</div>
-              <div>cd OCRBookor &amp;&amp; npm install</div>
-              <div>npm run dev</div>
+            <div class="pt-2 flex flex-wrap gap-2">
+              <a href="/releases/ocrbookor_1.3.0_amd64.deb" download="ocrbookor_1.3.0_amd64.deb" class="px-3.5 py-2 rounded-lg text-xs font-bold bg-amber-700 text-white hover:bg-amber-800 transition">
+                Download .deb
+              </a>
+              <a href="https://github.com/nouhailler/OCRBookor/releases" target="_blank" rel="noopener noreferrer" class="px-3 py-2 rounded-lg text-xs border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-100 transition">
+                Releases
+              </a>
+            </div>
+          </div>
+
+          <!-- GitHub / Web Card -->
+          <div class="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-3 flex flex-col justify-between">
+            <div class="space-y-3">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-bold text-stone-700 dark:text-stone-300">Open Source Code</span>
+                <span class="font-mono text-stone-500">Apache 2.0</span>
+              </div>
+              <h3 class="font-editorial text-lg font-bold">GitHub Repository &amp; Node.js</h3>
+              <p class="text-xs text-stone-600 dark:text-stone-400">Clone the repository to run the local server or test the Web app.</p>
+              <div class="p-2.5 bg-stone-900 text-stone-200 rounded font-mono text-[11px] space-y-0.5">
+                <div>git clone https://github.com/nouhailler/OCRBookor.git</div>
+              </div>
             </div>
             <div class="pt-2">
               <a href="https://github.com/nouhailler/OCRBookor" target="_blank" rel="noopener noreferrer" class="px-4 py-2 rounded-lg text-xs font-bold border border-stone-900 dark:border-white text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition">
@@ -626,7 +693,46 @@
       document.documentElement.classList.add('dark');
     }
 
-    // Copy curl command
+    // Installation Tabs (Windows / Linux)
+    function switchInstallTab(plat) {
+      const winBox = document.getElementById('install-win-box');
+      const linuxBox = document.getElementById('install-linux-box');
+      const btnWin = document.getElementById('tab-btn-win');
+      const btnLinux = document.getElementById('tab-btn-linux');
+
+      if (plat === 'win') {
+        winBox?.classList.remove('hidden');
+        linuxBox?.classList.add('hidden');
+        btnWin?.classList.add('bg-white', 'dark:bg-stone-700', 'text-amber-700', 'dark:text-amber-400', 'font-bold', 'shadow-xs');
+        btnWin?.classList.remove('text-stone-600', 'dark:text-stone-400', 'font-medium');
+        btnLinux?.classList.remove('bg-white', 'dark:bg-stone-700', 'text-amber-700', 'dark:text-amber-400', 'font-bold', 'shadow-xs');
+        btnLinux?.classList.add('text-stone-600', 'dark:text-stone-400', 'font-medium');
+      } else {
+        linuxBox?.classList.remove('hidden');
+        winBox?.classList.add('hidden');
+        btnLinux?.classList.add('bg-white', 'dark:bg-stone-700', 'text-amber-700', 'dark:text-amber-400', 'font-bold', 'shadow-xs');
+        btnLinux?.classList.remove('text-stone-600', 'dark:text-stone-400', 'font-medium');
+        btnWin?.classList.remove('bg-white', 'dark:bg-stone-700', 'text-amber-700', 'dark:text-amber-400', 'font-bold', 'shadow-xs');
+        btnWin?.classList.add('text-stone-600', 'dark:text-stone-400', 'font-medium');
+      }
+    }
+
+    // Copy PowerShell command (Windows)
+    function copyPowershellCommand() {
+      const cmd = document.getElementById('ps-cmd')?.innerText || 'irm https://raw.githubusercontent.com/nouhailler/OCRBookor/main/scripts/windows/install-windows.ps1 | iex';
+      navigator.clipboard.writeText(cmd).then(() => {
+        const textSpan = document.getElementById('copy-ps-text');
+        const btn = document.getElementById('copy-ps-btn');
+        if (textSpan) textSpan.innerText = 'Copied!';
+        if (btn) btn.classList.add('bg-emerald-700', 'text-white');
+        setTimeout(() => {
+          if (textSpan) textSpan.innerText = 'Copy';
+          if (btn) btn.classList.remove('bg-emerald-700', 'text-white');
+        }, 2000);
+      });
+    }
+
+    // Copy curl command (Linux)
     function copyCurlCommand() {
       const cmd = document.getElementById('curl-cmd')?.innerText || 'curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh | sudo bash';
       navigator.clipboard.writeText(cmd).then(() => {

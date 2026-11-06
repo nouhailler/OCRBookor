@@ -1,4 +1,4 @@
-name: Release & Publish Binary
+name: Release & Publish Binaries
 
 on:
   push:
@@ -15,10 +15,9 @@ permissions:
   contents: write
 
 jobs:
-  build-and-release:
-    name: Build & Publish Release
+  build-linux:
+    name: Build Linux (.deb) & Portable Packages
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -47,16 +46,80 @@ jobs:
         run: |
           chmod +x scripts/*.sh
           ./scripts/test-e2e.sh
+          npm test
 
       - name: Build Debian Package (.deb)
         run: |
           ./scripts/build-deb.sh
           ls -lh releases/
 
-      - name: Compute SHA256 Checksum
+      - name: Build Windows Portable Zip
         run: |
+          node scripts/build-windows.mjs
+          ls -lh releases/
+
+      - name: Upload Linux & Portable Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-and-portable-artifacts
+          path: |
+            releases/*.deb
+            releases/*.zip
+
+  build-windows-installer:
+    name: Build Windows Installer (.exe)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies & Build application
+        run: |
+          npm install --legacy-peer-deps
+          npm run build
+          node scripts/build-windows.mjs
+
+      - name: Compile Inno Setup Windows Installer (.exe)
+        run: |
+          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' scripts\windows\ocrbookor-installer.iss
+
+      - name: Upload Windows Installer Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer-artifact
+          path: |
+            releases/*_setup_x64.exe
+
+  publish-release:
+    name: Publish GitHub Release
+    needs: [build-linux, build-windows-installer]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: releases-download
+          merge-multiple: true
+
+      - name: Assemble Release Assets & Compute Checksums
+        run: |
+          mkdir -p releases
+          cp -f releases-download/* releases/ 2>/dev/null || true
           cd releases
-          sha256sum *.deb > SHA256SUMS.txt
+          sha256sum *.* > SHA256SUMS.txt
           cat SHA256SUMS.txt
 
       - name: Create GitHub Release and Upload Assets
@@ -67,34 +130,64 @@ jobs:
           tag_name: ${{ github.event.inputs.tag_name || (github.ref_type == 'tag' && github.ref_name) || 'v1.3.0' }}
           name: OCRBookor ${{ github.event.inputs.tag_name || (github.ref_type == 'tag' && github.ref_name) || 'v1.3.0' }}
           body: |
-            ## 🚀 OCRBookor v1.3.0 — Release Bilingue (FR/EN) & PWA Landing
+            ## 🚀 OCRBookor v1.3.0 — Release Multi-Plateforme (Linux & Windows) & PWA
 
-            Application locale de numérisation, reconnaissance OCR et reconstruction éditoriale de livres imprimés vers EPUB 3, Markdown, TXT et HTML.
+            Application locale et souveraine de numérisation, reconnaissance OCR et reconstruction éditoriale de livres imprimés vers EPUB 3, Markdown, TXT et HTML.
 
-            ### 📦 Fichiers téléchargeables
-            - **`ocrbookor_1.3.0_amd64.deb`** : Paquet d'installation natif Debian / Ubuntu x86_64.
-            - **`SHA256SUMS.txt`** : Empreintes cryptographiques de vérification d'intégrité.
+            ---
 
-            ### ⚡ Installation Express en 1 ligne
+            ### 📦 Fichiers et Installateurs Téléchargeables
+
+            | Plateforme | Type | Fichier | Description |
+            | :--- | :--- | :--- | :--- |
+            | **Windows (x64)** | 🪟 **Installateur .exe** | **`ocrbookor_1.3.0_setup_x64.exe`** | Assistant d'installation officiel avec raccourci Bureau et menu Démarrer. |
+            | **Windows (x64)** | 📦 **Archive Portable .zip** | **`ocrbookor_1.3.0_win_x64.zip`** | Version autonome zéro-installation avec lanceur `ocrbookor.cmd`. |
+            | **Linux (amd64)** | 🐧 **Paquet natif .deb** | **`ocrbookor_1.3.0_amd64.deb`** | Pour Debian 12/13, Ubuntu 22.04/24.04 LTS et dérivés. |
+            | **Vérification** | 🔒 **Checksums SHA256** | **`SHA256SUMS.txt`** | Empreintes cryptographiques d'intégrité binaire. |
+
+            ---
+
+            ### ⚡ Installation Express
+
+            #### 🪟 Windows Desktop (PowerShell en 1 ligne)
+            ```powershell
+            irm https://raw.githubusercontent.com/nouhailler/OCRBookor/main/scripts/windows/install-windows.ps1 | iex
+            ```
+
+            #### 🐧 Linux Debian / Ubuntu (Terminal en 1 ligne)
             ```bash
             curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh | sudo bash
             ```
 
-            ### 🔧 Installation Manuelle sur Linux Desktop
+            ---
+
+            ### 🔧 Installation Manuelle
+
+            #### Sous Windows :
+            1. Téléchargez `ocrbookor_1.3.0_setup_x64.exe` et lancez l'assistant d'installation.
+            2. Ou décompressez `ocrbookor_1.3.0_win_x64.zip` et exécutez `ocrbookor.cmd`.
+            3. L'application s'ouvre automatiquement sur `http://localhost:3000`.
+
+            #### Sous Linux :
             ```bash
             sudo dpkg -i ocrbookor_1.3.0_amd64.deb
             sudo apt-get install -f
             ocrbookor
             ```
 
+            ---
+
             ### 🌟 Nouveautés v1.3.0
-            - 🌐 **Internationalisation Complète (i18n) :** Interface intégrale en français et anglais avec sélecteur instantané.
-            - 📱 **Landing Page PWA Bilingue :** Version anglaise autonome (`/en`) sur Cloudflare Pages avec support hors-ligne.
-            - 🚀 **Script d'installation `curl` :** Automatisation du déploiement binaire sur Debian / Ubuntu.
-            - 📚 **Documentation Bilingue :** `README.en.md` et rapport `docs/INTERNATIONALIZATION_EN_REPORT.md`.
-            - 🧪 **Suite de tests i18n automatisée :** Parité 100% (444 clés vérifiées).
+            - 🪟 **Support Natif Windows :** Installateur exécutable `.exe` Inno Setup, archive portable `.zip`, script d'installation PowerShell et détection automatique des exécutables Python sous Windows.
+            - 🌐 **Internationalisation Complète (i18n) :** Interface bilingue intégrale en français et anglais avec sélecteur instantané.
+            - 📱 **Landing Page PWA Bilingue :** Version autonome (`/en`) sur Cloudflare Pages avec mise en cache hors-ligne.
+            - 🚀 **Déploiement Simplifié :** Scripts d'installation automatique curl (Linux) et irm (Windows).
+            - 📚 **Documentation Complète Bilingue :** `README.md`, `README.en.md`, guides d'installation et spécifications.
+            - 🧪 **Suite de Tests et Validation :** Parité 100% sur les clés de traduction et tests E2E de conversion.
           files: |
             releases/*.deb
+            releases/*.exe
+            releases/*.zip
             releases/SHA256SUMS.txt
           draft: false
           prerelease: false

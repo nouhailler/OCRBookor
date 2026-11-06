@@ -21,7 +21,21 @@ class TesseractEngine(BaseOCREngine):
         return "tesseract"
 
     def is_available(self) -> bool:
-        return shutil.which(self.cmd) is not None
+        if shutil.which(self.cmd) is not None:
+            return True
+        import sys
+        import os
+        if sys.platform == "win32":
+            common_candidates = [
+                r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+                r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
+                os.path.join(os.environ.get("LOCALAPPDATA", ""), "Programs", "Tesseract-OCR", "tesseract.exe"),
+            ]
+            for candidate in common_candidates:
+                if candidate and os.path.isfile(candidate):
+                    self.cmd = candidate
+                    return True
+        return False
 
     def get_supported_languages(self) -> List[str]:
         if not self.is_available():

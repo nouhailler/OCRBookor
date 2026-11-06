@@ -73,54 +73,67 @@
 
 ## 🚀 Installation & Démarrage
 
-### Option A : Installation Express en 1 ligne (Recommandée sur Linux Debian / Ubuntu)
+### 🪟 Plateforme Windows (Windows 10 / 11 64-bit)
 
-Installez automatiquement la dernière version d'OCRBookor avec ses dépendances et son lanceur système sans aucun téléchargement manuel :
+OCRBookor propose trois modes d'exécution pour l'environnement Windows :
 
+#### 1. Installation Express en 1 ligne (PowerShell)
+Ouvrez votre terminal PowerShell et exécutez :
+```powershell
+irm https://raw.githubusercontent.com/nouhailler/OCRBookor/main/scripts/windows/install-windows.ps1 | iex
+```
+*Télécharge automatiquement le paquet binaire, installe les dépendances Python requises et dépose un raccourci `OCRBookor` sur votre Bureau.*
+
+#### 2. Installateur Exécutable (.exe) Inno Setup
+1. Téléchargez **`ocrbookor_1.3.0_setup_x64.exe`** depuis la section [GitHub Releases](https://github.com/nouhailler/OCRBookor/releases).
+2. Lancez l'assistant d'installation (choix de la langue, création du raccourci Bureau et menu Démarrer).
+3. À la fin de l'installation, OCRBookor se lance automatiquement sur `http://localhost:3000`.
+
+#### 3. Version Portable Autonome (.zip)
+1. Téléchargez l'archive **`ocrbookor_1.3.0_win_x64.zip`** et extrayez-la dans le dossier de votre choix.
+2. (Première utilisation) Double-cliquez sur `install-dependencies.cmd` pour installer les modules Python.
+3. Double-cliquez sur `ocrbookor.cmd` pour lancer le serveur local et ouvrir l'application.
+
+*Prérequis Windows : [Node.js (18+)](https://nodejs.org) et [Python (3.10+)](https://www.python.org) avec case "Add python.exe to PATH" cochée.*
+
+---
+
+### 🐧 Plateforme Linux (Debian 12/13, Ubuntu 22.04/24.04 LTS, Mint)
+
+#### 1. Installation Express en 1 ligne (curl)
 ```bash
 curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh | sudo bash
 ```
-
-Une fois installé, démarrez simplement l'application :
+Une fois installé, démarrez simplement :
 ```bash
 ocrbookor
 ```
-*L'application démarre immédiatement sur `http://localhost:3000` et ajoute un raccourci dans le menu des applications de votre bureau.*
 
----
-
-### Option B : Installation Manuelle via Paquet Debian Desktop (.deb)
-
-Le paquet binaire Debian est disponible dans la section **[GitHub Releases v1.3.0](https://github.com/nouhailler/OCRBookor/releases/tag/v1.3.0)** ou directement téléchargeable :
-
-- **Lien direct GitHub (binaire brut) :** [ocrbookor_1.3.0_amd64.deb](https://github.com/nouhailler/OCRBookor/raw/main/releases/ocrbookor_1.3.0_amd64.deb)
-- **Depuis l'application Web :** Menu Hamburger ➔ *Paramètres Système* ➔ Bouton *Télécharger le .deb (v1.3.0)*
-
+#### 2. Installation Manuelle via Paquet Debian (.deb)
 ```bash
-# Téléchargement direct en ligne de commande
+# Téléchargement direct
 wget https://github.com/nouhailler/OCRBookor/raw/main/releases/ocrbookor_1.3.0_amd64.deb
 
-# Installation du paquet Debian
+# Installation du paquet
 sudo dpkg -i ocrbookor_1.3.0_amd64.deb
-
-# Résolution des dépendances système si nécessaire
 sudo apt-get install -f
 
-# Lancement depuis le terminal ou via le menu des applications
+# Lancement
 ocrbookor
 ```
 
 ---
 
-### Option C : Version Web / Développement Local Node.js
+### 💻 Version Web / Développement Local (Toutes Plateformes)
 
 ```bash
 # 1. Cloner le dépôt
 git clone https://github.com/nouhailler/OCRBookor.git
 cd OCRBookor
 
-# 2. Installer les dépendances Node.js
+# 2. Installer les dépendances Node.js & Python
 npm install
+pip install -r requirements.txt
 
 # 3. Démarrer le serveur full-stack Express + Vite
 npm run dev
@@ -128,28 +141,10 @@ npm run dev
 
 L'application est disponible immédiatement sur : **`http://localhost:3000`**
 
-# Installation du paquet Debian
-sudo dpkg -i ocrbookor_1.2.0_amd64.deb
-
-# Résolution des dépendances système si nécessaire
-sudo apt-get install -f
-
-# Lancement depuis le terminal ou via le menu des applications
-ocrbookor
-```
-
-#### Publication automatisée sur GitHub Releases :
-Un workflow GitHub Actions (`.github/workflows/release.yml`) et un script autonome (`scripts/publish-github-release.sh`) sont intégrés pour publier la release officielle et son asset binaire en une commande :
-
-```bash
-# Via le script avec votre Personal Access Token GitHub (portée repo / contents:write)
-GITHUB_TOKEN=ghp_votretokency ./scripts/publish-github-release.sh
-
-# Ou via GitHub CLI (gh)
-gh release create v1.3.0 releases/ocrbookor_1.3.0_amd64.deb \
-  --title "OCRBookor v1.3.0 — Release Bilingue (FR/EN) & PWA Landing" \
-  --notes "Release officielle v1.3.0 avec binaire .deb Debian/Ubuntu et support multilingue"
-```
+#### Fabrication des paquets de release :
+- Paquet Debian Linux : `bash ./scripts/build-deb.sh`
+- Archive Windows Portable : `npm run build:windows` ou `node ./scripts/build-windows.mjs`
+- Bundle Cloudflare Pages : `npm run build:landing`
 
 ---
 
