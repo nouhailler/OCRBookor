@@ -10,6 +10,7 @@ import crypto from 'crypto';
 import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import JSZip from 'jszip';
+import { installPlatformDependencies } from './install-platform-deps.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,6 +25,10 @@ const SHA_FILE = path.join(rootDir, 'releases', 'SHA256SUMS.txt');
 console.log('=================================================================');
 console.log(`  Construction du Paquet Windows Desktop pour OCRBookor v${VERSION}`);
 console.log('=================================================================');
+
+// 0. Vérification et installation conditionnelle des dépendances natives selon la plateforme
+console.log('→ 0/5 Vérification des dépendances natives de la plateforme...');
+installPlatformDependencies();
 
 // 1. Compilation du frontend si absent
 if (!fs.existsSync(path.join(rootDir, 'dist', 'index.html'))) {
