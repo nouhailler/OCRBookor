@@ -50,7 +50,7 @@ jobs:
 
       - name: Build Debian Package (.deb)
         run: |
-          ./scripts/build-deb.sh
+          bash ./scripts/build-deb.sh
           ls -lh releases/
 
       - name: Build Windows Portable Zip
@@ -58,47 +58,49 @@ jobs:
           node scripts/build-windows.mjs
           ls -lh releases/
 
-      - name: Upload Linux & Portable Artifacts
+      - name: Upload Release Staging Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: linux-and-portable-artifacts
-          path: |
-            releases/*.deb
-            releases/*.zip
+          name: release-staging
+          path: releases/
 
   build-windows-installer:
     name: Build Windows Installer (.exe)
+    needs: build-linux
     runs-on: windows-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Download Staging Artifacts from Linux Build
+        uses: actions/download-artifact@v4
         with:
-          node-version: 22
+          name: release-staging
+          path: releases
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies & Build application
+      - name: Install Inno Setup Compiler
         run: |
-          npm install --legacy-peer-deps
-          npm run build
-          node scripts/build-windows.mjs
+          choco install innosetup --yes
 
       - name: Compile Inno Setup Windows Installer (.exe)
         run: |
-          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' scripts\windows\ocrbookor-installer.iss
+          if (Test-Path 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe') {
+            & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' scripts\windows\ocrbookor-installer.iss
+          } elseif (Get-Command iscc -ErrorAction SilentlyContinue) {
+            iscc scripts\windows\ocrbookor-installer.iss
+          } else {
+            throw "ISCC.exe introuvable après installation Inno Setup."
+          }
+
+      - name: Verify Installer Exists
+        run: |
+          Get-ChildItem -Path releases -Filter "*.exe"
 
       - name: Upload Windows Installer Artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-installer-artifact
-          path: |
-            releases/*_setup_x64.exe
+          path: releases/*_setup_x64.exe
 
   publish-release:
     name: Publish GitHub Release
@@ -117,9 +119,12 @@ jobs:
       - name: Assemble Release Assets & Compute Checksums
         run: |
           mkdir -p releases
-          cp -f releases-download/* releases/ 2>/dev/null || true
+          cp -f releases-download/*.deb releases/ 2>/dev/null || true
+          cp -f releases-download/*.zip releases/ 2>/dev/null || true
+          cp -f releases-download/*.exe releases/ 2>/dev/null || true
           cd releases
-          sha256sum *.* > SHA256SUMS.txt
+          ls -la
+          sha256sum ocrbookor_1.3.0* > SHA256SUMS.txt 2>/dev/null || sha256sum *.* > SHA256SUMS.txt
           cat SHA256SUMS.txt
 
       - name: Create GitHub Release and Upload Assets

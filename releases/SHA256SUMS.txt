@@ -1,2 +1,2 @@
 c51975d0fb948face8091f6c1c30a8e4f822f647a49804a3c352d5110386e544  ocrbookor_1.3.0_amd64.deb
-25cf4ffb52348dff35e3a3f8b05908049cd0cf3239a1baa6f60353f0afafbd2a  ocrbookor_1.3.0_win_x64.zip
+2ba9bd5a5ea383432de3cb8a9ac0ceb2d9876c8bd8bff754d52b60aaae94159b  ocrbookor_1.3.0_win_x64.zip
