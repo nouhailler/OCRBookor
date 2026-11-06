@@ -7,16 +7,16 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Tag name for the release (e.g. v1.3.0)'
+        description: 'Tag name for the release (e.g. v1.4.0)'
         required: true
-        default: 'v1.3.0'
+        default: 'v1.4.0'
 
 permissions:
   contents: write
 
 jobs:
-  build-linux:
-    name: Build Linux (.deb) & Portable Packages
+  build-linux-and-packages:
+    name: Build Linux (.deb), Windows & macOS Packages
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -58,6 +58,11 @@ jobs:
           node scripts/build-windows.mjs
           ls -lh releases/
 
+      - name: Build macOS Universal Packages (.zip & .tar.gz)
+        run: |
+          node scripts/build-macos.mjs
+          ls -lh releases/
+
       - name: Upload Release Staging Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -66,7 +71,7 @@ jobs:
 
   build-windows-installer:
     name: Build Windows Installer (.exe)
-    needs: build-linux
+    needs: build-linux-and-packages
     runs-on: windows-latest
     steps:
       - name: Checkout repository
@@ -104,7 +109,7 @@ jobs:
 
   publish-release:
     name: Publish GitHub Release
-    needs: [build-linux, build-windows-installer]
+    needs: [build-linux-and-packages, build-windows-installer]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -121,10 +126,11 @@ jobs:
           mkdir -p releases
           cp -f releases-download/*.deb releases/ 2>/dev/null || true
           cp -f releases-download/*.zip releases/ 2>/dev/null || true
+          cp -f releases-download/*.tar.gz releases/ 2>/dev/null || true
           cp -f releases-download/*.exe releases/ 2>/dev/null || true
           cd releases
           ls -la
-          sha256sum ocrbookor_1.3.0* > SHA256SUMS.txt 2>/dev/null || sha256sum *.* > SHA256SUMS.txt
+          sha256sum ocrbookor_1.4.0*.deb ocrbookor_1.4.0*.zip ocrbookor_1.4.0*.tar.gz ocrbookor_1.4.0*.exe > SHA256SUMS.txt 2>/dev/null || sha256sum *.* > SHA256SUMS.txt
           cat SHA256SUMS.txt
 
       - name: Create GitHub Release and Upload Assets
@@ -132,10 +138,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.event.inputs.tag_name || (github.ref_type == 'tag' && github.ref_name) || 'v1.3.0' }}
-          name: OCRBookor ${{ github.event.inputs.tag_name || (github.ref_type == 'tag' && github.ref_name) || 'v1.3.0' }}
+          tag_name: ${{ github.event.inputs.tag_name || (github.ref_type == 'tag' && github.ref_name) || 'v1.4.0' }}
+          name: OCRBookor ${{ github.event.inputs.tag_name || (github.ref_type == 'tag' && github.ref_name) || 'v1.4.0' }}
           body: |
-            ## 🚀 OCRBookor v1.3.0 — Release Multi-Plateforme (Linux & Windows) & PWA
+            ## 🚀 OCRBookor v1.4.0 — Release Tri-Plateforme (Linux, Windows & macOS) & PWA
 
             Application locale et souveraine de numérisation, reconnaissance OCR et reconstruction éditoriale de livres imprimés vers EPUB 3, Markdown, TXT et HTML.
 
@@ -145,14 +151,21 @@ jobs:
 
             | Plateforme | Type | Fichier | Description |
             | :--- | :--- | :--- | :--- |
-            | **Windows (x64)** | 🪟 **Installateur .exe** | **`ocrbookor_1.3.0_setup_x64.exe`** | Assistant d'installation officiel avec raccourci Bureau et menu Démarrer. |
-            | **Windows (x64)** | 📦 **Archive Portable .zip** | **`ocrbookor_1.3.0_win_x64.zip`** | Version autonome zéro-installation avec lanceur `ocrbookor.cmd`. |
-            | **Linux (amd64)** | 🐧 **Paquet natif .deb** | **`ocrbookor_1.3.0_amd64.deb`** | Pour Debian 12/13, Ubuntu 22.04/24.04 LTS et dérivés. |
+            | **macOS (Universal)** | 🍎 **Archive Finder macOS** | **`ocrbookor_1.4.0_macos_universal.zip`** | Version autonome pour Apple Silicon (M1/M2/M3/M4) et Intel avec lanceur `ocrbookor.command`. |
+            | **macOS (Universal)** | 🍏 **Archive Tarball** | **`ocrbookor_1.4.0_macos_universal.tar.gz`** | Archive Unix préservant les droits d'exécution `chmod 755`. |
+            | **Windows (x64)** | 🪟 **Installateur .exe** | **`ocrbookor_1.4.0_setup_x64.exe`** | Assistant d'installation officiel Inno Setup avec raccourci Bureau et menu Démarrer. |
+            | **Windows (x64)** | 📦 **Archive Portable .zip** | **`ocrbookor_1.4.0_win_x64.zip`** | Version autonome zéro-installation avec lanceur `ocrbookor.cmd`. |
+            | **Linux (amd64)** | 🐧 **Paquet natif .deb** | **`ocrbookor_1.4.0_amd64.deb`** | Pour Debian 12/13, Ubuntu 22.04/24.04 LTS et dérivés. |
             | **Vérification** | 🔒 **Checksums SHA256** | **`SHA256SUMS.txt`** | Empreintes cryptographiques d'intégrité binaire. |
 
             ---
 
-            ### ⚡ Installation Express
+            ### ⚡ Installation Express en 1 Ligne
+
+            #### 🍎 macOS Desktop (Terminal en 1 ligne)
+            ```bash
+            curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/scripts/macos/install-macos.sh | bash
+            ```
 
             #### 🪟 Windows Desktop (PowerShell en 1 ligne)
             ```powershell
@@ -166,33 +179,26 @@ jobs:
 
             ---
 
-            ### 🔧 Installation Manuelle
-
-            #### Sous Windows :
-            1. Téléchargez `ocrbookor_1.3.0_setup_x64.exe` et lancez l'assistant d'installation.
-            2. Ou décompressez `ocrbookor_1.3.0_win_x64.zip` et exécutez `ocrbookor.cmd`.
-            3. L'application s'ouvre automatiquement sur `http://localhost:3000`.
-
-            #### Sous Linux :
-            ```bash
-            sudo dpkg -i ocrbookor_1.3.0_amd64.deb
-            sudo apt-get install -f
-            ocrbookor
-            ```
+            ### 🔧 Démarrage Rapide sous macOS
+            1. Téléchargez **`ocrbookor_1.4.0_macos_universal.zip`**.
+            2. Double-cliquez pour décompresser l'archive dans vos Téléchargements ou Applications.
+            3. Double-cliquez sur **`ocrbookor.command`** dans le Finder.
+            4. Votre navigateur par défaut s'ouvre automatiquement sur `http://localhost:3000`.
 
             ---
 
-            ### 🌟 Nouveautés v1.3.0
-            - 🪟 **Support Natif Windows :** Installateur exécutable `.exe` Inno Setup, archive portable `.zip`, script d'installation PowerShell et détection automatique des exécutables Python sous Windows.
+            ### 🌟 Nouveautés v1.4.0
+            - 🍎 **Support Complet macOS (Apple Silicon & Intel) :** Lanceur natif `ocrbookor.command`, script d'installation en 1 ligne pour macOS, gestion du dossier `~/Library/Application Support/OCRBookor` et détection des interpréteurs Python Homebrew (`/opt/homebrew/bin/python3` et `/usr/local/bin/python3`).
+            - 🛡️ **Gestion Conditionnelle des Dépendances Natives :** Éradication du bug npm #4828 via le hook `install-platform-deps.mjs`.
+            - 🪟 **Support Natif Windows :** Installateur exécutable `.exe` Inno Setup, archive portable `.zip` et script PowerShell.
             - 🌐 **Internationalisation Complète (i18n) :** Interface bilingue intégrale en français et anglais avec sélecteur instantané.
             - 📱 **Landing Page PWA Bilingue :** Version autonome (`/en`) sur Cloudflare Pages avec mise en cache hors-ligne.
-            - 🚀 **Déploiement Simplifié :** Scripts d'installation automatique curl (Linux) et irm (Windows).
-            - 📚 **Documentation Complète Bilingue :** `README.md`, `README.en.md`, guides d'installation et spécifications.
-            - 🧪 **Suite de Tests et Validation :** Parité 100% sur les clés de traduction et tests E2E de conversion.
+            - 🧪 **Suite de Tests et Validation :** Tests E2E de conversion et 444 clés de traduction vérifiées.
           files: |
             releases/*.deb
             releases/*.exe
             releases/*.zip
+            releases/*.tar.gz
             releases/SHA256SUMS.txt
           draft: false
           prerelease: false

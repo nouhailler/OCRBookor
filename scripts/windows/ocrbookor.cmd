@@ -1,6 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
-title OCRBookor Desktop v1.3.0
+title OCRBookor Desktop v1.4.0
 
 :: Define root directory where OCRBookor is installed
 set "APP_DIR=%~dp0"
@@ -15,7 +15,7 @@ set "PORT=3000"
 set "OCRBOOKOR_APP_ROOT=%APP_DIR%"
 
 echo =================================================================
-echo   Demarrage d'OCRBookor v1.3.0 Desktop pour Windows
+echo   Demarrage d'OCRBookor v1.4.0 Desktop pour Windows
 echo   URL locale : http://localhost:3000
 echo   Dossier de donnees : %OCRBOOKOR_DATA_DIR%
 echo =================================================================

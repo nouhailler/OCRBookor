@@ -9,7 +9,7 @@ ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 cd "$ROOT_DIR"
 
 APP_NAME="ocrbookor"
-VERSION="1.3.0"
+VERSION="1.4.0"
 ARCH="amd64"
 DEB_PACKAGE_NAME="${APP_NAME}_${VERSION}_${ARCH}"
 BUILD_ROOT="/tmp/build-${APP_NAME}-deb"

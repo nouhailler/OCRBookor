@@ -1,36 +1,43 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # OCRBookor - Publication automatique d'une Release Multi-Plateforme sur GitHub
+# Version: 1.4.0 (Linux, Windows & macOS)
 # ==============================================================================
 set -euo pipefail
 
 REPO_OWNER="nouhailler"
 REPO_NAME="OCRBookor"
-TAG_NAME="v1.3.0"
-RELEASE_TITLE="OCRBookor v1.3.0 — Release Multi-Plateforme (Linux & Windows) & PWA"
+TAG_NAME="v1.4.0"
+RELEASE_TITLE="OCRBookor v1.4.0 — Release Tri-Plateforme (Linux, Windows & macOS) & PWA"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 RELEASES_DIR="$ROOT_DIR/releases"
 
 echo "================================================================="
-echo "  OCRBookor - Publication GitHub Release v1.3.0 (Linux & Windows)"
+echo "  OCRBookor - Publication GitHub Release v1.4.0"
+echo "  Plateformes : Linux (deb), Windows (exe/zip), macOS (zip/tar)"
 echo "================================================================="
 
 # 1. Vérification / Fabrication des binaires locaux
-if [ ! -f "$RELEASES_DIR/ocrbookor_1.3.0_amd64.deb" ]; then
+if [ ! -f "$RELEASES_DIR/ocrbookor_1.4.0_amd64.deb" ]; then
   echo "→ Fabrication du paquet Debian (.deb)..."
   bash "$ROOT_DIR/scripts/build-deb.sh"
 fi
 
-if [ ! -f "$RELEASES_DIR/ocrbookor_1.3.0_win_x64.zip" ]; then
+if [ ! -f "$RELEASES_DIR/ocrbookor_1.4.0_win_x64.zip" ]; then
   echo "→ Fabrication de l'archive portable Windows (.zip)..."
   node "$ROOT_DIR/scripts/build-windows.mjs"
 fi
 
+if [ ! -f "$RELEASES_DIR/ocrbookor_1.4.0_macos_universal.zip" ]; then
+  echo "→ Fabrication du paquet macOS Universal..."
+  node "$ROOT_DIR/scripts/build-macos.mjs"
+fi
+
 # Recalcul de SHA256SUMS.txt
 cd "$RELEASES_DIR"
-sha256sum *.* > SHA256SUMS.txt 2>/dev/null || true
+sha256sum ocrbookor_1.4.0*.deb ocrbookor_1.4.0*.zip ocrbookor_1.4.0*.tar.gz 2>/dev/null > SHA256SUMS.txt || true
 cd "$ROOT_DIR"
 
 # 2. Récupération du jeton GitHub
@@ -57,7 +64,7 @@ fi
 echo "→ Vérification / Création de la release $TAG_NAME sur GitHub ($REPO_OWNER/$REPO_NAME)..."
 
 RELEASE_NOTES=$(cat << 'EOF'
-## 🚀 OCRBookor v1.3.0 — Release Multi-Plateforme (Linux & Windows) & PWA
+## 🚀 OCRBookor v1.4.0 — Release Tri-Plateforme (Linux, Windows & macOS) & PWA
 
 Application locale et souveraine de numérisation, reconnaissance OCR et reconstruction éditoriale de livres imprimés vers EPUB 3, Markdown, TXT et HTML.
 
@@ -67,14 +74,21 @@ Application locale et souveraine de numérisation, reconnaissance OCR et reconst
 
 | Plateforme | Type | Fichier | Description |
 | :--- | :--- | :--- | :--- |
-| **Windows (x64)** | 🪟 **Installateur .exe** | **`ocrbookor_1.3.0_setup_x64.exe`** | Assistant d'installation officiel avec raccourci Bureau et menu Démarrer. |
-| **Windows (x64)** | 📦 **Archive Portable .zip** | **`ocrbookor_1.3.0_win_x64.zip`** | Version autonome zéro-installation avec lanceur `ocrbookor.cmd`. |
-| **Linux (amd64)** | 🐧 **Paquet natif .deb** | **`ocrbookor_1.3.0_amd64.deb`** | Pour Debian 12/13, Ubuntu 22.04/24.04 LTS et dérivés. |
+| **macOS (Universal)** | 🍎 **Archive Finder macOS** | **`ocrbookor_1.4.0_macos_universal.zip`** | Version autonome pour Apple Silicon (M1/M2/M3/M4) et Intel avec lanceur `ocrbookor.command`. |
+| **macOS (Universal)** | 🍏 **Archive Tarball** | **`ocrbookor_1.4.0_macos_universal.tar.gz`** | Archive Unix préservant les droits d'exécution `chmod 755`. |
+| **Windows (x64)** | 🪟 **Installateur .exe** | **`ocrbookor_1.4.0_setup_x64.exe`** | Assistant d'installation officiel Inno Setup avec raccourci Bureau et menu Démarrer. |
+| **Windows (x64)** | 📦 **Archive Portable .zip** | **`ocrbookor_1.4.0_win_x64.zip`** | Version autonome zéro-installation avec lanceur `ocrbookor.cmd`. |
+| **Linux (amd64)** | 🐧 **Paquet natif .deb** | **`ocrbookor_1.4.0_amd64.deb`** | Pour Debian 12/13, Ubuntu 22.04/24.04 LTS et dérivés. |
 | **Vérification** | 🔒 **Checksums SHA256** | **`SHA256SUMS.txt`** | Empreintes cryptographiques d'intégrité binaire. |
 
 ---
 
-### ⚡ Installation Express
+### ⚡ Installation Express en 1 Ligne
+
+#### 🍎 macOS Desktop (Terminal en 1 ligne)
+```bash
+curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/scripts/macos/install-macos.sh | bash
+```
 
 #### 🪟 Windows Desktop (PowerShell en 1 ligne)
 ```powershell
@@ -88,29 +102,21 @@ curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh
 
 ---
 
-### 🔧 Installation Manuelle
-
-#### Sous Windows :
-1. Téléchargez `ocrbookor_1.3.0_setup_x64.exe` et lancez l'assistant d'installation.
-2. Ou décompressez `ocrbookor_1.3.0_win_x64.zip` et double-cliquez sur `ocrbookor.cmd`.
-3. L'application s'ouvre automatiquement sur `http://localhost:3000`.
-
-#### Sous Linux :
-```bash
-sudo dpkg -i ocrbookor_1.3.0_amd64.deb
-sudo apt-get install -f
-ocrbookor
-```
+### 🔧 Démarrage Rapide sous macOS
+1. Téléchargez **`ocrbookor_1.4.0_macos_universal.zip`**.
+2. Double-cliquez pour décompresser l'archive dans vos Téléchargements ou Applications.
+3. Double-cliquez sur **`ocrbookor.command`** dans le Finder.
+4. Votre navigateur par défaut s'ouvre automatiquement sur `http://localhost:3000`.
 
 ---
 
-### 🌟 Nouveautés de la Version v1.3.0
-- 🪟 **Support Natif Windows (x64) :** Installateur exécutable `.exe` Inno Setup, archive portable `.zip`, script d'installation PowerShell et détection automatique des interpréteurs Python sous Windows.
+### 🌟 Nouveautés de la Version v1.4.0
+- 🍎 **Support Natif macOS (Apple Silicon & Intel) :** Lanceur natif double-clic `ocrbookor.command`, script d'installation en 1 ligne pour macOS, gestion du dossier standard `~/Library/Application Support/OCRBookor` et détection des interpréteurs Python Homebrew (`/opt/homebrew/bin/python3` et `/usr/local/bin/python3`).
+- 🛡️ **Gestion Conditionnelle des Dépendances Natives :** Éradication du bug npm #4828 via le hook `install-platform-deps.mjs`.
+- 🪟 **Support Natif Windows (x64) :** Installateur exécutable `.exe` Inno Setup, archive portable `.zip`, script d'installation PowerShell.
 - 🌐 **Internationalisation Complète (i18n) :** Interface bilingue intégrale en français et anglais avec sélecteur instantané `FR / EN`.
 - 📱 **Landing Page PWA Bilingue :** Version autonome (`/en`) sur Cloudflare Pages avec mise en cache hors-ligne.
-- 🚀 **Déploiement Simplifié :** Scripts d'installation automatique curl (Linux) et irm (Windows).
-- 📚 **Documentation Complète Bilingue :** `README.md`, `README.en.md`, guides d'installation et spécifications.
-- 🧪 **Suite de Tests et Validation :** Parité 100% sur les clés de traduction et 20/20 tests backend passés.
+- 🧪 **Suite de Tests et Validation :** Tests E2E de conversion et 444 clés de traduction vérifiées.
 EOF
 )
 
@@ -197,6 +203,7 @@ if isinstance(assets, list):
   case "$file_name" in
     *.deb) content_type="application/vnd.debian.binary-package" ;;
     *.zip) content_type="application/zip" ;;
+    *.tar.gz) content_type="application/gzip" ;;
     *.exe) content_type="application/vnd.microsoft.portable-executable" ;;
     *.txt) content_type="text/plain" ;;
   esac
@@ -212,16 +219,18 @@ if isinstance(assets, list):
 }
 
 echo "→ Téléversement des fichiers de release..."
-upload_file "$RELEASES_DIR/ocrbookor_1.3.0_amd64.deb"
-upload_file "$RELEASES_DIR/ocrbookor_1.3.0_win_x64.zip"
+upload_file "$RELEASES_DIR/ocrbookor_1.4.0_amd64.deb"
+upload_file "$RELEASES_DIR/ocrbookor_1.4.0_win_x64.zip"
+upload_file "$RELEASES_DIR/ocrbookor_1.4.0_macos_universal.zip"
+upload_file "$RELEASES_DIR/ocrbookor_1.4.0_macos_universal.tar.gz"
 upload_file "$RELEASES_DIR/SHA256SUMS.txt"
-if [ -f "$RELEASES_DIR/ocrbookor_1.3.0_setup_x64.exe" ]; then
-  upload_file "$RELEASES_DIR/ocrbookor_1.3.0_setup_x64.exe"
+if [ -f "$RELEASES_DIR/ocrbookor_1.4.0_setup_x64.exe" ]; then
+  upload_file "$RELEASES_DIR/ocrbookor_1.4.0_setup_x64.exe"
 fi
 
 echo ""
 echo "================================================================="
-echo "  ✓ SUCCÈS ! Release v1.3.0 publiée sur GitHub"
+echo "  ✓ SUCCÈS ! Release v1.4.0 publiée sur GitHub"
 echo "================================================================="
 echo "Lien de la release : https://github.com/$REPO_OWNER/$REPO_NAME/releases/tag/$TAG_NAME"
 echo "================================================================="

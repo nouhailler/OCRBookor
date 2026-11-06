@@ -1,10 +1,10 @@
 ; ==============================================================================
 ; OCRBookor - Script Inno Setup pour Installateur Windows (.exe)
-; Version: 1.3.0 (x64)
+; Version: 1.4.0 (x64)
 ; ==============================================================================
 
 #define MyAppName "OCRBookor"
-#define MyAppVersion "1.3.0"
+#define MyAppVersion "1.4.0"
 #define MyAppPublisher "Patrick Nouhailler"
 #define MyAppURL "https://github.com/nouhailler/OCRBookor"
 #define MyAppExeName "ocrbookor.cmd"
@@ -39,8 +39,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 
 [Files]
-; Fichiers de l'application préparés dans le dossier releases\ocrbookor_1.3.0_win_x64
-Source: "..\..\releases\ocrbookor_1.3.0_win_x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+; Fichiers de l'application préparés dans le dossier releases\ocrbookor_{#MyAppVersion}_win_x64
+Source: "..\..\releases\ocrbookor_{#MyAppVersion}_win_x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"

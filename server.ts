@@ -34,6 +34,9 @@ function resolveDataDir(): string {
     return path.join(base, 'OCRBookor');
   }
   const home = process.env.HOME || process.env.USERPROFILE || '.';
+  if (process.platform === 'darwin') {
+    return path.join(home, 'Library', 'Application Support', 'OCRBookor');
+  }
   return path.join(home, '.local', 'share', 'ocrbookor');
 }
 
@@ -130,8 +133,15 @@ function resolvePythonCommand(): PythonCommand {
   } else {
     candidates.push({ bin: 'python3', prefixArgs: [] });
     candidates.push({ bin: 'python', prefixArgs: [] });
-    candidates.push({ bin: '/usr/bin/python3', prefixArgs: [] });
+    // macOS Apple Silicon (M1/M2/M3/M4) Homebrew
+    candidates.push({ bin: '/opt/homebrew/bin/python3', prefixArgs: [] });
+    // macOS Intel Homebrew & Linux local
     candidates.push({ bin: '/usr/local/bin/python3', prefixArgs: [] });
+    // Standard system path
+    candidates.push({ bin: '/usr/bin/python3', prefixArgs: [] });
+    // Pyenv
+    const home = process.env.HOME || '.';
+    candidates.push({ bin: path.join(home, '.pyenv', 'shims', 'python3'), prefixArgs: [] });
   }
 
   // Probe candidates with a quick --version check
@@ -401,7 +411,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[OCRBookor Server] Running on http://0.0.0.0:${PORT} (mode: ${isProduction ? 'prod' : 'dev'})`);
+    console.log(`[OCRBookor Server v1.4.0] Running on http://0.0.0.0:${PORT} (platform: ${process.platform}, mode: ${isProduction ? 'prod' : 'dev'})`);
   });
 }
 

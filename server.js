@@ -27537,6 +27537,9 @@ function resolveDataDir() {
     return path.join(base, "OCRBookor");
   }
   const home = process.env.HOME || process.env.USERPROFILE || ".";
+  if (process.platform === "darwin") {
+    return path.join(home, "Library", "Application Support", "OCRBookor");
+  }
   return path.join(home, ".local", "share", "ocrbookor");
 }
 var DATA_DIR = resolveDataDir();
@@ -27607,8 +27610,11 @@ function resolvePythonCommand() {
   } else {
     candidates.push({ bin: "python3", prefixArgs: [] });
     candidates.push({ bin: "python", prefixArgs: [] });
-    candidates.push({ bin: "/usr/bin/python3", prefixArgs: [] });
+    candidates.push({ bin: "/opt/homebrew/bin/python3", prefixArgs: [] });
     candidates.push({ bin: "/usr/local/bin/python3", prefixArgs: [] });
+    candidates.push({ bin: "/usr/bin/python3", prefixArgs: [] });
+    const home = process.env.HOME || ".";
+    candidates.push({ bin: path.join(home, ".pyenv", "shims", "python3"), prefixArgs: [] });
   }
   for (const candidate of candidates) {
     try {
@@ -27826,7 +27832,7 @@ async function startServer() {
     });
   }
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`[OCRBookor Server] Running on http://0.0.0.0:${PORT} (mode: ${isProduction ? "prod" : "dev"})`);
+    console.log(`[OCRBookor Server v1.4.0] Running on http://0.0.0.0:${PORT} (platform: ${process.platform}, mode: ${isProduction ? "prod" : "dev"})`);
   });
 }
 startServer().catch((err) => {

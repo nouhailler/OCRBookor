@@ -1,4 +1,4 @@
-# OCRBookor v1.3.0
+# OCRBookor v1.4.0
 
 <div align="center">
 
@@ -8,9 +8,9 @@
 
 🌐 **[Version française](README.md)** | **English Version**
 
-[![Version](https://img.shields.io/badge/version-1.3.0-indigo.svg)](https://github.com/nouhailler/OCRBookor)
+[![Version](https://img.shields.io/badge/version-1.4.0-indigo.svg)](https://github.com/nouhailler/OCRBookor)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Debian%2013%20%7C%20Linux%20Desktop%20%7C%20Web-success.svg)](https://github.com/nouhailler/OCRBookor)
+[![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20macOS-success.svg)](https://github.com/nouhailler/OCRBookor)
 [![Offline](https://img.shields.io/badge/privacy-100%25%20Offline-emerald.svg)](README.en.md)
 [![EPUB 3](https://img.shields.io/badge/EPUB-IDPF%20EPUB%203.3%20Strict-purple.svg)](README.en.md)
 
@@ -61,16 +61,35 @@ irm https://raw.githubusercontent.com/nouhailler/OCRBookor/main/scripts/windows/
 *Automatically downloads the package, installs required Python packages, and creates an `OCRBookor` Desktop shortcut.*
 
 #### 2. Inno Setup Official Installer (.exe)
-1. Download **`ocrbookor_1.3.0_setup_x64.exe`** from [GitHub Releases](https://github.com/nouhailler/OCRBookor/releases).
+1. Download **`ocrbookor_1.4.0_setup_x64.exe`** from [GitHub Releases](https://github.com/nouhailler/OCRBookor/releases).
 2. Run the installer wizard (desktop icon, Start menu shortcut, clean uninstaller).
 3. The app automatically starts and opens at `http://localhost:3000`.
 
 #### 3. Portable Zero-Install Archive (.zip)
-1. Download **`ocrbookor_1.3.0_win_x64.zip`** and extract it anywhere.
+1. Download **`ocrbookor_1.4.0_win_x64.zip`** and extract it anywhere.
 2. (First run) Double-click `install-dependencies.cmd` to install Python modules.
 3. Double-click `ocrbookor.cmd` to launch the server and browser.
 
 *Prerequisites: [Node.js (18+)](https://nodejs.org) and [Python (3.10+)](https://www.python.org) with "Add python.exe to PATH" checked.*
+
+---
+
+### 🍎 macOS Desktop (Apple Silicon M1/M2/M3/M4 & Intel)
+
+#### 1. Express 1-Line Terminal Setup
+Open Terminal and run:
+```bash
+curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/scripts/macos/install-macos.sh | bash
+```
+
+#### 2. Manual Portable Setup (.zip / .tar.gz)
+1. Download **`ocrbookor_1.4.0_macos_universal.zip`** from [GitHub Releases](https://github.com/nouhailler/OCRBookor/releases).
+2. Unzip into your `Applications` or `Downloads` folder.
+3. (First run) Run `./install-dependencies.sh` to configure Python OCR packages.
+4. Double-click **`ocrbookor.command`** in Finder to launch OCRBookor.
+5. Your default browser automatically opens `http://localhost:3000`.
+
+*Prerequisites: Node.js (`brew install node`) and Python 3 (`brew install python`). For offline OCR: `brew install tesseract`.*
 
 ---
 
@@ -83,8 +102,8 @@ curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/install.sh
 
 #### 2. Manual Debian Package (.deb)
 ```bash
-wget https://github.com/nouhailler/OCRBookor/raw/main/releases/ocrbookor_1.3.0_amd64.deb
-sudo dpkg -i ocrbookor_1.3.0_amd64.deb
+wget https://github.com/nouhailler/OCRBookor/raw/main/releases/ocrbookor_1.4.0_amd64.deb
+sudo dpkg -i ocrbookor_1.4.0_amd64.deb
 sudo apt-get install -f
 ocrbookor
 ```
