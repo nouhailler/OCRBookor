@@ -91,7 +91,7 @@
           <span class="font-editorial text-lg font-bold tracking-tight text-stone-950 dark:text-white flex items-center gap-1.5">
             OCRBookor
             <span class="text-[10px] font-sans font-semibold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
-              v1.3.0
+              v1.4.0
             </span>
           </span>
           <span class="text-[10px] text-stone-600 dark:text-stone-300 -mt-0.5 font-medium tracking-wide">
@@ -138,8 +138,8 @@
           <svg id="theme-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
         </button>
 
-        <a href="https://github.com/nouhailler/OCRBookor/releases" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-950 hover:bg-stone-800 dark:hover:bg-white transition">
-          Download .deb
+        <a href="#download" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-950 hover:bg-stone-800 dark:hover:bg-white transition">
+          Download v1.4.0
         </a>
       </div>
 
@@ -164,7 +164,7 @@
                 IDPF EPUB 3.3 Strict
               </span>
               <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-stone-200/80 text-stone-700 dark:bg-stone-800 dark:text-stone-300">
-                Linux Desktop (.deb) &amp; Web
+                macOS • Windows • Linux
               </span>
             </div>
 
@@ -177,9 +177,9 @@
             </p>
 
             <div class="pt-2 flex flex-wrap items-center gap-3 sm:gap-4">
-              <a href="https://github.com/nouhailler/OCRBookor/releases" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold bg-amber-700 text-white hover:bg-amber-800 shadow-md transition-all">
+              <a href="#download" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold bg-amber-700 text-white hover:bg-amber-800 shadow-md transition-all">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                Download OCRBookor (v1.3.0)
+                Download OCRBookor (v1.4.0)
               </a>
 
               <a href="#pipeline" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-medium border border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800/60 transition">
@@ -194,11 +194,11 @@
             <div class="pt-4 border-t border-stone-200/80 dark:border-stone-800/80 grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
               <div>
                 <span class="block text-stone-600 dark:text-stone-300 font-medium">Stable Version</span>
-                <span class="font-semibold text-stone-800 dark:text-stone-200">v1.3.0 (Nov. 5, 2026)</span>
+                <span class="font-semibold text-stone-800 dark:text-stone-200">v1.4.0 (Nov. 7, 2026)</span>
               </div>
               <div>
-                <span class="block text-stone-600 dark:text-stone-300 font-medium">Linux Package</span>
-                <span class="font-semibold text-stone-800 dark:text-stone-200">Debian / Ubuntu (.deb)</span>
+                <span class="block text-stone-600 dark:text-stone-300 font-medium">Cross-Platform</span>
+                <span class="font-semibold text-stone-800 dark:text-stone-200">macOS • Windows • Linux</span>
               </div>
               <div>
                 <span class="block text-stone-600 dark:text-stone-300 font-medium">License</span>
@@ -435,7 +435,7 @@
           </p>
         </div>
 
-        <!-- Recommended Express Method: 1-line via PowerShell (Windows) or curl (Linux) -->
+        <!-- Recommended Express Method: 1-line via macOS, Windows, or Linux -->
         <div class="mb-8 p-6 rounded-2xl bg-linear-to-br from-amber-900/10 via-amber-800/5 to-transparent border-2 border-amber-600/80 dark:border-amber-500 shadow-md">
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3">
             <div class="flex items-center gap-2">
@@ -447,12 +447,20 @@
               </span>
             </div>
             <!-- OS Selector -->
-            <div class="flex items-center bg-stone-200 dark:bg-stone-800 p-1 rounded-lg text-xs">
+            <div class="flex flex-wrap items-center bg-stone-200 dark:bg-stone-800 p-1 rounded-lg text-xs gap-1">
+              <button
+                id="tab-btn-mac"
+                type="button"
+                onclick="switchInstallTab('mac')"
+                class="px-3 py-1 rounded-md font-bold bg-white dark:bg-stone-700 text-amber-700 dark:text-amber-400 shadow-xs transition"
+              >
+                🍎 macOS (Terminal)
+              </button>
               <button
                 id="tab-btn-win"
                 type="button"
                 onclick="switchInstallTab('win')"
-                class="px-3 py-1 rounded-md font-bold bg-white dark:bg-stone-700 text-amber-700 dark:text-amber-400 shadow-xs transition"
+                class="px-3 py-1 rounded-md font-medium text-stone-600 dark:text-stone-400 hover:text-stone-900 transition"
               >
                 🪟 Windows (PowerShell)
               </button>
@@ -467,8 +475,29 @@
             </div>
           </div>
 
+          <!-- macOS curl Command -->
+          <div id="install-mac-box">
+            <p class="text-xs text-stone-600 dark:text-stone-400 mb-3">
+              Open <strong>Terminal</strong> on your Mac (Apple Silicon M1/M2/M3/M4 &amp; Intel) and paste this command to install the app and create a Desktop shortcut:
+            </p>
+
+            <div class="relative flex items-center bg-stone-950 text-stone-100 p-3.5 rounded-xl font-mono text-xs overflow-x-auto border border-stone-800">
+              <span class="select-none text-emerald-400 mr-2 font-bold">$</span>
+              <code id="mac-cmd" class="text-emerald-300 flex-1 whitespace-nowrap">curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/scripts/macos/install-macos.sh | bash</code>
+              <button
+                id="copy-mac-btn"
+                onclick="copyMacCommand()"
+                class="ml-3 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-stone-800 hover:bg-stone-700 text-white transition shrink-0 flex items-center gap-1 border border-stone-700"
+                title="Copy macOS command"
+              >
+                <svg class="w-3.5 h-3.5 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <span id="copy-mac-text">Copy</span>
+              </button>
+            </div>
+          </div>
+
           <!-- Windows PowerShell Command -->
-          <div id="install-win-box">
+          <div id="install-win-box" class="hidden">
             <p class="text-xs text-stone-600 dark:text-stone-400 mb-3">
               Open <strong>PowerShell</strong> and paste this command to automatically download OCRBookor, install Python dependencies, and set up a Desktop shortcut:
             </p>
@@ -509,75 +538,98 @@
             </div>
           </div>
 
-          <div class="mt-3 flex items-center gap-4 text-[11px] text-stone-500 dark:text-stone-400">
+          <div class="mt-3 flex flex-wrap items-center gap-4 text-[11px] text-stone-500 dark:text-stone-400">
             <span>✓ No manual download required</span>
             <span>✓ Automatic package resolution</span>
             <span>✓ 100% Autonomous local processing</span>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          <!-- macOS Card -->
+          <div class="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-3 flex flex-col justify-between">
+            <div class="space-y-2.5">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-bold text-emerald-700 dark:text-emerald-400">macOS (Universal)</span>
+                <span class="font-mono text-stone-500">v1.4.0 • 3.5 MB</span>
+              </div>
+              <h3 class="font-editorial text-base font-bold">Apple Silicon &amp; Intel</h3>
+              <p class="text-xs text-stone-600 dark:text-stone-400">Standalone archive with clickable <code>ocrbookor.command</code> Finder launcher.</p>
+              <div class="p-2.5 bg-stone-900 text-stone-200 rounded font-mono text-[11px] space-y-0.5">
+                <div>./ocrbookor.command</div>
+              </div>
+            </div>
+            <div class="pt-2 flex flex-wrap gap-1.5">
+              <a href="/releases/ocrbookor_1.4.0_macos_universal.zip" download="ocrbookor_1.4.0_macos_universal.zip" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-700 text-white hover:bg-emerald-800 transition">
+                Archive (.zip)
+              </a>
+              <a href="/releases/ocrbookor_1.4.0_macos_universal.tar.gz" download="ocrbookor_1.4.0_macos_universal.tar.gz" class="px-2.5 py-1.5 rounded-lg text-xs border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-100 transition">
+                Tarball (.tar.gz)
+              </a>
+            </div>
+          </div>
+
           <!-- Windows Card -->
-          <div class="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-3 flex flex-col justify-between">
-            <div class="space-y-3">
+          <div class="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-3 flex flex-col justify-between">
+            <div class="space-y-2.5">
               <div class="flex justify-between items-center text-xs">
                 <span class="font-bold text-sky-700 dark:text-sky-400">Windows 10 / 11 (x64)</span>
-                <span class="font-mono text-stone-500">v1.3.0</span>
+                <span class="font-mono text-stone-500">v1.4.0 • 3.5 MB</span>
               </div>
-              <h3 class="font-editorial text-lg font-bold">Installer .exe &amp; Portable .zip</h3>
-              <p class="text-xs text-stone-600 dark:text-stone-400">Setup wizard with Desktop shortcut and uninstaller, or zero-install portable archive.</p>
+              <h3 class="font-editorial text-base font-bold">Installer &amp; Portable</h3>
+              <p class="text-xs text-stone-600 dark:text-stone-400">Setup wizard with Desktop shortcut, or zero-install portable archive.</p>
               <div class="p-2.5 bg-stone-900 text-stone-200 rounded font-mono text-[11px] space-y-0.5">
                 <div>ocrbookor.cmd</div>
               </div>
             </div>
-            <div class="pt-2 flex flex-wrap gap-2">
-              <a href="https://github.com/nouhailler/OCRBookor/releases" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-lg text-xs font-bold bg-sky-700 text-white hover:bg-sky-800 transition">
+            <div class="pt-2 flex flex-wrap gap-1.5">
+              <a href="https://github.com/nouhailler/OCRBookor/releases" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-700 text-white hover:bg-sky-800 transition">
                 Installer .exe
               </a>
-              <a href="/releases/ocrbookor_1.3.0_win_x64.zip" download="ocrbookor_1.3.0_win_x64.zip" class="px-3 py-2 rounded-lg text-xs border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-100 transition">
+              <a href="/releases/ocrbookor_1.4.0_win_x64.zip" download="ocrbookor_1.4.0_win_x64.zip" class="px-2.5 py-1.5 rounded-lg text-xs border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-100 transition">
                 Portable (.zip)
               </a>
             </div>
           </div>
 
           <!-- Linux Debian Card -->
-          <div class="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-3 flex flex-col justify-between">
-            <div class="space-y-3">
+          <div class="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-3 flex flex-col justify-between">
+            <div class="space-y-2.5">
               <div class="flex justify-between items-center text-xs">
                 <span class="font-bold text-amber-700">Debian / Ubuntu amd64</span>
-                <span class="font-mono text-stone-500">v1.3.0 • 2.1 MB</span>
+                <span class="font-mono text-stone-500">v1.4.0 • 2.4 MB</span>
               </div>
-              <h3 class="font-editorial text-lg font-bold">Standalone Debian Package</h3>
-              <p class="text-xs text-stone-600 dark:text-stone-400">For offline installation or local binary package archiving on Debian 12/13 and Ubuntu.</p>
+              <h3 class="font-editorial text-base font-bold">Debian Package (.deb)</h3>
+              <p class="text-xs text-stone-600 dark:text-stone-400">Clean system integration with <code>/usr/bin/ocrbookor</code> binary and menu shortcut.</p>
               <div class="p-2.5 bg-stone-900 text-stone-200 rounded font-mono text-[11px] space-y-0.5">
-                <div>sudo dpkg -i ocrbookor_1.3.0_amd64.deb</div>
+                <div>sudo dpkg -i ocrbookor_1.4.0_amd64.deb</div>
               </div>
             </div>
-            <div class="pt-2 flex flex-wrap gap-2">
-              <a href="/releases/ocrbookor_1.3.0_amd64.deb" download="ocrbookor_1.3.0_amd64.deb" class="px-3.5 py-2 rounded-lg text-xs font-bold bg-amber-700 text-white hover:bg-amber-800 transition">
+            <div class="pt-2 flex flex-wrap gap-1.5">
+              <a href="/releases/ocrbookor_1.4.0_amd64.deb" download="ocrbookor_1.4.0_amd64.deb" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-700 text-white hover:bg-amber-800 transition">
                 Download .deb
               </a>
-              <a href="https://github.com/nouhailler/OCRBookor/releases" target="_blank" rel="noopener noreferrer" class="px-3 py-2 rounded-lg text-xs border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-100 transition">
-                Releases
+              <a href="https://github.com/nouhailler/OCRBookor/releases" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-lg text-xs border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-100 transition">
+                Releases ↗
               </a>
             </div>
           </div>
 
           <!-- GitHub / Web Card -->
-          <div class="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-3 flex flex-col justify-between">
-            <div class="space-y-3">
+          <div class="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-3 flex flex-col justify-between">
+            <div class="space-y-2.5">
               <div class="flex justify-between items-center text-xs">
                 <span class="font-bold text-stone-700 dark:text-stone-300">Open Source Code</span>
                 <span class="font-mono text-stone-500">Apache 2.0</span>
               </div>
-              <h3 class="font-editorial text-lg font-bold">GitHub Repository &amp; Node.js</h3>
-              <p class="text-xs text-stone-600 dark:text-stone-400">Clone the repository to run the local server or test the Web app.</p>
+              <h3 class="font-editorial text-base font-bold">GitHub Repository</h3>
+              <p class="text-xs text-stone-600 dark:text-stone-400">Clone the repository to run the local development server or contribute.</p>
               <div class="p-2.5 bg-stone-900 text-stone-200 rounded font-mono text-[11px] space-y-0.5">
                 <div>git clone https://github.com/nouhailler/OCRBookor.git</div>
               </div>
             </div>
             <div class="pt-2">
-              <a href="https://github.com/nouhailler/OCRBookor" target="_blank" rel="noopener noreferrer" class="px-4 py-2 rounded-lg text-xs font-bold border border-stone-900 dark:border-white text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition">
+              <a href="https://github.com/nouhailler/OCRBookor" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-lg text-xs font-bold border border-stone-900 dark:border-white text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition inline-block">
                 Explore on GitHub ↗
               </a>
             </div>
@@ -588,14 +640,14 @@
     </section>
 
     <!-- ==================================================================== -->
-    <!-- SECTION 7 — FAQ -->
+    <!-- SECTION 10 — FAQ -->
     <!-- ==================================================================== -->
     <section id="faq" class="py-16 border-b border-stone-200/60 dark:border-stone-800/60">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         
         <div class="text-center max-w-2xl mx-auto space-y-2 mb-8">
           <span class="text-xs font-editorial font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">Frequently Asked Questions</span>
-          <h2 class="font-editorial text-2xl sm:text-3xl font-bold">Frequently Asked Questions</h2>
+          <h2 class="font-editorial text-2xl sm:text-3xl font-bold">Frequently asked questions</h2>
         </div>
 
         <div class="space-y-3 text-xs sm:text-sm">
@@ -611,7 +663,7 @@
 
           <details class="p-4 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800">
             <summary class="font-editorial font-bold cursor-pointer text-stone-900 dark:text-stone-100">Does the software read handwriting?</summary>
-            <p class="mt-2 text-stone-600 dark:text-stone-400 leading-relaxed">No, OCRBookor v1.3.0 is designed for movable-type lead-set and contemporary printed books.</p>
+            <p class="mt-2 text-stone-600 dark:text-stone-400 leading-relaxed">No, OCRBookor v1.4.0 is optimized for movable-type lead-set and contemporary printed books.</p>
           </details>
 
           <details class="p-4 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800">
@@ -631,7 +683,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <span class="font-editorial text-base font-bold text-white block">OCRBookor v1.3.0</span>
+          <span class="font-editorial text-base font-bold text-white block">OCRBookor v1.4.0</span>
           <p class="text-stone-400 mt-1 max-w-md">Book digitization, OCR recognition, and reconstruction suite targeting EPUB 3.</p>
         </div>
         <div class="flex gap-4">
@@ -693,28 +745,55 @@
       document.documentElement.classList.add('dark');
     }
 
-    // Installation Tabs (Windows / Linux)
+    // Installation Tabs (macOS / Windows / Linux)
     function switchInstallTab(plat) {
+      const macBox = document.getElementById('install-mac-box');
       const winBox = document.getElementById('install-win-box');
       const linuxBox = document.getElementById('install-linux-box');
+
+      const btnMac = document.getElementById('tab-btn-mac');
       const btnWin = document.getElementById('tab-btn-win');
       const btnLinux = document.getElementById('tab-btn-linux');
 
-      if (plat === 'win') {
+      // Reset boxes
+      macBox?.classList.add('hidden');
+      winBox?.classList.add('hidden');
+      linuxBox?.classList.add('hidden');
+
+      // Reset buttons
+      [btnMac, btnWin, btnLinux].forEach(btn => {
+        btn?.classList.remove('bg-white', 'dark:bg-stone-700', 'text-amber-700', 'dark:text-amber-400', 'font-bold', 'shadow-xs');
+        btn?.classList.add('text-stone-600', 'dark:text-stone-400', 'font-medium');
+      });
+
+      if (plat === 'mac') {
+        macBox?.classList.remove('hidden');
+        btnMac?.classList.add('bg-white', 'dark:bg-stone-700', 'text-amber-700', 'dark:text-amber-400', 'font-bold', 'shadow-xs');
+        btnMac?.classList.remove('text-stone-600', 'dark:text-stone-400', 'font-medium');
+      } else if (plat === 'win') {
         winBox?.classList.remove('hidden');
-        linuxBox?.classList.add('hidden');
         btnWin?.classList.add('bg-white', 'dark:bg-stone-700', 'text-amber-700', 'dark:text-amber-400', 'font-bold', 'shadow-xs');
         btnWin?.classList.remove('text-stone-600', 'dark:text-stone-400', 'font-medium');
-        btnLinux?.classList.remove('bg-white', 'dark:bg-stone-700', 'text-amber-700', 'dark:text-amber-400', 'font-bold', 'shadow-xs');
-        btnLinux?.classList.add('text-stone-600', 'dark:text-stone-400', 'font-medium');
       } else {
         linuxBox?.classList.remove('hidden');
-        winBox?.classList.add('hidden');
         btnLinux?.classList.add('bg-white', 'dark:bg-stone-700', 'text-amber-700', 'dark:text-amber-400', 'font-bold', 'shadow-xs');
         btnLinux?.classList.remove('text-stone-600', 'dark:text-stone-400', 'font-medium');
-        btnWin?.classList.remove('bg-white', 'dark:bg-stone-700', 'text-amber-700', 'dark:text-amber-400', 'font-bold', 'shadow-xs');
-        btnWin?.classList.add('text-stone-600', 'dark:text-stone-400', 'font-medium');
       }
+    }
+
+    // Copy macOS command
+    function copyMacCommand() {
+      const cmd = document.getElementById('mac-cmd')?.innerText || 'curl -sSL https://raw.githubusercontent.com/nouhailler/OCRBookor/main/scripts/macos/install-macos.sh | bash';
+      navigator.clipboard.writeText(cmd).then(() => {
+        const textSpan = document.getElementById('copy-mac-text');
+        const btn = document.getElementById('copy-mac-btn');
+        if (textSpan) textSpan.innerText = 'Copied!';
+        if (btn) btn.classList.add('bg-emerald-700', 'text-white');
+        setTimeout(() => {
+          if (textSpan) textSpan.innerText = 'Copy';
+          if (btn) btn.classList.remove('bg-emerald-700', 'text-white');
+        }, 2000);
+      });
     }
 
     // Copy PowerShell command (Windows)
